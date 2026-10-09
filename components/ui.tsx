@@ -106,25 +106,70 @@ export function Dots() {
 }
 
 /* ---------- code & prompt ---------- */
+// 명령어 속 빈칸(<내 아이디>, <ref>). 그 자리에서 바로 적고, 한 번 적으면 사이트의 모든 명령어에 같이 들어간다.
+// 복사할 때도 적은 값으로 바뀐다. 브라우저에 저장해서 새로고침해도 남는다
+const FILLS: Record<string, { key: string; hint: string; desc: string }> = {
+  "<내 아이디>": { key: "gh-id", hint: "GitHub 아이디", desc: "내 프로필 주소 github.com/ 바로 뒤 부분 (예: github.com/next-kim 이면 next-kim)" },
+  "<ref>": { key: "sb-ref", hint: "프로젝트 ref", desc: "Supabase 대시보드 주소 supabase.com/dashboard/project/ 뒤의 영문 20자" },
+};
+const FILL_RE = /(<내 아이디>|<ref>)/;
+const fillSubs = new Set<() => void>();
+const readFill = (tok: string) => {
+  try {
+    return localStorage.getItem(`next-fill-${FILLS[tok].key}`) || "";
+  } catch {
+    return "";
+  }
+};
+const writeFill = (tok: string, v: string) => {
+  try {
+    if (v) localStorage.setItem(`next-fill-${FILLS[tok].key}`, v);
+    else localStorage.removeItem(`next-fill-${FILLS[tok].key}`);
+  } catch {}
+  fillSubs.forEach((f) => f());
+};
+function useFillsVersion() {
+  const [, setN] = useState(0);
+  useEffect(() => {
+    const f = () => setN((n) => n + 1);
+    fillSubs.add(f);
+    return () => {
+      fillSubs.delete(f);
+    };
+  }, []);
+}
+const applyFills = (text: string) => text.split(FILL_RE).map((p) => (FILLS[p] ? readFill(p).trim() || p : p)).join("");
+
+function Blank({ value, hint, onChange, label }: { value: string; hint: string; onChange: (v: string) => void; label: string }) {
+  return (
+    <span className="ph-in" data-v={value || hint} data-empty={value ? "0" : "1"}>
+      <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={hint} aria-label={label} size={1} spellCheck={false} autoComplete="off" />
+    </span>
+  );
+}
+
 function renderLine(line: string, i: number) {
   if (line.trim().startsWith("#")) return <span key={i} className="cm">{line}</span>;
-  const parts = line.split(/(<내 아이디>)/);
   return (
     <span key={i}>
-      {parts.map((p, j) => (p === "<내 아이디>" ? <span key={j} className="ph">{p}</span> : p))}
+      {line.split(FILL_RE).map((p, j) =>
+        FILLS[p] ? <Blank key={j} value={readFill(p)} hint={FILLS[p].hint} label={`${FILLS[p].hint} 입력`} onChange={(v) => writeFill(p, v.trim())} /> : p,
+      )}
     </span>
   );
 }
 
 export function CodeBlock({ text, where }: { text: string; where: string }) {
   const { copy, Fallback } = useCopy();
+  useFillsVersion();
   const lines = text.split("\n");
+  const hasBlank = FILL_RE.test(text);
   return (
     <div>
       <div className="code">
         <div className="code-top">
           <span>{where}</span>
-          <button type="button" className="copybtn" onClick={() => copy(text)}>
+          <button type="button" className="copybtn" onClick={() => copy(applyFills(text))}>
             복사
           </button>
         </div>
@@ -136,6 +181,18 @@ export function CodeBlock({ text, where }: { text: string; where: string }) {
             </span>
           ))}
         </pre>
+        {hasBlank && (
+          <div className="blank-help">
+            {[...new Set(text.match(new RegExp(FILL_RE.source, "g")) || [])].map((tok) => (
+              <p key={tok}>
+                <i aria-hidden="true" />
+                <span>
+                  <b>{FILLS[tok].hint}</b> {FILLS[tok].desc}. 한 번 적으면 다른 명령어에도 같이 들어가요.
+                </span>
+              </p>
+            ))}
+          </div>
+        )}
       </div>
       {Fallback}
     </div>
@@ -178,10 +235,16 @@ function usePromptBlanks(text: string, count: number) {
   return [vals, save] as const;
 }
 
+// [___] 또는 [___ 예: 동아리 행사] 처럼 빈칸 안에 무엇을 적을지 힌트를 둘 수 있다
+const PH_RE = /\[___(?: ([^\]]+))?\]/g;
+
 export function Prompt({ text, own }: { text: string; own?: boolean }) {
   const { copy, Fallback } = useCopy();
-  const parts = text.split(PH);
-  const blanks = parts.length - 1;
+  // split 은 [글, 힌트, 글, 힌트, 글] 로 나온다 (힌트는 없으면 undefined)
+  const raw = text.split(PH_RE);
+  const parts = raw.filter((_, i) => i % 2 === 0);
+  const hints = raw.filter((_, i) => i % 2 === 1).map((h) => h || "직접 입력");
+  const blanks = hints.length;
   const [vals, setVals] = usePromptBlanks(text, blanks);
   const filled = vals.some((v) => v.trim());
   const full = parts.reduce((acc, p, i) => acc + (i > 0 ? vals[i - 1]?.trim() || PH : "") + p, "");
@@ -193,22 +256,19 @@ export function Prompt({ text, own }: { text: string; own?: boolean }) {
           {parts.map((p, i) => (
             <span key={i}>
               {i > 0 && (
-                <span className="ph-in" data-v={vals[i - 1] || "___"}>
-                  <input
-                    value={vals[i - 1] || ""}
-                    onChange={(e) => setVals(vals.map((v, j) => (j === i - 1 ? e.target.value : v)))}
-                    placeholder="___"
-                    aria-label={`빈칸 ${i}${blanks > 1 ? ` / ${blanks}` : ""} 채우기`}
-                    size={1}
-                  />
-                </span>
+                <Blank
+                  value={vals[i - 1] || ""}
+                  hint={hints[i - 1]}
+                  label={`빈칸 ${i}${blanks > 1 ? ` / ${blanks}` : ""}: ${hints[i - 1]}`}
+                  onChange={(v) => setVals(vals.map((x, j) => (j === i - 1 ? v : x)))}
+                />
               )}
               {p}
             </span>
           ))}
         </p>
         <div className="prompt-foot">
-          <span>{blanks ? "주황 칸에 바로 적고 복사하면 같이 들어가요" : own ? "예시예요. 내 말로 바꿔서 보내 보세요" : "그대로 붙여넣기"}</span>
+          <span>{blanks ? "주황 칸을 내 말로 채우고 복사하면 같이 들어가요" : own ? "예시예요. 내 말로 바꿔서 보내 보세요" : "그대로 붙여넣기"}</span>
           <span className="prompt-acts">
             {filled && (
               <button type="button" className="copybtn ghost" onClick={() => setVals(Array(blanks).fill(""))}>

@@ -15,7 +15,7 @@
 ### 고정 스택 (바꾸지 않는다)
 - Next.js App Router + TypeScript + Tailwind (create-next-app 기본값)
 - 추가 패키지는 `openai`, `@supabase/supabase-js` 두 개뿐이다. 그 외 설치 금지.
-- `next.config.ts`의 `cacheComponents: true`는 끄지 않는다. `params`나 요청 시점 데이터를 읽는 페이지는 `<Suspense>`로 감싼다.
+- `next.config.ts`의 `cacheComponents: true`는 끄지 않는다. `params`, 쿠키, 캐시 안 한 데이터(Supabase 조회 등)를 기다리는 페이지는 `<Suspense>`로 감싼다.
 
 ### 보안 규칙
 - OpenAI, Supabase 호출은 서버 코드(`app/api/**`, `lib/openai.ts`, `lib/supabase.ts`)에서만 한다.

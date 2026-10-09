@@ -44,11 +44,11 @@ supabase/
 |---|---|---|
 | `OPENAI_API_KEY` | OpenAI 대시보드 API keys (본인 키) | 절대 안 됨 |
 | `OPENAI_MODEL` | 기본 `gpt-6-luna` | 안 됨 |
-| `SUPABASE_URL` | Supabase 프로젝트 > Connect 또는 Settings > API | 안 씀 (서버 전용) |
+| `SUPABASE_URL` | Supabase 프로젝트 화면 위쪽 Connect 버튼 | 안 씀 (서버 전용) |
 | `SUPABASE_SECRET_KEY` | Settings > API Keys > Secret keys (`sb_secret_...`). 옛날 프로젝트라 레거시 키만 있으면 `service_role` 키 | 절대 안 됨 |
 
 - 이름 앞에 `NEXT_PUBLIC_`을 붙이면 브라우저 번들에 그대로 들어간다. 오늘은 `NEXT_PUBLIC_`을 쓸 일이 없다.
-- `.env.local`을 고쳤으면 터미널에서 `Ctrl+C` → `npm run dev`로 다시 켜기 (Mac, Windows 동일). 안 그러면 안 읽혀요.
+- `npm run dev`가 켜진 상태에서 `.env.local`을 저장하면 보통 자동으로 다시 읽어요(터미널에 `Reload env: .env.local`이 떠요). 값이 안 바뀐 것 같으면 브라우저를 새로고침하고, 그래도 안 되면 `Ctrl+C` → `npm run dev`로 다시 켜요.
 - `.env.local`은 `.gitignore`에 이미 들어 있다 (`.env*`). 커밋되면 안 된다.
 
 ## 4. 엔드포인트
@@ -175,5 +175,5 @@ Step 2에서는 3번(저장)을 빼고 `{ "spec": ... }`만 돌려준다. Step 3
 
 ## 8. Next.js 16 주의점
 
-- `create-next-app`이 `next.config.ts`에 `cacheComponents: true`를 켜 둔다. 이 상태에서 `params`나 요청 시점 데이터를 읽는 페이지는 `<Suspense>`로 감싸야 `npm run build`가 통과한다. 끄지 말고 감싼다.
+- Next 16.4부터 `create-next-app`이 `next.config.ts`에 `cacheComponents: true`를 켜 둔다. 이 상태에서 `params`, 쿠키, 캐시 안 한 데이터(Supabase 조회 등)를 기다리는 페이지는 `<Suspense>`로 감싸거나 그 폴더에 `loading.tsx`를 둬야 `npm run build`가 통과한다. 끄지 말고 감싼다.
 - `AGENTS.md` 위쪽의 Next.js 블록은 `next dev`가 다시 써 넣는 영역이다. 지우지 말고, 우리 규칙은 그 아래에 둔다.

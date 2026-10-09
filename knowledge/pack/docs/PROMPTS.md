@@ -22,7 +22,7 @@ docs/PRD.md, docs/DESIGN.md, docs/API.md, AGENTS.md를 읽어.
 아직 코드는 쓰지 마.
 ```
 
-- Claude Code는 Shift+Tab으로 plan 모드를 켜고 보내도 된다.
+- 계획 모드로 보내면 더 좋다. Claude Code는 화면 아래 plan mode on이 보일 때까지 Shift+Tab(보통 세 번) 또는 프롬프트 앞에 `/plan`, Codex는 프롬프트 앞에 `/plan`.
 - 확인: 요약이 PRD랑 다르면 여기서 바로 잡는다. 나중에 잡으면 비싸다.
 
 ---
@@ -45,7 +45,7 @@ Step 1만 해.
 
 ## Step 2. OpenAI 연결
 
-준비 (사람이 직접): `.env.local`에 `OPENAI_API_KEY`, `OPENAI_MODEL` 넣고 dev 서버 재시작.
+준비 (사람이 직접): `.env.local`에 `OPENAI_API_KEY`, `OPENAI_MODEL` 넣고 저장. 터미널에 `Reload env`가 안 뜨면 dev 서버 재시작.
 
 ```
 Step 2만 해. docs/API.md 4번, 6번대로:
@@ -69,7 +69,7 @@ Step 2만 해. docs/API.md 4번, 6번대로:
 준비 (사람이 직접, AI한테 시키지 말 것):
 1. Supabase 대시보드 > SQL Editor > `supabase/schema.sql` 내용 전체 붙여넣고 Run
 2. Table Editor에서 `specs` 테이블이 생겼는지 확인
-3. `.env.local`에 `SUPABASE_URL`, `SUPABASE_SECRET_KEY` 넣고 dev 서버 재시작
+3. `.env.local`에 `SUPABASE_URL`, `SUPABASE_SECRET_KEY` 넣고 저장 (`Reload env`가 안 뜨면 dev 서버 재시작)
 
 ```
 Step 3만 해. docs/API.md 4번, 5번대로:

@@ -118,7 +118,7 @@ export const STEPS: Step[] = [
       { id: "repo", label: "내 GitHub 레포 주소", input: true, placeholder: "https://github.com/아이디/prd-maker" },
       { id: "why", label: "문서를 코드보다 먼저 넣는 이유를 내 말로 한 줄", hint: "연사 세션에서 들은 얘기를 떠올려 봐요" },
     ],
-    chips: ["{{CLAUDE.md랑 AGENTS.md는 뭐가 달라요?|Codex는 AGENTS.md를 언제 읽어요?}}", "--yes 옵션은 정확히 뭘 해요?"],
+    chips: ["npx 명령어를 쳤는데 에러가 나요", "git push 할 때 로그인하라고 해요", "문서팩 파일은 어디에 넣어요?"],
   },
   {
     id: "plan",
@@ -126,7 +126,7 @@ export const STEPS: Step[] = [
     start: "0:16",
     title: "AI와 같이 내\u00a0버전을 정해요",
     lead: "PRD는 혼자 쓰지 않아요. AI에게 질문을 먼저 받고, 후보를 받고, 결정은 내가 해요.",
-    prompt: `docs/PRD.md를 읽어. 나는 이 PRD 메이커를 [___]용으로 바꾸고 싶어.
+    prompt: `docs/PRD.md를 읽어. 나는 이 PRD 메이커를 [___ 예: 동아리 행사 기획]용으로 바꾸고 싶어.
 아직 아무것도 고치지 말고, 먼저 나한테 질문 3개만 해.
 내 답을 들으면 PRD.md 8번 "내 버전" 4칸의 후보를 칸마다 2개씩, 장단점과 같이 제안해.
 내가 고르면 그때 PRD.md 8번에 써 줘. DESIGN.md 8번 프리셋도 하나 추천해 줘.`,
@@ -141,7 +141,7 @@ export const STEPS: Step[] = [
       { id: "mine", label: "내 버전 한 줄 요약", hint: "예: 동아리 행사 기획안을 뽑아 주는 PRD 메이커, 성격은 깐깐한 CTO" },
       { id: "drop", label: "AI가 제안했지만 내가 버린 것 하나와 그 이유", hint: "오늘 내가 PM으로 한 첫 결정이에요" },
     ],
-    chips: ["P0랑 P1은 어떻게 나눠요?", "타깃을 좁히면 뭐가 좋아요?"],
+    chips: ["AI 질문에 뭐라고 답해야 할지 모르겠어요", "후보 중에 뭘 골라야 할지 모르겠어요"],
   },
   {
     id: "s0",
@@ -162,7 +162,7 @@ export const STEPS: Step[] = [
       { id: "diff", label: "AI 요약에서 PRD와 다르거나 빠진 게 있었나요? 어떻게 바로잡았나요?", hint: "없었다면 요약에서 제일 중요한 한 줄을 골라 적기" },
       { id: "file", label: "계획에 나온 파일 중 이름만 보고는 역할을 몰랐던 파일 하나와, 물어봐서 알게 된 역할", hint: "예: lib/spec-schema.ts" },
     ],
-    chips: ["plan 모드는 뭐가 달라요?", "계획에서 뭘 보고 빼 달라고 해요?"],
+    chips: ["{{plan 모드가 안 켜져요|/plan 은 어떻게 써요?}}", "AI 계획에서 뭘 확인하면 돼요?"],
   },
   {
     id: "s1",
@@ -183,7 +183,7 @@ export const STEPS: Step[] = [
       { id: "review", label: "계획 리뷰 때 AI에게 뭘 묻거나 고쳤나요?", hint: "물은 말 그대로, 그리고 AI 답을 한 줄로" },
       { id: "concept", label: "page.tsx 맨 위 \"use client\"는 왜 있나요? 지우면 어떻게 될까요?", hint: "내 page.tsx에서 useState나 onClick이 쓰인 줄을 찾아 같이 적어 보기" },
     ],
-    chips: ["Server Component랑 Client Component 차이가 뭐예요?", "계획에서 뭘 보고 질문해야 해요?"],
+    chips: ["localhost:3000에 화면이 안 떠요", "\"use client\"는 왜 붙어 있어요?"],
   },
   {
     id: "s2",
@@ -209,7 +209,7 @@ export const STEPS: Step[] = [
       { id: "review", label: "계획 리뷰 때 AI에게 뭘 묻거나 고쳤나요?" },
       { id: "concept", label: "버튼을 누른 순간부터 카드가 뜰 때까지, 어떤 파일이 어떤 순서로 실행되나요? 브라우저와 서버를 나눠서", hint: "내 프로젝트의 파일 이름으로. OPENAI_API_KEY를 읽는 파일도 꼭 넣기" },
     ],
-    chips: ["JSON Schema strict는 왜 써요?", "server-only는 뭘 막아 줘요?"],
+    chips: ["OpenAI 키는 어디에 넣어요?", "버튼을 눌러도 아무 일도 안 일어나요"],
   },
   {
     id: "s3",
@@ -235,7 +235,7 @@ export const STEPS: Step[] = [
       { id: "review", label: "계획 리뷰 때 AI에게 뭘 묻거나 고쳤나요?" },
       { id: "concept", label: "specs 테이블은 RLS가 켜져 있고 정책이 0개예요. 그런데 왜 저장이 되나요? publishable 키로 바꾸면요?", hint: "schema.sql 끝부분과 lib/supabase.ts를 열어 보기" },
     ],
-    chips: ["grant랑 RLS는 뭐가 달라요?", "jsonb 한 칸에 통째로 넣는 이유가 뭐예요?"],
+    chips: ["42501 permission denied가 떠요", "목록이 계속 비어 있어요"],
   },
   {
     id: "s4",
@@ -261,7 +261,7 @@ git push`,
       { id: "prompt", label: "내가 직접 쓴 프롬프트" },
       { id: "concept", label: "AI가 이번에 바꾼 파일과, 그 파일을 바꾼 이유", hint: "git diff --stat 으로 바뀐 파일 목록을 볼 수 있어요" },
     ],
-    chips: ["프롬프트를 어떻게 써야 AI가 덜 헤매요?", "git diff는 어떻게 읽어요?"],
+    chips: ["내 버전은 AI에게 어떻게 시켜요?", "AI가 파일을 너무 많이 바꿔요"],
   },
   {
     id: "wrap",

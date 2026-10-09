@@ -871,3 +871,24 @@ button.brand { padding: 0; border: 0; background: transparent; color: inherit; f
 .sq-line { fill: none; stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 4 4; }
 .sq figcaption { margin-top: 12px; font-size: 13px; line-height: 1.55; color: var(--text); text-wrap: pretty; }
 .sq figcaption b { display: block; margin-bottom: 2px; font-size: 13.5px; color: var(--ink); }
+
+/* ---------- 빈칸: 입력할 수 있다는 게 보이게 (점선 밑줄 + 비었을 때 연필) ---------- */
+.ph-in input { border-bottom: 1.5px dashed color-mix(in srgb, var(--ink) 32%, transparent); border-radius: 6px 6px 3px 3px; cursor: text; }
+.ph-in input:hover { background-color: var(--orb-1); }
+.ph-in[data-empty="1"]::after, .ph-in[data-empty="1"] input { padding-right: 22px; }
+.ph-in[data-empty="1"] input { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%230b0b0c' stroke-opacity='.55' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M10.5 3l2.5 2.5L6 12.5H3.5V10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 6px center; background-size: 11px; }
+.code .ph-in { margin: 0 1px; }
+.code .ph-in::after, .code .ph-in input { min-width: 4em; padding-top: 0; padding-bottom: 0; }
+
+/* ---------- 손 들기 (튜터 아래) ---------- */
+.raise { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-top: 20px; padding: 14px 14px 14px 18px; border-radius: var(--r-lg); background: var(--surface); }
+.raise p { margin: 0; flex: 1; min-width: 200px; font-size: 14.5px; line-height: 1.55; color: var(--text); text-wrap: pretty; }
+.raise b { color: var(--ink); font-weight: 600; }
+.raise[data-on="1"] { background: var(--warn-bg); }
+.raise[data-on="1"] b { color: var(--warn); }
+.blank-help { display: flex; flex-direction: column; gap: 6px; padding: 0 20px 18px; }
+.blank-help p { display: flex; align-items: flex-start; gap: 8px; margin: 0; font-size: 13px; line-height: 1.55; color: var(--text); text-wrap: pretty; }
+.blank-help i { flex: none; width: 12px; height: 12px; margin-top: 3px; border-radius: 4px; background: var(--orb-1); box-shadow: inset 0 -1.5px 0 color-mix(in srgb, var(--ink) 32%, transparent); }
+.blank-help b { font-weight: 600; color: var(--ink); }
+/* 폰: 긴 명령어 줄을 접어서 빈칸이 화면 밖으로 안 나가게 (복사는 원래 줄 그대로) */
+@media (max-width: 640px) { .code pre { white-space: pre-wrap; overflow-wrap: anywhere; } }

@@ -27,7 +27,7 @@ npm install openai @supabase/supabase-js
 npm run dev
 ```
 
-- `--yes`: TypeScript, Tailwind, App Router 기본값으로 바로 만들어요. git 초기화와 첫 커밋까지 자동이에요.
+- `--yes`: TypeScript, Tailwind, App Router 기본값으로 바로 만들어요. git이 설치돼 있고 이름·이메일 설정(`git config --global user.name "이름"`, `git config --global user.email "이메일"`)이 돼 있으면 첫 커밋까지 해 줘요. 끝나고 `git log --oneline`에 Initial commit이 보이는지 확인해요.
 - localhost:3000에 Next 기본 화면이 뜨면 성공. 확인했으면 `Ctrl+C`로 끄기.
 - Windows에서 `running scripts is disabled` 에러가 나면 아래 한 줄 입력 후 다시 실행:
 
@@ -90,7 +90,7 @@ git commit -am "docs: my version"
 `claude` 또는 `codex` 실행 후 `docs/PROMPTS.md`의 Step 0 → 1 → 2 → 3 → 4 순서대로.
 Step마다: 프롬프트 → 직접 확인 → 이해 질문 → 커밋.
 
-`.env.local`을 고친 다음에는 터미널에서 `Ctrl+C` → `npm run dev`로 다시 켜야 반영돼요.
+`npm run dev`가 켜진 상태에서 `.env.local`을 저장하면 보통 자동으로 다시 읽어요(터미널에 `Reload env: .env.local`이 떠요). 값이 안 바뀐 것 같으면 브라우저를 새로고침하고, 그래도 안 되면 `Ctrl+C` → `npm run dev`로 다시 켜요.
 
 ## 막히면
 

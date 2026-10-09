@@ -4,7 +4,7 @@ import { motion } from "motion/react";
 import { useEffect, useRef } from "react";
 import { ASSIGNMENT, ERRORS, STEPS, type Step } from "@/lib/content";
 import { sessionOf } from "@/lib/sessions";
-import { CheckPath, CodeBlock, Command, CopyMenu, Hero, Prompt, Section, ease, useCopy } from "./ui";
+import { CheckPath, CodeBlock, Command, CopyMenu, Hero, Prompt, Section, ease, useCopy, useToast } from "./ui";
 import { FeedbackPanel, TutorChat } from "./Tutor";
 import type { Patch, Store } from "./store";
 import { summaryText } from "./summary";
@@ -32,6 +32,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
   const ans = s.ans[step.id] || {};
   const checks = s.checks[step.id] || {};
   const { copy, Fallback } = useCopy();
+  const toast = useToast();
   let n = 0;
 
   const setAns = (k: string, v: string) => patch((st) => ({ ...st, ans: { ...st.ans, [step.id]: { ...(st.ans[step.id] || {}), [k]: v } } }));
@@ -202,45 +203,40 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
 
       <Section i={n++} title="튜터에게 묻기" note="코드는 안 줘요. 어디를 보면 되는지 알려 줘요">
         <TutorChat stepId={step.id} stepTitle={`${step.label}: ${step.title}`} chips={step.chips} thread={s.chat[step.id] || []} patch={patch} tool={s.tool} />
-      </Section>
 
-      <Section i={n++} title="막혔나요?">
-        <div className="stuck" data-on={stuck ? "1" : "0"}>
-          <div className="askbar">
-            <input
-              id={`stuck-${step.id}`}
-              placeholder="어디서 막혔는지 한 줄, 에러 첫 줄도 좋아요"
-              defaultValue={stuck || ""}
-              autoComplete="off"
-              aria-label="막힌 내용"
-            />
-          </div>
+        {/* 글을 안 써도 되게 버튼 하나로 손 들기. 튜터에게 마지막으로 물은 말이 있으면 같이 실어서 운영진이 상황을 알게 한다 */}
+        <div className="raise" data-on={stuck ? "1" : "0"}>
+          <p>
+            {stuck ? (
+              <>
+                <b>개발팀이 갈게요.</b> 제출 현황 맨 위에 이름이 떴어요. 풀리면 눌러 주세요.
+              </>
+            ) : (
+              <>
+                <b>튜터로 안 풀리면</b> 버튼만 누르세요. 개발팀이 자리로 가요.
+              </>
+            )}
+          </p>
           {stuck ? (
-            <button
-              type="button"
-              className="btn btn-soft"
-              onClick={() => patch((st) => { const c = { ...st.stuck }; delete c[step.id]; return { ...st, stuck: c }; })}
-            >
+            <button type="button" className="btn btn-soft btn-sm" onClick={() => patch((st) => { const c = { ...st.stuck }; delete c[step.id]; return { ...st, stuck: c }; })}>
               해결됐어요
             </button>
           ) : (
             <button
               type="button"
-              className="btn btn-ink"
+              className="btn btn-ink btn-sm"
               onClick={() => {
-                const el = document.getElementById(`stuck-${step.id}`) as HTMLInputElement | null;
-                const v = el?.value.trim() || "(내용 없음)";
-                patch((st) => ({ ...st, stuck: { ...st.stuck, [step.id]: v } }));
-                copy(`[막힘] ${s.name || "(이름)"} · ${step.label} · ${v}`, "잡담방에 붙여넣어 주세요");
+                const asked = [...(s.chat[step.id] || [])].reverse().find((m) => m.role === "user")?.content.trim();
+                patch((st) => ({ ...st, stuck: { ...st.stuck, [step.id]: asked ? asked.slice(0, 80) : "도움 요청" } }));
+                toast("개발팀을 불렀어요");
               }}
             >
-              막혔어요
+              개발팀 부르기
             </button>
           )}
-          {stuck && <p className="stuck-msg">손을 들어 주세요. 개발팀이 갈게요. 잡담방에 올릴 메시지도 복사해 뒀어요.</p>}
         </div>
-        {Fallback}
       </Section>
+
 
       {step.summary && (
         <Section i={n++} title="과제" note={ASSIGNMENT.due}>
@@ -269,6 +265,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
           <button type="button" className="btn btn-ink" onClick={() => copy(summaryText(s), "내 답을 복사했어요")}>
             내 답 모아서 복사
           </button>
+          {Fallback}
         </Section>
       )}
 
