@@ -3,7 +3,12 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
 import { ArrowUp, Dots, ease } from "./ui";
-import { VERDICT_LABEL, type ChatMsg, type Feedback, type Patch } from "./store";
+import {
+  VERDICT_LABEL,
+  type ChatMsg,
+  type Feedback,
+  type Patch,
+} from "./store";
 import { authHeader } from "./supa";
 
 export function FeedbackPanel({
@@ -36,7 +41,10 @@ export function FeedbackPanel({
     try {
       const res = await fetch("/api/tutor/feedback", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(await authHeader()) },
+        headers: {
+          "Content-Type": "application/json",
+          ...(await authHeader()),
+        },
         body: JSON.stringify({ stepId, stepTitle, answers: qa, log, tool }),
       });
       const json = await res.json();
@@ -52,16 +60,33 @@ export function FeedbackPanel({
   return (
     <>
       <div className="actions">
-        <button type="button" className="btn btn-ink" onClick={ask} disabled={busy}>
+        <button
+          type="button"
+          className="btn btn-ink"
+          onClick={ask}
+          disabled={busy}
+        >
           {fb ? "다시 피드백 받기" : "튜터 피드백 받기"}
         </button>
         <AnimatePresence mode="wait">
           {busy ? (
-            <motion.span key="busy" className="status" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.span
+              key="busy"
+              className="status"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
               튜터가 읽고 있어요 <Dots />
             </motion.span>
           ) : err ? (
-            <motion.span key="err" className="status err" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <motion.span
+              key="err"
+              className="status err"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
               {err}
             </motion.span>
           ) : null}
@@ -124,10 +149,14 @@ export function TutorChat({
     try {
       const res = await fetch("/api/tutor/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(await authHeader()) },
+        headers: {
+          "Content-Type": "application/json",
+          ...(await authHeader()),
+        },
         body: JSON.stringify({ stepId, stepTitle, messages: next, tool }),
       });
-      if (!res.ok || !res.body) throw new Error((await res.text()) || "튜터 연결이 끊겼어요");
+      if (!res.ok || !res.body)
+        throw new Error((await res.text()) || "튜터 연결이 끊겼어요");
       const reader = res.body.getReader();
       const dec = new TextDecoder();
       for (;;) {
@@ -136,7 +165,13 @@ export function TutorChat({
         acc += dec.decode(value, { stream: true });
         setStreaming(acc);
       }
-      patch((s) => ({ ...s, chat: { ...s.chat, [stepId]: [...next, { role: "assistant", content: acc }] } }));
+      patch((s) => ({
+        ...s,
+        chat: {
+          ...s.chat,
+          [stepId]: [...next, { role: "assistant", content: acc }],
+        },
+      }));
     } catch (e) {
       setErr((e as Error).message);
       patch((s) => ({ ...s, chat: { ...s.chat, [stepId]: thread } }));
@@ -149,15 +184,6 @@ export function TutorChat({
 
   return (
     <div>
-      {chips.length > 0 && thread.length === 0 && (
-        <div className="suggest">
-          {chips.map((c) => (
-            <button key={c} type="button" onClick={() => send(c)} disabled={busy}>
-              {c}
-            </button>
-          ))}
-        </div>
-      )}
       {(thread.length > 0 || busy) && (
         <div className="thread">
           {thread.map((m, i) => (
@@ -174,27 +200,53 @@ export function TutorChat({
           {busy && <div className="msg-ai">{streaming || <Dots />}</div>}
         </div>
       )}
+      {/* 질문 칩과 입력칸을 한 상자로. 칩은 첫 질문 전까지만 보인다 */}
       <form
-        className="askbar"
+        className="composer"
         onSubmit={(e) => {
           e.preventDefault();
           send(text);
         }}
       >
-        <input
-          ref={inputRef}
-          id={`chat-${stepId}`}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="이해 안 되는 걸 물어보세요"
-          autoComplete="off"
-          aria-label="튜터에게 질문"
-        />
-        <button type="submit" className="sendbtn" disabled={busy || !text.trim()} aria-label="보내기">
-          <ArrowUp />
-        </button>
+        {chips.length > 0 && thread.length === 0 && (
+          <div className="composer-chips">
+            {chips.map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => send(c)}
+                disabled={busy}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
+        <div className="composer-row">
+          <input
+            ref={inputRef}
+            id={`chat-${stepId}`}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="이해 안 되는 걸 물어보세요"
+            autoComplete="off"
+            aria-label="튜터에게 질문"
+          />
+          <button
+            type="submit"
+            className="sendbtn"
+            disabled={busy || !text.trim()}
+            aria-label="보내기"
+          >
+            <ArrowUp />
+          </button>
+        </div>
       </form>
-      {err && <p className="status err" style={{ marginTop: 10 }}>{err}</p>}
+      {err && (
+        <p className="status err" style={{ marginTop: 10 }}>
+          {err}
+        </p>
+      )}
     </div>
   );
 }
