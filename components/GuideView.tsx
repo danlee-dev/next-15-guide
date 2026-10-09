@@ -2,8 +2,9 @@
 
 import { motion } from "motion/react";
 import { GUIDE_SECTIONS, HACKATHON, INTERVENE, PROMPT_PAIRS, ROLES } from "@/lib/content";
-import { Hero, Section, ease } from "./ui";
+import { CopyMenu, Hero, Section, ease } from "./ui";
 import { TutorChat } from "./Tutor";
+import GuideArt from "./GuideArt";
 import type { Patch, Store } from "./store";
 
 export default function GuideView({ s, patch, go }: { s: Store; patch: Patch; go: (id: string) => void }) {
@@ -15,6 +16,7 @@ export default function GuideView({ s, patch, go }: { s: Store; patch: Patch; go
         meta="해커톤 전에 한 번 읽어 두기"
         title="해 줘, 해 줘 말고. AI와 일을 나눠요"
         lead="바이브 코딩은 AI에게 다 맡기는 게 아니에요. 무엇을 만들지, 어디까지 만들지, 잘 됐는지는 사람이 정하고, 그 사이를 AI가 빠르게 채워요."
+        aside={<CopyMenu page="guide" os={s.os} />}
       />
 
       <Section i={n++} title="누가 무엇을 하나">
@@ -95,6 +97,7 @@ export default function GuideView({ s, patch, go }: { s: Store; patch: Patch; go
       {GUIDE_SECTIONS.map((g) => (
         <Section key={g.title} i={n++} title={g.title}>
           <p className="sec-lead">{g.lead}</p>
+          {g.art && <GuideArt kind={g.art} />}
           <div className="points">
             {g.points.map((p) => (
               <div key={p.t}>

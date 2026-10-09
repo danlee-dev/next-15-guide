@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState } from "react";
 import { ArrowUp, Dots, ease } from "./ui";
-import { VERDICT_LABEL, type ChatMsg, type Feedback, type Patch } from "./store";
+import { VERDICT_LABEL, clientId, type ChatMsg, type Feedback, type Patch } from "./store";
 
 export function FeedbackPanel({
   stepId,
@@ -33,7 +33,7 @@ export function FeedbackPanel({
     try {
       const res = await fetch("/api/tutor/feedback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-client-id": clientId() },
         body: JSON.stringify({ stepId, stepTitle, answers: qa, log }),
       });
       const json = await res.json();
@@ -119,7 +119,7 @@ export function TutorChat({
     try {
       const res = await fetch("/api/tutor/chat", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "x-client-id": clientId() },
         body: JSON.stringify({ stepId, stepTitle, messages: next }),
       });
       if (!res.ok || !res.body) throw new Error((await res.text()) || "튜터 연결이 끊겼어요");

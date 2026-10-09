@@ -1,0 +1,7 @@
+# 키 파일은 절대 올리지 않는다. 환경변수는 Vercel 설정에서 따로 넣는다
+.env*
+!.env.example
+.next
+node_modules
+.vercel
+*.tsbuildinfo

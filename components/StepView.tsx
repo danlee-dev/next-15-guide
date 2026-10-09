@@ -2,11 +2,13 @@
 
 import { motion } from "motion/react";
 import { useEffect, useRef } from "react";
-import { STEPS, type Step } from "@/lib/content";
-import { CheckPath, CodeBlock, Command, Hero, Prompt, Section, ease, useCopy } from "./ui";
+import { ASSIGNMENT, ERRORS, STEPS, type Step } from "@/lib/content";
+import { CheckPath, CodeBlock, Command, CopyMenu, Hero, Prompt, Section, ease, useCopy } from "./ui";
 import { FeedbackPanel, TutorChat } from "./Tutor";
 import type { Patch, Store } from "./store";
 import { summaryText } from "./summary";
+import SubmitBox from "./SubmitBox";
+import { commitPrompt } from "./pageMarkdown";
 
 function AutoText({ id, value, onChange }: { id: string; value: string; onChange: (v: string) => void }) {
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -34,10 +36,11 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
 
   const visibleTodo = (step.todo || []).filter((t) => !t.os || t.os === s.os);
   const stuck = s.stuck[step.id];
+  const errs = ERRORS.filter((e) => e.steps.includes(step.id));
 
   return (
     <article>
-      <Hero chip={step.label} meta={`${step.start} 시작`} title={step.title} lead={step.lead} />
+      <Hero chip={step.label} meta={`${step.start} 시작`} title={step.title} lead={step.lead} aside={<CopyMenu page={step.id} os={s.os} />} />
 
       {visibleTodo.length > 0 && (
         <Section i={n++} title="먼저 할 일">
@@ -46,6 +49,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
               <div className="blk-label">{t.label}</div>
               {t.note && <div className="blk-note">{t.note}</div>}
               {t.cmd && <Command k={t.cmd} os={s.os} />}
+              {t.tip && <p className="blk-tip">{t.tip}</p>}
             </div>
           ))}
         </Section>
@@ -54,6 +58,17 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
       {step.prompt && (
         <Section i={n++} title="AI에게 보낼 말" note="짧게 시키고, 계획부터 받기">
           <Prompt text={step.prompt} own={step.ownPrompt} />
+        </Section>
+      )}
+
+      {step.more && (
+        <Section i={n++} title={step.more.title}>
+          <ul className="more-list">
+            {step.more.items.map((m) => (
+              <li key={m}>{m}</li>
+            ))}
+          </ul>
+          {step.more.note && <p className="blk-tip">{step.more.note}</p>}
         </Section>
       )}
 
@@ -99,10 +114,32 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
           </ul>
           {step.commit && (
             <div className="blk" style={{ marginTop: 28 }}>
-              <div className="blk-label">끝나면 커밋</div>
-              <CodeBlock text={step.commit} where="macOS · Windows 동일" />
+              <div className="blk-label">끝나면 커밋: AI에게 시켜도 돼요</div>
+              <Prompt text={commitPrompt(step.commit)} />
+              <p className="blk-tip">AI가 커밋했다고 해도 터미널에 git log --oneline -1 을 쳐서 내 눈으로 확인해요. 직접 하고 싶으면 아래 명령어나 VS Code 왼쪽 소스 제어 탭을 써도 같아요.</p>
+              <CodeBlock text={step.commit} where="직접 할 때 · macOS · Windows 동일" />
             </div>
           )}
+        </Section>
+      )}
+
+      {errs.length > 0 && (
+        <Section i={n++} title="자주 만나는 에러" note="에러 문구는 요약하지 말고 그대로 AI에게">
+          <ul className="errs">
+            {errs.map((e) => (
+              <li key={e.sym}>
+                <b>{e.sym}</b>
+                <span>
+                  <em>원인</em>
+                  {e.cause}
+                </span>
+                <span>
+                  <em>해결</em>
+                  {e.fix}
+                </span>
+              </li>
+            ))}
+          </ul>
         </Section>
       )}
 
@@ -188,7 +225,28 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
       </Section>
 
       {step.summary && (
-        <Section i={n++} title="제출">
+        <Section i={n++} title="과제" note={ASSIGNMENT.due}>
+          <ol className="numlist">
+            {ASSIGNMENT.items.map((a) => (
+              <li key={a.t}>
+                <span>
+                  <b>{a.t}</b> {a.d}
+                </span>
+              </li>
+            ))}
+          </ol>
+          <p className="blk-tip">제출: {ASSIGNMENT.submit}</p>
+        </Section>
+      )}
+
+      {step.summary && (
+        <Section i={n++} title="링크 제출" note="제출 현황판에 바로 떠요">
+          <SubmitBox s={s} patch={patch} go={go} />
+        </Section>
+      )}
+
+      {step.summary && (
+        <Section i={n++} title="제출 요약">
           <p className="sec-lead">지금까지 쓴 답과 진행 상황을 한 번에 복사해요. 잡담방이나 노션 과제 페이지에 붙여 주세요.</p>
           <button type="button" className="btn btn-ink" onClick={() => copy(summaryText(s), "제출 요약을 복사했어요")}>
             제출 요약 복사

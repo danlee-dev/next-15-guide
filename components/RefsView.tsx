@@ -1,7 +1,7 @@
 "use client";
 
 import { REFS } from "@/lib/content";
-import { ArrowUpRight, Command, Hero, Section } from "./ui";
+import { ArrowUpRight, Command, CopyMenu, Hero, Section } from "./ui";
 import type { Store } from "./store";
 
 export default function RefsView({ s, go }: { s: Store; go: (id: string) => void }) {
@@ -13,6 +13,7 @@ export default function RefsView({ s, go }: { s: Store; go: (id: string) => void
         meta="실습 중에도, 해커톤에서도"
         title="AI스러운 화면에서 벗어나는 법"
         lead="기준 없이 예쁘게 해 달라고 하면 다 비슷한 화면이 나와요. 디자인 규칙 파일과 레퍼런스를 먼저 주면 결과가 달라져요."
+        aside={<CopyMenu page="refs" os={s.os} />}
       />
 
       <Section i={n++} title="이렇게 써요">

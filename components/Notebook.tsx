@@ -1,16 +1,20 @@
 "use client";
 
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
+import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 import { STEPS, type OS } from "@/lib/content";
 import { CheckPath, ToastProvider, ease, useCopy, useToast } from "./ui";
 import StepView from "./StepView";
 import GuideView from "./GuideView";
 import RefsView from "./RefsView";
+import BoardView from "./BoardView";
+import NameGate from "./NameGate";
+import { boardPayload, postBoard } from "./board";
 import { EMPTY, loadStore, saveStore, type Patch, type Store } from "./store";
 import { stepState, summaryText } from "./summary";
 
-const PAGES = new Set([...STEPS.map((s) => s.id), "guide", "refs"]);
+const PAGES = new Set([...STEPS.map((s) => s.id), "board", "guide", "refs"]);
 
 export default function Notebook() {
   return (
@@ -23,6 +27,7 @@ export default function Notebook() {
 function App() {
   const [s, setS] = useState<Store>(EMPTY);
   const [ready, setReady] = useState(false);
+  const [gate, setGate] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const toast = useToast();
   const { copy } = useCopy();
@@ -33,6 +38,7 @@ function App() {
     const hash = location.hash.slice(1);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setS(PAGES.has(hash) ? { ...loaded, cur: hash } : loaded);
+    setGate(!loaded.name.trim());
     setReady(true);
     const onHash = () => {
       const h = location.hash.slice(1);
@@ -51,6 +57,14 @@ function App() {
     if (ready) saveStore(s);
   }, [s, ready]);
 
+  // 이름을 적은 뒤부터 내 진행 상황(이름, 단계, 막힘, 링크)을 제출 현황판에 자동으로 올린다. 1.5초씩 모아서 보낸다
+  const syncBody = ready && !gate && s.name.trim() ? JSON.stringify(boardPayload(s)) : "";
+  useEffect(() => {
+    if (!syncBody) return;
+    const t = setTimeout(() => postBoard(syncBody).catch(() => {}), 1500);
+    return () => clearTimeout(t);
+  }, [syncBody]);
+
   const patch: Patch = useCallback((fn) => setS((st) => fn(st)), []);
 
   const go = useCallback(
@@ -64,7 +78,7 @@ function App() {
 
   const setOS = (os: OS) => {
     if (os === s.os) return;
-    patch((st) => ({ ...st, os }));
+    patch((st) => ({ ...st, os, osPicked: true }));
     toast(os === "win" ? "Windows 명령어로 바꿨어요" : "macOS 명령어로 바꿨어요");
   };
 
@@ -76,7 +90,7 @@ function App() {
       <header className="top" data-scrolled={scrolled ? "1" : "0"}>
         <div className="top-in">
           <div className="brand">
-            <b>NEXT</b>
+            <Image src="/next-logo-ink.png" alt="NEXT" width={407} height={96} className="logo" priority />
             <span>Session 8 실습 노트</span>
           </div>
           <div className="grow" />
@@ -135,6 +149,17 @@ function App() {
                 </ul>
               </div>
               <div className="navgroup">
+                <h4>현황</h4>
+                <ul className="navlist">
+                  <li>
+                    <button type="button" className="navitem" aria-current={s.cur === "board" ? "page" : undefined} onClick={() => go("board")}>
+                      {s.cur === "board" && <motion.span layoutId="nav-hl" className="hl" transition={{ type: "spring", stiffness: 420, damping: 36 }} />}
+                      <span className="lbl">제출 현황</span>
+                    </button>
+                  </li>
+                </ul>
+              </div>
+              <div className="navgroup">
                 <h4>더 보기</h4>
                 <ul className="navlist">
                   {[
@@ -169,6 +194,8 @@ function App() {
               >
                 {step ? (
                   <StepView step={step} s={s} patch={patch} go={go} />
+                ) : s.cur === "board" ? (
+                  <BoardView s={s} go={go} />
                 ) : s.cur === "guide" ? (
                   <GuideView s={s} patch={patch} go={go} />
                 ) : (
@@ -179,6 +206,18 @@ function App() {
           )}
         </main>
       </div>
+
+      <AnimatePresence>
+        {gate && (
+          <NameGate
+            onDone={(name) => {
+              patch((st) => ({ ...st, name }));
+              setGate(false);
+              toast(`${name}님, 반가워요`);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </>
   );
 }

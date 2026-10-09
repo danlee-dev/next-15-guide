@@ -1,8 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from "react";
+import { AnimatePresence, motion } from "motion/react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { COMMANDS, type CommandKey, type OS } from "@/lib/content";
+import { allMarkdown, pageMarkdown } from "./pageMarkdown";
 
 export const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -187,36 +188,35 @@ export function Section({ i, title, note, children }: { i: number; title: string
   );
 }
 
+// 히어로 뒤 파스텔 빛. 덩어리마다 "흘러가는 위치"(바깥)와 "늘었다 줄었다 도는 모양"(안쪽)을 서로 다른 주기로 돌려서
+// 멈추는 순간 없이 물 흐르듯 움직이게 한다. transform 만 움직여서 폰에서도 가볍다. 동작 줄이기 설정이면 CSS 가 멈춘다.
 const ORBS = [
-  { c: "var(--orb-1)", w: "52%", h: "70%", l: "6%", t: "14%", x: 40, y: 24, d: 16 },
-  { c: "var(--orb-2)", w: "48%", h: "64%", l: "40%", t: "2%", x: -36, y: 30, d: 20 },
-  { c: "var(--orb-3)", w: "40%", h: "56%", l: "28%", t: "42%", x: 28, y: -26, d: 18 },
-  { c: "var(--orb-4)", w: "34%", h: "50%", l: "62%", t: "36%", x: -24, y: -18, d: 22 },
+  { c: "var(--orb-1)", w: "56%", h: "68%", l: "4%", t: "12%" },
+  { c: "var(--orb-2)", w: "50%", h: "62%", l: "40%", t: "0%" },
+  { c: "var(--orb-3)", w: "44%", h: "56%", l: "26%", t: "40%" },
+  { c: "var(--orb-4)", w: "38%", h: "50%", l: "60%", t: "34%" },
 ];
 
 export function Orb() {
-  const reduce = useReducedMotion();
   return (
     <div className="orb" aria-hidden="true">
       {ORBS.map((o, i) => (
-        <motion.span
-          key={i}
-          style={{ background: o.c, width: o.w, height: o.h, left: o.l, top: o.t }}
-          animate={reduce ? undefined : { x: [0, o.x, 0], y: [0, o.y, 0], scale: [1, 1.08, 1] }}
-          transition={{ duration: o.d, repeat: Infinity, ease: "easeInOut" }}
-        />
+        <span key={i} className={`orb-flow orb-flow-${i}`} style={{ width: o.w, height: o.h, left: o.l, top: o.t }}>
+          <i style={{ background: o.c }} />
+        </span>
       ))}
     </div>
   );
 }
 
-export function Hero({ chip, meta, title, lead }: { chip: string; meta: string; title: string; lead: ReactNode }) {
+export function Hero({ chip, meta, title, lead, aside }: { chip: string; meta: string; title: string; lead: ReactNode; aside?: ReactNode }) {
   return (
     <header className="hero">
       <Orb />
       <motion.div className="eyebrow" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease }}>
         <span className="chip-step">{chip}</span>
         <span>{meta}</span>
+        {aside && <span className="eyebrow-aside">{aside}</span>}
       </motion.div>
       <motion.h1 initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease, delay: 0.04 }}>
         {title}
@@ -227,3 +227,66 @@ export function Hero({ chip, meta, title, lead }: { chip: string; meta: string; 
     </header>
   );
 }
+
+// AI에게 붙여넣고 물어볼 수 있게 지금 페이지(또는 노트 전체)를 마크다운으로 복사. 제목 위 줄 오른쪽의 작은 메뉴
+export function CopyMenu({ page, os }: { page: string; os: OS }) {
+  const { copy, Fallback } = useCopy();
+  const [open, setOpen] = useState(false);
+  const wrap = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const close = (e: Event) => {
+      if (e instanceof KeyboardEvent ? e.key === "Escape" : !wrap.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", close);
+    document.addEventListener("keydown", close);
+    return () => {
+      document.removeEventListener("pointerdown", close);
+      document.removeEventListener("keydown", close);
+    };
+  }, [open]);
+
+  const pick = (text: string, done: string) => {
+    setOpen(false);
+    copy(text, done);
+  };
+
+  return (
+    <div className="copy-menu" ref={wrap}>
+      <button type="button" className="copy-trigger" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        <CopyIcon />
+        복사
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            role="menu"
+            className="copy-pop"
+            initial={{ opacity: 0, y: -4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.18, ease }}
+          >
+            <button type="button" role="menuitem" onClick={() => pick(pageMarkdown(page, os), "이 페이지를 복사했어요")}>
+              <b>이 페이지</b>
+              <span>AI에게 붙여넣고 질문하기 좋게</span>
+            </button>
+            <button type="button" role="menuitem" onClick={() => pick(allMarkdown(os), "노트 전체를 복사했어요")}>
+              <b>노트 전체</b>
+              <span>모든 단계와 가이드를 한 번에</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {Fallback && <div className="copy-fallback">{Fallback}</div>}
+    </div>
+  );
+}
+
+const CopyIcon = () => (
+  <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round">
+    <rect x="5.25" y="5.25" width="8" height="8" rx="2.2" />
+    <path d="M10.75 3.6A1.9 1.9 0 0 0 8.9 2.75H4.6a1.85 1.85 0 0 0-1.85 1.85v4.3c0 .86.58 1.58 1.37 1.8" strokeLinecap="round" />
+  </svg>
+);

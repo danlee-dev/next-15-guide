@@ -10,7 +10,7 @@ export type Step = {
   start: string;
   title: string;
   lead: string;
-  todo?: { label: string; cmd?: keyof typeof COMMANDS; os?: OS; note?: string }[];
+  todo?: { label: string; cmd?: keyof typeof COMMANDS; os?: OS; note?: string; tip?: string }[];
   prompt?: string;
   ownPrompt?: boolean;
   design?: boolean;
@@ -19,6 +19,7 @@ export type Step = {
   questions: Question[];
   chips: string[];
   summary?: boolean;
+  more?: { title: string; items: string[]; note?: string };
 };
 
 export const COMMANDS = {
@@ -86,13 +87,13 @@ export const STEPS: Step[] = [
     title: "레포를 만들고, 문서부터 깔아요",
     lead: "빈 폴더에서 시작해요. AI가 코드를 쓰기 전에 읽을 문서를 레포에 먼저 넣어 두는 게 이번 단계의 전부예요.",
     todo: [
-      { label: "프로젝트 만들기", cmd: "create" },
-      { label: "Windows에서 에러가 나면", cmd: "winPolicy", os: "win" },
-      { label: "문서팩 넣기", cmd: "pack" },
-      { label: "GitHub에 올리기", cmd: "push" },
+      { label: "프로젝트 만들기", cmd: "create", tip: "cd prd-maker는 방금 만든 prd-maker 폴더로 들어가는 명령이에요. VS Code에서 파일 > 폴더 열기로 prd-maker를 열고 그 안의 터미널(보기 > 터미널)을 쓰면 이미 그 폴더라서, cd 없이 npm install부터 치면 돼요." },
+      { label: "Windows에서 에러가 나면", cmd: "winPolicy", os: "win", tip: "PowerShell 창에 그대로 붙여넣고 Enter. 바꿀지 물어보면 Y를 누르면 돼요. 한 번만 하면 다음부터는 안 나와요." },
+      { label: "문서팩 넣기", cmd: "pack", tip: "명령어가 낯설면 손으로 해도 결과는 같아요. 압축 푼 prd-maker-pack에서 docs, supabase 폴더와 CLAUDE.md, env.example을 prd-maker 폴더로 끌어다 놓고, AGENTS.append.md 내용을 복사해 prd-maker의 AGENTS.md 맨 아래에 붙여넣은 다음, env.example을 복사해 이름을 .env.local로 바꾸면 끝이에요. Mac Finder에서는 점(.)으로 시작하는 파일이 숨겨져 있어서 Cmd+Shift+. 을 눌러야 보여요." },
+      { label: "GitHub에 올리기", cmd: "push", tip: "New repository는 GitHub 웹사이트 오른쪽 위 + 버튼에서 만들어요. 이름만 prd-maker로 적고 나머지는 그대로 두면 돼요. push할 때 아이디와 비밀번호를 물어보면 손 들어 주세요. GitHub는 비밀번호 대신 브라우저 로그인이나 토큰을 써서, 처음엔 다들 여기서 한 번 막혀요." },
     ],
     checks: [
-      { text: "localhost:3000에 Next 기본 화면이 떴다", sub: "확인했으면 Ctrl+C로 꺼 두기" },
+      { text: "localhost:3000에 Next 기본 화면이 떴다", sub: "확인했으면 Ctrl+C로 꺼 두기. Mac도 Cmd가 아니라 Ctrl이에요" },
       { text: "docs/와 supabase/schema.sql이 프로젝트 안에 있다" },
       { text: "AGENTS.md 맨 아래에 PRD 메이커 규칙이 붙었다", sub: "위쪽 Next.js 블록은 그대로 두기" },
       { text: "GitHub 레포 페이지에서 docs/가 보인다" },
@@ -106,7 +107,7 @@ export const STEPS: Step[] = [
   {
     id: "plan",
     label: "기획",
-    start: "0:16",
+    start: "0:17",
     title: "AI와 같이 내 버전을 정해요",
     lead: "PRD는 혼자 쓰지 않아요. AI에게 질문을 먼저 받고, 후보를 받고, 결정은 내가 해요.",
     prompt: `docs/PRD.md를 읽어. 나는 이 PRD 메이커를 [___]용으로 바꾸고 싶어.
@@ -127,9 +128,30 @@ export const STEPS: Step[] = [
     chips: ["P0랑 P1은 어떻게 나눠요?", "타깃을 좁히면 뭐가 좋아요?"],
   },
   {
+    id: "s0",
+    label: "Step 0",
+    start: "0:23",
+    title: "계획만 세워요, 코드 0줄",
+    lead: "코드를 쓰기 전에 AI가 문서를 제대로 읽었는지부터 확인해요. 계획부터 세우면 AI가 혼자 판단해서 산으로 가는 걸 시작 전에 막을 수 있어요.",
+    prompt: `docs/PRD.md, docs/DESIGN.md, docs/API.md, AGENTS.md를 읽어.
+1) 이 프로젝트가 뭘 만드는지 5줄로 요약해.
+2) Step 1~4 구현 계획을 단계별로 짧게 세워. 각 단계에서 만들거나 고칠 파일 이름을 적어.
+아직 코드는 쓰지 마.`,
+    checks: [
+      { text: "AI의 5줄 요약을 PRD와 비교했다", sub: "다르면 여기서 바로 잡기. 나중에 잡으면 비싸요" },
+      { text: "계획에 문서에 없는 패키지가 있으면 빼 달라고 했다", sub: "zod, shadcn, axios 같은 것" },
+      { text: "Claude Code라면 Shift+Tab으로 plan 모드를 켜고 보냈다", sub: "Codex는 \"계획부터 보여 줘\"로 충분해요" },
+    ],
+    questions: [
+      { id: "diff", label: "AI 요약에서 PRD와 다르거나 빠진 게 있었나요? 어떻게 바로잡았나요?", hint: "없었다면 요약에서 제일 중요한 한 줄을 골라 적기" },
+      { id: "file", label: "계획에 나온 파일 중 이름만 보고는 역할을 몰랐던 파일 하나와, 물어봐서 알게 된 역할", hint: "예: lib/spec-schema.ts" },
+    ],
+    chips: ["plan 모드는 뭐가 달라요?", "계획에서 뭘 보고 빼 달라고 해요?"],
+  },
+  {
     id: "s1",
     label: "Step 1",
-    start: "0:24",
+    start: "0:25",
     title: "화면부터, 가짜 데이터로",
     lead: "짧게 시키고 계획부터 받아요. 계획에 질문 하나, 또는 수정 하나를 하는 게 이번 단계의 핵심이에요.",
     prompt: `Step 1. docs/PRD.md, docs/DESIGN.md대로 화면만 만들어 줘. 아직 API는 없으니 가짜 데이터로.
@@ -154,8 +176,8 @@ export const STEPS: Step[] = [
     title: "OpenAI를 연결해요",
     lead: "진짜 PRD가 나와요. 키가 서버 밖으로 나가지 않는지 내 눈으로 확인하는 게 이번 단계의 핵심이에요.",
     todo: [
-      { label: "내 OpenAI 키 넣기", cmd: "envAi" },
-      { label: "dev 서버 다시 켜기", cmd: "restart" },
+      { label: "내 OpenAI 키 넣기", cmd: "envAi", tip: ".env.local은 VS Code 같은 편집기에서 열어 = 뒤에 키를 붙여넣고 저장하면 돼요. 키 앞뒤에 따옴표나 공백은 넣지 않아요." },
+      { label: "dev 서버 다시 켜기", cmd: "restart", tip: "Ctrl+C는 Mac에서도 Cmd가 아니라 Ctrl이에요. 꺼진 뒤 키보드 위 화살표를 누르면 방금 친 npm run dev가 다시 나와요." },
     ],
     prompt: `Step 2. docs/API.md 4번, 6번대로 OpenAI를 연결해 줘. 이번엔 Supabase 저장 없이 결과만 화면에.
 코드 쓰기 전에 계획부터. 특히 키를 어느 파일에서 읽는지 알려 줘.`,
@@ -180,9 +202,9 @@ export const STEPS: Step[] = [
     title: "Supabase에 저장하고 목록을 만들어요",
     lead: "새로고침해도 남아 있는 게 목표예요. RLS 정책이 0개인데 왜 저장되는지 설명할 수 있으면 통과예요.",
     todo: [
-      { label: "Supabase SQL Editor에서 supabase/schema.sql 전체를 붙여넣고 Run", note: "Success. No rows returned 가 나오면 성공" },
-      { label: "Supabase 키 넣기", cmd: "envDb" },
-      { label: "dev 서버 다시 켜기", cmd: "restart" },
+      { label: "Supabase SQL Editor에서 supabase/schema.sql 전체를 붙여넣고 Run", note: "Success. No rows returned 가 나오면 성공", tip: "터미널이 아니라 Supabase 웹 화면에서 하는 일이에요. 내 프로젝트의 supabase/schema.sql을 편집기로 열어 전체 선택해서 복사한 뒤 SQL Editor에 붙여넣으면 돼요." },
+      { label: "Supabase 키 넣기", cmd: "envDb", tip: "Step 2에서 연 .env.local 맨 아래에 두 줄을 이어 붙이면 돼요. 새 파일을 만들 필요는 없어요." },
+      { label: "dev 서버 다시 켜기", cmd: "restart", tip: "Ctrl+C는 Mac에서도 Cmd가 아니라 Ctrl이에요. 꺼진 뒤 키보드 위 화살표를 누르면 방금 친 npm run dev가 다시 나와요." },
     ],
     prompt: `Step 3. docs/API.md 4번, 5번대로 생성 결과를 Supabase specs 테이블에 저장하고, /specs 목록 페이지를 만들어 줘.
 코드 쓰기 전에 계획부터. 어떤 키로 Supabase에 붙는지도 알려 줘.`,
@@ -207,6 +229,11 @@ export const STEPS: Step[] = [
     lead: "정해진 프롬프트가 없어요. PRD.md 8번에 내가 정한 걸 내 말로 시켜 보세요. 못 끝내면 과제로 이어서 해도 돼요.",
     prompt: `docs/PRD.md 8번 "내 버전"에 적은 것만 구현해 줘. 계획부터 보여 줘.`,
     ownPrompt: true,
+    more: {
+      title: "시간 남으면 (PRD 4번 P1)",
+      items: ["마크다운 복사 버튼", "/specs/[id] 상세 보기와 삭제"],
+      note: "상세 페이지는 Suspense로 감싸야 npm run build가 통과해요. AGENTS.md에도 적혀 있어요.",
+    },
     checks: [
       { text: "내가 쓴 프롬프트로 계획을 받고 리뷰했다" },
       { text: "PRD.md 8번에 적은 완료 기준을 확인했다", sub: "출력 섹션을 늘렸으면 schema의 required에도 들어갔는지" },
@@ -293,7 +320,7 @@ export const ROLES = {
     { t: "문서 초안", d: "PRD, API 설계, README 초안. 단, 나한테 질문부터 하게 시키기." },
     { t: "선택지 제안", d: "구조나 기능 후보를 장단점과 같이 2~3개." },
     { t: "정해진 구조 안의 구현", d: "화면, API, 연결 코드. 문서가 있으면 훨씬 정확해요." },
-    { t: "반복 작업", d: "비슷한 화면 여러 개, 타입 정리, 문구 일괄 수정." },
+    { t: "반복 작업", d: "비슷한 화면 여러 개, 타입 정리, 문구 일괄 수정, 커밋. 대신 결과는 git log로 내가 확인해요." },
     { t: "원인 추적", d: "에러 로그를 주면 원인부터 설명하게 하고 최소 수정." },
     { t: "점검", d: "보안 기본 조치, 리팩터링 후보, 테스트 케이스 뽑기." },
   ],
@@ -325,9 +352,10 @@ export const PROMPT_PAIRS: { bad: string; good: string; why: string }[] = [
   },
 ];
 
-export const GUIDE_SECTIONS: { title: string; lead: string; points: { t: string; d: string }[] }[] = [
+export const GUIDE_SECTIONS: { title: string; lead: string; art?: "prd" | "design" | "loop" | "stuck" | "safe"; points: { t: string; d: string }[] }[] = [
   {
     title: "PRD를 잘 쓰는 법",
+    art: "prd",
     lead: "AI에게 PRD를 \"써 달라\"고 하지 말고, AI가 나에게 질문하게 만들어요.",
     points: [
       { t: "문제부터 한 줄", d: "누가, 언제, 무엇 때문에 불편한지. 기능 목록은 그다음이에요." },
@@ -339,6 +367,7 @@ export const GUIDE_SECTIONS: { title: string; lead: string; points: { t: string;
   },
   {
     title: "디자인이 AI스럽지 않게",
+    art: "design",
     lead: "아무 기준 없이 \"예쁘게\"라고 하면 다 비슷한 화면이 나와요. 기준을 먼저 줘요.",
     points: [
       { t: "DESIGN.md 받기", d: "getdesign.md에서 좋아하는 서비스의 DESIGN.md를 받아 docs/에 두고 읽게 해요." },
@@ -350,6 +379,7 @@ export const GUIDE_SECTIONS: { title: string; lead: string; points: { t: string;
   },
   {
     title: "개발을 잘 시키는 법",
+    art: "loop",
     lead: "프롬프트는 짧게, 문서는 자세하게. 디테일은 문서에 있으니 프롬프트엔 의도만 담아요.",
     points: [
       { t: "한 번에 한 단계", d: "\"Step 2만 해\"처럼 범위를 못 박아요. 다음 단계를 미리 하면 꼬여요." },
@@ -361,6 +391,7 @@ export const GUIDE_SECTIONS: { title: string; lead: string; points: { t: string;
   },
   {
     title: "막혔을 때",
+    art: "stuck",
     lead: "AI한테 \"고쳐 줘\"만 반복하면 코드가 점점 이상해져요.",
     points: [
       { t: "원인 먼저", d: "에러 메시지를 그대로 붙이고, 고치기 전에 원인을 설명하게 해요." },
@@ -371,6 +402,7 @@ export const GUIDE_SECTIONS: { title: string; lead: string; points: { t: string;
   },
   {
     title: "안전",
+    art: "safe",
     lead: "AI가 짠 코드라도 책임은 내 거예요.",
     points: [
       { t: "키는 서버에만", d: "NEXT_PUBLIC_ 붙은 변수와 \"use client\" 파일엔 비밀 키가 들어가면 안 돼요." },
@@ -389,3 +421,30 @@ export const HACKATHON = [
   "기능 하나마다: 계획 → 리뷰 → 실행 → 확인 → 커밋",
   "데모 2시간 전에는 새 기능 금지. 버그와 문구만",
 ];
+
+/* ---------------- 자주 만나는 에러 (발표 자료 표 그대로, 단계별로 골라 보여 준다) ---------------- */
+
+export const ERRORS: { sym: string; cause: string; fix: string; steps: string[] }[] = [
+  { sym: 'Windows: "running scripts is disabled"', cause: "PowerShell 실행 정책", fix: "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned 입력 후 다시 실행", steps: ["setup"] },
+  { sym: '"OPENAI_API_KEY가 .env.local에 없습니다"', cause: "dev 서버 재시작 안 함, 파일 위치나 이름 오타", fix: "Ctrl+C → npm run dev, .env.local이 프로젝트 맨 위 폴더에 있는지 확인", steps: ["s2"] },
+  { sym: "OpenAI 401", cause: "키 복사 누락, 앞뒤 공백", fix: "키를 다시 복사해서 붙여넣기", steps: ["s2"] },
+  { sym: "OpenAI 404 모델 없음", cause: "모델명 오타, 접근 권한", fix: "OPENAI_MODEL=gpt-5.4-mini 로 바꿔 보기", steps: ["s2"] },
+  { sym: "OpenAI 400 Invalid schema", cause: "required 누락, additionalProperties 빠짐", fix: "docs/API.md 6번 strict 규칙대로 고쳐 달라고 하기", steps: ["s2", "s4"] },
+  { sym: "42501 permission denied", cause: "schema.sql의 grant가 안 돌았음", fix: "SQL Editor에서 schema.sql 전체를 다시 Run", steps: ["s3"] },
+  { sym: "PGRST205 테이블 없음", cause: "SQL을 안 돌렸거나 다른 프로젝트 URL", fix: "SQL 실행, .env.local의 SUPABASE_URL 확인", steps: ["s3"] },
+  { sym: "목록이 계속 빔 / row-level security 에러", cause: "secret 자리에 publishable 키", fix: "sb_secret_로 시작하는 키로 바꾸기", steps: ["s3"] },
+  { sym: "Uncached data ... outside of <Suspense>", cause: "Next 16 cacheComponents 기본값", fix: "그 페이지를 Suspense로 감싸 달라고 하기", steps: ["s4"] },
+  { sym: "AI가 패키지를 깔고 파일을 잔뜩 고침", cause: "문서 밖 행동", fix: "git restore . 로 되돌리고 더 작게 다시 시키기", steps: ["s1", "s2", "s3", "s4"] },
+];
+
+/* ---------------- 과제 ---------------- */
+
+export const ASSIGNMENT = {
+  due: "10/28(수) 해커톤 사전 네트워킹 전까지",
+  items: [
+    { t: "Vercel 배포", d: "Session 6에서 한 그대로. Environment Variables에 OPENAI_API_KEY, OPENAI_MODEL, SUPABASE_URL, SUPABASE_SECRET_KEY 4개를 넣고 Redeploy" },
+    { t: "P1 기능 1개 더", d: "마크다운 복사 버튼, 또는 /specs/[id] 상세 보기와 삭제" },
+    { t: "해커톤 아이디어로 PRD 뽑기", d: "10/31에 팀원한테 바로 보여줄 PRD 하나 만들어 두기" },
+  ],
+  submit: "노션 과제 페이지에 GitHub 레포 링크 + 배포 링크. 이 노트 회고 단계의 링크 제출에도 넣어 두면 제출 현황에 떠요.",
+};
