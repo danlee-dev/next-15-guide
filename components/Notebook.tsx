@@ -4,7 +4,7 @@ import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import Image from "next/image";
 import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { STEPS, type OS } from "@/lib/content";
-import { CheckPath, ToastProvider, ease, useCopy, useToast } from "./ui";
+import { CheckPath, ToastProvider, ease, useToast } from "./ui";
 import StepView from "./StepView";
 import GuideView from "./GuideView";
 import RefsView from "./RefsView";
@@ -13,7 +13,7 @@ import NameGate from "./NameGate";
 import { boardPayload, postBoard } from "./board";
 import { BoardButton, EXTRA_PAGES, MenuSheet } from "./TopExtras";
 import { EMPTY, loadStore, saveStore, type Patch, type Store } from "./store";
-import { stepProgress, stepState, summaryText } from "./summary";
+import { stepProgress, stepState } from "./summary";
 
 const PAGES = new Set([...STEPS.map((s) => s.id), "board", "guide", "refs"]);
 
@@ -31,7 +31,6 @@ function App() {
   const [gate, setGate] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const toast = useToast();
-  const { copy } = useCopy();
 
   // 처음 열 때: 브라우저에 저장된 노트 + 주소의 #단계
   useEffect(() => {
@@ -108,15 +107,11 @@ function App() {
             ))}
           </div>
           <BoardButton active={s.cur === "board"} onClick={() => go("board")} />
-          <button type="button" className="btn btn-soft btn-sm sum" onClick={() => copy(summaryText(s), "제출 요약을 복사했어요")}>
-            제출 요약 복사
-          </button>
           <MenuSheet
             name={s.name}
             onName={(v) => patch((st) => ({ ...st, name: v }))}
             cur={s.cur}
             go={go}
-            onCopySummary={() => copy(summaryText(s), "제출 요약을 복사했어요")}
           />
         </div>
       </header>

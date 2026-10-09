@@ -64,13 +64,11 @@ export function MenuSheet({
   onName,
   cur,
   go,
-  onCopySummary,
 }: {
   name: string;
   onName: (v: string) => void;
   cur: string;
   go: (id: string) => void;
-  onCopySummary: () => void;
 }) {
   const [open, setOpen] = useState(false);
   // 상단바에 backdrop-filter 가 있어서, 그 안에 fixed 로 그리면 화면이 아니라 상단바 기준으로 붙는다. body 로 빼서 그린다
@@ -143,7 +141,7 @@ export function MenuSheet({
                   <div className="sheet-h">
                     <div>
                       <h2 id="sheet-title">더 보기</h2>
-                      <p>자료, 내 이름, 제출 요약</p>
+                      <p>자료와 내 이름</p>
                     </div>
                     <button
                       type="button"
@@ -190,17 +188,6 @@ export function MenuSheet({
                     autoComplete="name"
                     aria-label="내 이름"
                   />
-
-                  <button
-                    type="button"
-                    className="btn btn-ink sheet-copy"
-                    onClick={() => {
-                      onCopySummary();
-                      setOpen(false);
-                    }}
-                  >
-                    제출 요약 복사
-                  </button>
                 </motion.div>
               </>
             )}

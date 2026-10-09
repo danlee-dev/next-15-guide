@@ -259,10 +259,10 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
       )}
 
       {step.summary && (
-        <Section i={n++} title="제출 요약">
-          <p className="sec-lead">지금까지 쓴 답과 진행 상황을 한 번에 복사해요. 잡담방이나 노션 과제 페이지에 붙여 주세요.</p>
-          <button type="button" className="btn btn-ink" onClick={() => copy(summaryText(s), "제출 요약을 복사했어요")}>
-            제출 요약 복사
+        <Section i={n++} title="내 답 모아서 복사" note="선택">
+          <p className="sec-lead">진행 상황은 현황판에 자동으로 올라가요. 노션 과제에 내 답까지 붙이고 싶을 때만 쓰면 돼요.</p>
+          <button type="button" className="btn btn-ink" onClick={() => copy(summaryText(s), "내 답을 복사했어요")}>
+            내 답 모아서 복사
           </button>
         </Section>
       )}
