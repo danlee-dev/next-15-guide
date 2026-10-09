@@ -2,7 +2,7 @@
 
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import Image from "next/image";
-import { useCallback, useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { TOOL_LABEL, tailor, type AgentTool, type OS } from "@/lib/content";
 import { DOCS, DOC_MAP } from "@/lib/docs";
 import { CURRENT, SESSIONS, sessionOf, type Session } from "@/lib/sessions";
@@ -17,7 +17,7 @@ import SideScroll from "./SideScroll";
 import AuthGate from "./AuthGate";
 import { supa } from "./supa";
 import { boardPayload, postBoard, useBoardLive } from "./board";
-import { fetchNotebook, markLocalChange, mergeOnLogin, saveNotebook, syncedPart } from "./notebookSync";
+import { fetchNotebook, mergeOnLogin, saveNotebook, setSynced, syncedPart } from "./notebookSync";
 import { BoardButton, EXTRA_PAGES, MenuSheet } from "./TopExtras";
 import { EMPTY, loadStore, saveStore, type Patch, type Store } from "./store";
 import { sessionDone, stepProgress, stepState } from "./summary";
@@ -81,24 +81,54 @@ function App() {
     if (ready) saveStore(s);
   }, [s, ready]);
 
-  // 노트 전체(체크, 답, 튜터 대화, 제출 링크)를 계정별로 Supabase 에 저장한다. 2초씩 모아서 보낸다
+  // 노트 전체(체크, 답, 튜터 대화, 제출 링크)를 계정별로 Supabase 에 저장한다. 1.5초씩 모아서 보내고,
+  // 실패하면 5초 뒤 다시 보낸다. 사이드바에 저장 상태를 보여 준다
+  const [sync, setSync] = useState<"idle" | "loading" | "saving" | "saved" | "error">("idle");
+  const [retry, setRetry] = useState(0);
   const nbBody = ready && authed && hydrated ? JSON.stringify({ data: syncedPart(s) }) : "";
+  const lastSaved = useRef("");
   useEffect(() => {
-    if (!nbBody) return;
-    markLocalChange();
-    const t = setTimeout(() => saveNotebook(nbBody).catch(() => {}), 2000);
+    if (!nbBody || nbBody === lastSaved.current) return;
+    const t = setTimeout(async () => {
+      setSync("saving");
+      try {
+        setSynced(await saveNotebook(nbBody));
+        lastSaved.current = nbBody;
+        setSync("saved");
+      } catch {
+        setSync("error");
+        setTimeout(() => setRetry((n) => n + 1), 5000);
+      }
+    }, 1500);
     return () => clearTimeout(t);
+  }, [nbBody, retry]);
+  // 창을 닫거나 다른 앱으로 넘어갈 때 아직 안 보낸 게 있으면 바로 보낸다
+  useEffect(() => {
+    const flush = () => {
+      if (document.visibilityState === "hidden" && nbBody && nbBody !== lastSaved.current) saveNotebook(nbBody, true).then(setSynced).catch(() => {});
+    };
+    document.addEventListener("visibilitychange", flush);
+    return () => document.removeEventListener("visibilitychange", flush);
   }, [nbBody]);
 
-  // 로그인 직후: 서버 노트를 불러와 이 브라우저 노트와 합친다 (주소나 기기가 바뀌어도 이어지게)
+  // 로그인 직후: 서버 노트를 불러와 이 브라우저 노트와 칸별로 합친다 (주소나 기기가 바뀌어도 이어지게).
+  // 불러오기에 실패하면 저장을 시작하지 않고 다시 시도한다 (빈 노트로 서버 노트를 덮지 않게)
   const hydrate = useCallback(async (name: string, tool: AgentTool, uid: string) => {
-    let server: Awaited<ReturnType<typeof fetchNotebook>> = { data: null, updatedAt: null };
-    try {
-      server = await fetchNotebook();
-    } catch {}
-    setS((st) => ({ ...mergeOnLogin(st, EMPTY, uid, server), name, tool }));
-    setAuthed(true);
-    setHydrated(true);
+    setSync("loading");
+    for (let i = 0; ; i++) {
+      try {
+        const server = await fetchNotebook();
+        setS((st) => ({ ...mergeOnLogin(st, EMPTY, uid, server), name, tool }));
+        if (server.updatedAt) setSynced(server.updatedAt);
+        setAuthed(true);
+        setHydrated(true);
+        setSync("saved");
+        return;
+      } catch {
+        setSync("error");
+        await new Promise((r) => setTimeout(r, Math.min(15000, 2000 * (i + 1))));
+      }
+    }
   }, []);
 
   // 이름을 적은 뒤부터 내 진행 상황(이름, 단계, 막힘)을 지금 세션 현황판에 자동으로 올린다. 제출 링크는 제출 버튼으로만 바뀐다
@@ -313,7 +343,12 @@ function App() {
             </LayoutGroup>
             {authed && (
               <div className="side-me">
-                <span>{s.name}</span>
+                <span>
+                  {s.name}
+                  <em className="sync" data-s={sync}>
+                    {sync === "saving" ? "저장 중" : sync === "error" ? "저장 안 됨, 다시 시도 중" : sync === "loading" ? "불러오는 중" : "저장됨"}
+                  </em>
+                </span>
                 <button type="button" className="textlink" onClick={logout}>
                   로그아웃
                 </button>

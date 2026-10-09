@@ -918,3 +918,8 @@ button.brand { padding: 0; border: 0; background: transparent; color: inherit; f
 .composer-row { display: flex; align-items: center; gap: 8px; padding-left: 12px; }
 .composer-row input { flex: 1; min-width: 0; height: 38px; border: 0; outline: none; background: transparent; font-size: 15.5px; }
 .composer-row input::placeholder { color: var(--faint); }
+
+/* 노트 저장 상태 (사이드바 이름 옆) */
+.side-me .sync { display: block; margin-top: 2px; font-style: normal; font-size: 12px; color: var(--faint); }
+.side-me .sync[data-s="error"] { color: var(--err); }
+.side-me .sync[data-s="saving"], .side-me .sync[data-s="loading"] { color: var(--muted); }
