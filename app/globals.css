@@ -785,7 +785,13 @@ textarea.field { min-height: 110px; overflow: hidden; }
 .gate-card h2, .sec-h h2, .lib-t, .tname b, .points b { text-wrap: balance; }
 .gate-card p, .hero p, .doc-p, .points span, .sec-lead, .blk-tip, .dlist li, .warn li, .numlist li { text-wrap: pretty; }
 
-/* 데스크톱 사이드바: 화면보다 길면 사이드바만 따로 스크롤 */
+/* 데스크톱 사이드바: 화면보다 길면 사이드바만 따로 스크롤. 기본 스크롤바 대신 본문과의 빈 칸에 얇은 위치 막대 */
 @media (min-width: 961px) {
-  .side { max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 88px); overflow-y: auto; overscroll-behavior: contain; padding-bottom: 24px; scrollbar-width: thin; scrollbar-color: var(--field) transparent; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%); }
+  .side { padding-top: 20px; }
+  .side-scroll { max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 108px); overflow-y: auto; overscroll-behavior: contain; padding: 20px 0 24px; scrollbar-width: none; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%); }
+  .side-scroll::-webkit-scrollbar { display: none; }
+  .side-rail { position: absolute; top: 40px; right: -30px; width: 3px; height: calc(100% - 40px); border-radius: 3px; opacity: 0; transition: opacity 0.35s var(--ease); pointer-events: none; }
+  .side:hover .side-rail, .side-rail[data-moving="1"] { opacity: 1; }
+  .side-rail i { display: block; width: 100%; border-radius: 3px; background: var(--field); transition: height 0.2s var(--ease); }
 }
+

@@ -11,6 +11,7 @@ import GuideView from "./GuideView";
 import RefsView from "./RefsView";
 import BoardView from "./BoardView";
 import DocView, { LibraryView } from "./DocView";
+import SideScroll from "./SideScroll";
 import AuthGate from "./AuthGate";
 import { supa } from "./supa";
 import { boardPayload, postBoard, useBoardLive } from "./board";
@@ -60,15 +61,6 @@ function App() {
     if (ready) saveStore(s);
   }, [s, ready]);
 
-  // 사이드바가 따로 스크롤될 때, 지금 페이지 항목이 가려져 있으면 보이는 곳까지 사이드바만 굴린다 (창은 안 움직임)
-  useEffect(() => {
-    const side = document.querySelector<HTMLElement>(".side");
-    const item = side?.querySelector<HTMLElement>('.navitem[aria-current="page"]');
-    if (!side || !item || side.scrollHeight <= side.clientHeight) return;
-    const top = item.getBoundingClientRect().top - side.getBoundingClientRect().top + side.scrollTop;
-    if (top < side.scrollTop + 8) side.scrollTo({ top: top - 48, behavior: "smooth" });
-    else if (top + item.offsetHeight > side.scrollTop + side.clientHeight - 8) side.scrollTo({ top: top + item.offsetHeight - side.clientHeight + 48, behavior: "smooth" });
-  }, [s.cur]);
 
   // 이름을 적은 뒤부터 내 진행 상황(이름, 단계, 막힘, 링크)을 제출 현황판에 자동으로 올린다. 1.5초씩 모아서 보낸다
   const syncBody = ready && authed && s.name.trim() ? JSON.stringify(boardPayload(s)) : "";
@@ -194,6 +186,7 @@ function App() {
 
       <div className="shell">
         <aside className="side">
+          <SideScroll cur={s.cur}>
           <div className="progress">
             <div className="row">
               <span>진행</span>
@@ -254,6 +247,7 @@ function App() {
               </button>
             </div>
           )}
+          </SideScroll>
         </aside>
 
         <main className="page">
