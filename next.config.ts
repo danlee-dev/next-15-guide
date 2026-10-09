@@ -4,16 +4,14 @@ const nextConfig: NextConfig = {
   /* config options here */
   cacheComponents: true,
   partialPrefetching: true,
-  // 예전 주소로 들어오면 새 주소로 보낸다. 구글 로그인 후 돌아올 주소는 next-guide-15 만 허용돼 있다
+  // 예전 주소로 들어오면 새 주소(nextku-dev)로 보낸다. 예전 주소가 이 프로젝트 도메인으로 붙어 있을 때만 동작한다
   async redirects() {
-    return [
-      {
-        source: "/:path*",
-        has: [{ type: "host", value: "next-session8.vercel.app" }],
-        destination: "https://next-guide-15.vercel.app/:path*",
-        permanent: false,
-      },
-    ];
+    return ["next-session8.vercel.app", "next-guide-15.vercel.app"].map((host) => ({
+      source: "/:path*",
+      has: [{ type: "host" as const, value: host }],
+      destination: "https://nextku-dev.vercel.app/:path*",
+      permanent: false,
+    }));
   },
   turbopack: {
     rules: {

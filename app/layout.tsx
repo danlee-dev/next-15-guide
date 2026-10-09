@@ -19,7 +19,7 @@ const mono = localFont({
 const description = "NEXT 15기 개발 세션. 세션별 실습 노트와 제출 현황, 바이브 코딩 가이드, 개발 세팅과 디자인 자료.";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://next-guide-15.vercel.app"),
+  metadataBase: new URL("https://nextku-dev.vercel.app"),
   title: "NEXT 15기 개발 세션",
   description,
   // 제출 현황판에 본명이 떠서 검색엔진에는 올리지 않는다

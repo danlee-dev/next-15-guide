@@ -76,9 +76,10 @@ export async function POST(req: Request) {
 
   if (body.tool === "claude" || body.tool === "codex") row.tool = body.tool;
   // 과제로 추가한 기능 설명. 지운 것도 반영되게 문자열이 오면 항상 덮어쓴다
-  if (typeof body.feature === "string") row.feature = clip(body.feature, 400).trim() || null;
+  if (body.submit && typeof body.feature === "string") row.feature = clip(body.feature, 400).trim() || null;
 
-  if (body.links) {
+  // 제출 링크는 "제출" 버튼으로 보낼 때만 바꾼다. 자동 저장(다른 기기, 새 주소에서 빈 노트로 시작한 경우 포함)이 덮어쓰지 않게
+  if (body.submit && body.links) {
     const repo = cleanUrl(body.links.repo, /(^|\.)github\.com$/i);
     const deploy = cleanUrl(body.links.deploy);
     // "제출" 버튼일 때만 이상한 주소를 알려 준다. 자동 저장 중엔 쓰다 만 주소일 수 있으니 그 칸만 건너뛴다

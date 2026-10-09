@@ -17,6 +17,7 @@ import SideScroll from "./SideScroll";
 import AuthGate from "./AuthGate";
 import { supa } from "./supa";
 import { boardPayload, postBoard, useBoardLive } from "./board";
+import { fetchNotebook, markLocalChange, mergeOnLogin, saveNotebook, syncedPart } from "./notebookSync";
 import { BoardButton, EXTRA_PAGES, MenuSheet } from "./TopExtras";
 import { EMPTY, loadStore, saveStore, type Patch, type Store } from "./store";
 import { sessionDone, stepProgress, stepState } from "./summary";
@@ -51,6 +52,8 @@ function App() {
   const [ready, setReady] = useState(false);
   // 구글 로그인이 끝나고 이름까지 정해졌는지. 그 전에는 현황판에 아무것도 올리지 않는다
   const [authed, setAuthed] = useState(false);
+  // 로그인 뒤 Supabase 에 저장된 내 노트를 불러왔는지. 불러오기 전에는 아무것도 서버에 올리지 않는다
+  const [hydrated, setHydrated] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const toast = useToast();
 
@@ -78,8 +81,28 @@ function App() {
     if (ready) saveStore(s);
   }, [s, ready]);
 
-  // 이름을 적은 뒤부터 내 진행 상황(이름, 단계, 막힘, 링크)을 지금 세션 현황판에 자동으로 올린다. 1.5초씩 모아서 보낸다
-  const syncBody = ready && authed && s.name.trim() ? JSON.stringify(boardPayload(s)) : "";
+  // 노트 전체(체크, 답, 튜터 대화, 제출 링크)를 계정별로 Supabase 에 저장한다. 2초씩 모아서 보낸다
+  const nbBody = ready && authed && hydrated ? JSON.stringify({ data: syncedPart(s) }) : "";
+  useEffect(() => {
+    if (!nbBody) return;
+    markLocalChange();
+    const t = setTimeout(() => saveNotebook(nbBody).catch(() => {}), 2000);
+    return () => clearTimeout(t);
+  }, [nbBody]);
+
+  // 로그인 직후: 서버 노트를 불러와 이 브라우저 노트와 합친다 (주소나 기기가 바뀌어도 이어지게)
+  const hydrate = useCallback(async (name: string, tool: AgentTool, uid: string) => {
+    let server: Awaited<ReturnType<typeof fetchNotebook>> = { data: null, updatedAt: null };
+    try {
+      server = await fetchNotebook();
+    } catch {}
+    setS((st) => ({ ...mergeOnLogin(st, EMPTY, uid, server), name, tool }));
+    setAuthed(true);
+    setHydrated(true);
+  }, []);
+
+  // 이름을 적은 뒤부터 내 진행 상황(이름, 단계, 막힘)을 지금 세션 현황판에 자동으로 올린다. 제출 링크는 제출 버튼으로만 바뀐다
+  const syncBody = ready && authed && hydrated && s.name.trim() ? JSON.stringify(boardPayload(s)) : "";
   useEffect(() => {
     if (!syncBody) return;
     const t = setTimeout(() => postBoard(syncBody).catch(() => {}), 1500);
@@ -105,9 +128,12 @@ function App() {
     return () => clearTimeout(t);
   }, [notice]);
 
+  // 로그아웃하면 화면의 노트를 비운다 (서버에는 남아 있어서 다시 로그인하면 돌아온다)
   const logout = () => {
     supa().auth.signOut();
-    patch((st) => ({ ...st, name: "" }));
+    setHydrated(false);
+    setAuthed(false);
+    patch((st) => ({ ...EMPTY, os: st.os, osPicked: st.osPicked, cur: "home" }));
   };
 
   const setOS = (os: OS) => {
@@ -326,11 +352,11 @@ function App() {
       {ready && (
         <AuthGate
           tool={s.tool}
-          onReady={(name, tool) => {
-            patch((st) => ({ ...st, name, tool }));
-            setAuthed(true);
+          onReady={hydrate}
+          onSignedOut={() => {
+            setAuthed(false);
+            setHydrated(false);
           }}
-          onSignedOut={() => setAuthed(false)}
         />
       )}
     </>

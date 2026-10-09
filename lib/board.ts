@@ -26,7 +26,7 @@ function conf() {
   return { url, key };
 }
 
-async function rest(path: string, init: RequestInit = {}) {
+export async function rest(path: string, init: RequestInit = {}) {
   const { url, key } = conf();
   return fetch(`${url}/rest/v1/${path}`, {
     ...init,

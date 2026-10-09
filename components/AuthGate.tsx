@@ -27,13 +27,14 @@ export default function AuthGate({
   onSignedOut,
 }: {
   tool: AgentTool | "";
-  onReady: (name: string, tool: AgentTool) => void;
+  onReady: (name: string, tool: AgentTool, uid: string) => void;
   onSignedOut: () => void;
 }) {
   const [phase, setPhase] = useState<Phase>("loading");
   const [name, setName] = useState("");
   const [tool, setTool] = useState<AgentTool | "">(savedTool);
   const toolRef = useRef(savedTool);
+  const uidRef = useRef("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const cb = useRef({ onReady, onSignedOut });
@@ -51,12 +52,13 @@ export default function AuthGate({
         cb.current.onSignedOut();
         return;
       }
+      uidRef.current = data.session.user.id;
       try {
         const me = await fetchMe();
         if (!alive) return;
         const known = me.tool || toolRef.current;
         if (me.name && known) {
-          cb.current.onReady(me.name, known);
+          cb.current.onReady(me.name, known, uidRef.current);
           setPhase("done");
         } else {
           // 이름은 있는데 도구를 아직 안 골랐으면(예전에 들어온 사람) 이름은 채워 두고 도구만 고르게 한다
@@ -108,7 +110,7 @@ export default function AuthGate({
       setErr("주로 쓰는 AI 도구를 골라 주세요");
       return;
     }
-    cb.current.onReady(n, tool);
+    cb.current.onReady(n, tool, uidRef.current);
     setPhase("done");
   };
 
