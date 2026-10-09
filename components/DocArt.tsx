@@ -192,7 +192,7 @@ function Arch() {
           </div>
           <div className="ax-box">
             <b>
-              <Logo src="/refs/logos/supabase-cli.png" />
+              <Logo src="/refs/logos/supabase.svg" />
               Supabase
             </b>
             <small>Postgres DB · 로그인</small>
@@ -268,7 +268,7 @@ function ReqFlow() {
 
 /* ---------- MCP ---------- */
 const MCP_SERVERS: [string, string, string][] = [
-  ["Supabase", "/refs/logos/supabase-mcp.png", "테이블 · RLS · 로그"],
+  ["Supabase", "/refs/logos/supabase.svg", "테이블 · RLS · 로그"],
   ["Vercel", "/refs/logos/vercel-mcp.png", "배포 · 빌드 로그 · 환경 변수"],
   ["Railway", "/refs/logos/railway-mcp.png", "서비스 · 로그 · 재배포"],
   ["Playwright", "/refs/logos/playwright-mcp.svg", "브라우저 클릭 · 스크린샷"],
@@ -337,7 +337,7 @@ function Deploy() {
         </div>
         <div className="dp-ext">
           <span>
-            <Logo src="/refs/logos/supabase-cli.png" />
+            <Logo src="/refs/logos/supabase.svg" />
             Supabase · 데이터
           </span>
           <span>OpenAI · AI</span>
