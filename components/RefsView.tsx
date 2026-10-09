@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { REFS } from "@/lib/content";
 import { ArrowUpRight, Command, CopyMenu, Hero, Section } from "./ui";
 import type { Store } from "./store";
@@ -34,9 +35,23 @@ export default function RefsView({ s, go }: { s: Store; go: (id: string) => void
           <ul className="links">
             {g.items.map((it) => (
               <li key={it.url}>
-                <a href={it.url} target="_blank" rel="noopener noreferrer">
+                <a href={it.url} target="_blank" rel="noopener noreferrer" data-shot={it.shot ? "1" : "0"}>
+                  {it.shot && (
+                    <span className="lshot">
+                      <Image src={it.shot} alt={`${it.name} 화면`} width={1280} height={800} sizes="(max-width: 760px) 100vw, 380px" />
+                    </span>
+                  )}
                   <span className="ln">
-                    {it.name}
+                    <span className="lname">
+                      {it.logo ? (
+                        <Image className="llogo" src={it.logo} alt="" width={28} height={28} />
+                      ) : (
+                        <span className="llogo ltile" aria-hidden="true">
+                          {it.name.slice(0, 1)}
+                        </span>
+                      )}
+                      {it.name}
+                    </span>
                     <ArrowUpRight />
                   </span>
                   <span className="ld">{it.desc}</span>

@@ -11,6 +11,7 @@ import RefsView from "./RefsView";
 import BoardView from "./BoardView";
 import NameGate from "./NameGate";
 import { boardPayload, postBoard } from "./board";
+import { BoardButton, EXTRA_PAGES, MenuSheet } from "./TopExtras";
 import { EMPTY, loadStore, saveStore, type Patch, type Store } from "./store";
 import { stepState, summaryText } from "./summary";
 
@@ -106,9 +107,17 @@ function App() {
               </button>
             ))}
           </div>
+          <BoardButton active={s.cur === "board"} onClick={() => go("board")} />
           <button type="button" className="btn btn-soft btn-sm sum" onClick={() => copy(summaryText(s), "제출 요약을 복사했어요")}>
             제출 요약 복사
           </button>
+          <MenuSheet
+            name={s.name}
+            onName={(v) => patch((st) => ({ ...st, name: v }))}
+            cur={s.cur}
+            go={go}
+            onCopySummary={() => copy(summaryText(s), "제출 요약을 복사했어요")}
+          />
         </div>
       </header>
 
@@ -148,24 +157,10 @@ function App() {
                   })}
                 </ul>
               </div>
-              <div className="navgroup">
-                <h4>현황</h4>
+              <div className="navgroup extra">
+                <h4>자료</h4>
                 <ul className="navlist">
-                  <li>
-                    <button type="button" className="navitem" aria-current={s.cur === "board" ? "page" : undefined} onClick={() => go("board")}>
-                      {s.cur === "board" && <motion.span layoutId="nav-hl" className="hl" transition={{ type: "spring", stiffness: 420, damping: 36 }} />}
-                      <span className="lbl">제출 현황</span>
-                    </button>
-                  </li>
-                </ul>
-              </div>
-              <div className="navgroup">
-                <h4>더 보기</h4>
-                <ul className="navlist">
-                  {[
-                    ["guide", "바이브 코딩 가이드"],
-                    ["refs", "디자인 레퍼런스"],
-                  ].map(([id, label]) => {
+                  {EXTRA_PAGES.map(([id, label]) => {
                     const active = s.cur === id;
                     return (
                       <li key={id}>

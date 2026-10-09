@@ -263,35 +263,35 @@ git push`,
   },
 ];
 
-export const REFS: { title: string; note: string; items: { name: string; desc: string; url: string }[] }[] = [
+export const REFS: { title: string; note: string; items: { name: string; desc: string; url: string; logo?: string; shot?: string }[] }[] = [
   {
     title: "DESIGN.md",
     note: "AI가 읽는 디자인 규칙 파일",
     items: [
-      { name: "getdesign.md", desc: "브랜드별 DESIGN.md를 npx 한 줄로 받는 곳. 색, 타이포, 간격, 컴포넌트, 모션까지 들어 있어요", url: "https://getdesign.md" },
-      { name: "awesome-design-md", desc: "Stripe, Linear, ElevenLabs 같은 실제 서비스를 분석한 DESIGN.md 모음", url: "https://github.com/VoltAgent/awesome-design-md" },
+      { name: "getdesign.md", desc: "브랜드별 DESIGN.md를 npx 한 줄로 받는 곳. 색, 타이포, 간격, 컴포넌트, 모션까지 들어 있어요", url: "https://getdesign.md", logo: "/refs/logos/getdesign.png", shot: "/refs/getdesign.webp" },
+      { name: "awesome-design-md", desc: "Stripe, Linear, ElevenLabs 같은 실제 서비스를 분석한 DESIGN.md 모음", url: "https://github.com/VoltAgent/awesome-design-md", logo: "/refs/logos/github-mcp.png" },
     ],
   },
   {
     title: "컴포넌트",
     note: "가져다 쓰는 UI 부품",
     items: [
-      { name: "shadcn/ui", desc: "코드가 내 프로젝트로 복사되는 UI 라이브러리. 고치기 쉬워서 AI와 궁합이 좋아요", url: "https://ui.shadcn.com" },
-      { name: "21st.dev", desc: "shadcn 기반 React 컴포넌트와 템플릿. AI에게 줄 프롬프트로도 복사돼요", url: "https://21st.dev" },
-      { name: "Magic UI", desc: "움직임이 들어간 랜딩용 컴포넌트", url: "https://magicui.design" },
-      { name: "Lucide", desc: "shadcn이 기본으로 쓰는 아이콘", url: "https://lucide.dev" },
+      { name: "shadcn/ui", desc: "코드가 내 프로젝트로 복사되는 UI 라이브러리. 고치기 쉬워서 AI와 궁합이 좋아요", url: "https://ui.shadcn.com", logo: "/refs/logos/shadcn-ui.png", shot: "/refs/shadcn-ui.webp" },
+      { name: "21st.dev", desc: "shadcn 기반 React 컴포넌트와 템플릿. AI에게 줄 프롬프트로도 복사돼요", url: "https://21st.dev", logo: "/refs/logos/21st-dev.png", shot: "/refs/21st-dev.webp" },
+      { name: "Magic UI", desc: "움직임이 들어간 랜딩용 컴포넌트", url: "https://magicui.design", logo: "/refs/logos/magic-ui.png", shot: "/refs/magic-ui.webp" },
+      { name: "Lucide", desc: "shadcn이 기본으로 쓰는 아이콘", url: "https://lucide.dev", logo: "/refs/logos/lucide.png", shot: "/refs/lucide.webp" },
     ],
   },
   {
     title: "화면 레퍼런스",
     note: "잘 만든 서비스 화면 보기",
     items: [
-      { name: "Mobbin", desc: "실제 앱과 웹의 화면과 플로우를 단계별로 모아 둔 라이브러리", url: "https://mobbin.com" },
-      { name: "Refero", desc: "실서비스 UI를 기능별로 검색. 온보딩, 결제, 빈 상태 같은 것", url: "https://refero.design" },
-      { name: "Dribbble", desc: "디자이너 시안 모음. 분위기와 색 조합을 잡을 때", url: "https://dribbble.com" },
-      { name: "Godly", desc: "움직임이 좋은 웹사이트 모음", url: "https://godly.website" },
-      { name: "Awwwards", desc: "웹 디자인 어워드 수상작", url: "https://www.awwwards.com" },
-      { name: "UI Bowl", desc: "국내 UI/UX 레퍼런스 큐레이션", url: "https://uibowl.io" },
+      { name: "Mobbin", desc: "실제 앱과 웹의 화면과 플로우를 단계별로 모아 둔 라이브러리", url: "https://mobbin.com", logo: "/refs/logos/mobbin.png", shot: "/refs/mobbin.webp" },
+      { name: "Refero", desc: "실서비스 UI를 기능별로 검색. 온보딩, 결제, 빈 상태 같은 것", url: "https://refero.design", logo: "/refs/logos/refero.png", shot: "/refs/refero.webp" },
+      { name: "Dribbble", desc: "디자이너 시안 모음. 분위기와 색 조합을 잡을 때", url: "https://dribbble.com", logo: "/refs/logos/dribbble.png", shot: "/refs/dribbble.webp" },
+      { name: "Recent (구 Godly)", desc: "움직임이 좋은 웹사이트 모음. Godly가 이름을 바꿔 여기로 옮겼어요", url: "https://recent.design", logo: "/refs/logos/godly.svg", shot: "/refs/godly.webp" },
+      { name: "Awwwards", desc: "웹 디자인 어워드 수상작", url: "https://www.awwwards.com", logo: "/refs/logos/awwwards.png" },
+      { name: "UI Bowl", desc: "국내 UI/UX 레퍼런스 큐레이션", url: "https://uibowl.io", logo: "/refs/logos/ui-bowl.png", shot: "/refs/ui-bowl.webp" },
     ],
   },
   {
