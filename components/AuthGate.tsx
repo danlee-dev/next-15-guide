@@ -132,7 +132,7 @@ export default function AuthGate({
             <motion.form className="gate-card" role="dialog" aria-modal="true" aria-labelledby="gate-title" onSubmit={submit} initial={{ opacity: 0, y: 18, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.5, ease }}>
               <Image src="/next-logo-ink.png" alt="NEXT" width={407} height={96} className="gate-logo" priority />
               <h2 id="gate-title">이름과 도구를 확인해 주세요</h2>
-              <p>꼭 본명으로 적어 주세요. 제출 현황판에 이 이름이 떠요. 도구는 고른 쪽에 맞춰 명령어와 파일 이름이 바뀌고, 나중에 위쪽에서 바꿀 수 있어요.</p>
+              <p>꼭 본명으로 적어 주세요. 제출 현황판에 그대로 떠요. 도구를 고르면 그에 맞는 명령어로 안내하고, 위쪽에서 언제든 바꿀 수 있어요.</p>
               <input
                 autoFocus
                 value={name}
@@ -159,8 +159,9 @@ export default function AuthGate({
                       if (err) setErr("");
                     }}
                   >
+                    <Image className="gate-tool-ic" src={t === "claude" ? "/refs/logos/claude-code.png" : "/refs/logos/codex.png"} alt="" width={32} height={32} />
                     <b>{TOOL_LABEL[t]}</b>
-                    <span>{t === "claude" ? "CLAUDE.md · Shift+Tab plan 모드" : "AGENTS.md · /plan"}</span>
+                    <span>{t === "claude" ? "CLAUDE.md" : "AGENTS.md"}</span>
                   </button>
                 ))}
               </div>

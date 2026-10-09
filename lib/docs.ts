@@ -187,7 +187,7 @@ const arch: Doc = {
   label: "아키텍처",
   chip: "구조",
   meta: "읽는 데 7분",
-  title: "화면 뒤에서 무슨 일이 일어나나",
+  title: "화면 뒤에서 무슨\u00a0일이 일어나나",
   lead: "웹 서비스는 브라우저, 서버, 데이터베이스, 외부 API가 요청을 주고받는 구조예요. 이 지도를 알면 AI에게 무엇을 어디에 만들라고 정확히 말할 수 있어요.",
   desc: "프론트·백엔드·DB·외부 API, 요청 흐름, 키 위치, 설계 순서",
   sections: [
@@ -401,7 +401,7 @@ gh auth login   # GitHub.com → HTTPS → 브라우저로 로그인`,
           k: "tools",
           items: [
             { name: "Claude Code", logo: L("claude-code.png"), url: "https://code.claude.com/docs/en/setup", d: "Claude Pro 이상 구독 또는 API 키. 무료 플랜에는 없어요" },
-            { name: "Codex CLI", logo: L("codex-cli.svg"), url: "https://learn.chatgpt.com/docs/codex/cli", d: "ChatGPT Plus 이상 구독 또는 API 키" },
+            { name: "Codex CLI", logo: L("codex.png"), url: "https://learn.chatgpt.com/docs/codex/cli", d: "ChatGPT Plus 이상 구독 또는 API 키" },
           ],
         },
         {
@@ -480,7 +480,7 @@ const mcp: Doc = {
   label: "MCP 연결",
   chip: "MCP",
   meta: "필요할 때 하나씩",
-  title: "AI에게 바깥 서비스를 연결하기",
+  title: "AI에게 바깥\u00a0서비스를 연결하기",
   lead: "MCP를 연결하면 AI가 Supabase 테이블, Vercel 배포 로그, 브라우저 화면을 직접 보고 다뤄요. 대시보드를 보고 복사해서 붙여넣던 일이 줄어요. 대신 내 계정 권한으로 움직이니까 좁게 연결해요.",
   desc: "MCP가 뭔지, 브라우저·Context7, Supabase·Vercel·Railway 연결",
   sections: [

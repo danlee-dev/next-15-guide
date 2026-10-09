@@ -124,7 +124,7 @@ export const STEPS: Step[] = [
     id: "plan",
     label: "기획",
     start: "0:16",
-    title: "AI와 같이 내 버전을 정해요",
+    title: "AI와 같이 내\u00a0버전을 정해요",
     lead: "PRD는 혼자 쓰지 않아요. AI에게 질문을 먼저 받고, 후보를 받고, 결정은 내가 해요.",
     prompt: `docs/PRD.md를 읽어. 나는 이 PRD 메이커를 [___]용으로 바꾸고 싶어.
 아직 아무것도 고치지 말고, 먼저 나한테 질문 3개만 해.
