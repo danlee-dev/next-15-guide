@@ -249,7 +249,6 @@ export function LibraryView({ s, go }: { s: Store; go: (id: string) => void }) {
         meta="실습 끝나고, 해커톤 전에"
         title="필요할 때 꺼내 보는 자료"
         lead="실습 노트가 오늘 1시간용이라면, 여기는 해커톤과 그다음 프로젝트까지 쓰는 자료예요. 한 페이지에 한 주제씩 짧게 나눴어요."
-        aside={<CopyMenu page="library" os={s.os} tool={s.tool} />}
       />
       {LIBRARY.map((g) => (
         <Section key={g.title} i={n++} title={g.title}>

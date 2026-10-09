@@ -5,7 +5,7 @@ import { LIBRARY } from "@/lib/docs";
 import { CURRENT, SESSIONS, type Session } from "@/lib/sessions";
 import { useBoard } from "./board";
 import { sessionDone, stepState } from "./summary";
-import { CheckPath, CopyMenu, Hero, Section, ease } from "./ui";
+import { CheckPath, Hero, Section, ease } from "./ui";
 import type { Store } from "./store";
 
 // 첫 화면(세션 목록)과 세션 개요. 세션이 늘면 lib/sessions.ts 에 추가만 하면 여기 같이 뜬다.
@@ -44,7 +44,6 @@ export function HomeView({ s, go }: { s: Store; go: (id: string) => void }) {
         meta="NEXT 개발 세션"
         title="15기 개발 세션"
         lead="세션마다 실습 노트와 제출 현황이 여기 쌓여요. 자료실은 세션과 상관없이 언제든 꺼내 보세요."
-        aside={<CopyMenu page="home" os={s.os} tool={s.tool} />}
       />
 
       <Section i={0} title="세션">
@@ -114,7 +113,6 @@ export function SessionView({ ses, s, go }: { ses: Session; s: Store; go: (id: s
         meta={`${ses.dateLabel} · ${ses.length}`}
         title={ses.title}
         lead={ses.lead}
-        aside={<CopyMenu page={ses.page} os={s.os} tool={s.tool} />}
       />
 
       <div className="ses-cta">
