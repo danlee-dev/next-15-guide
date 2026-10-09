@@ -31,7 +31,9 @@ NEXT 15기 개발세션 8. 2026-10-11(일), 1시간. 학회원 약 17명, 개발
 3. 저장: Supabase에 쌓이고, 목록에서 다시 보고, 마크다운으로 복사
 (예시 화면: "팀메이트, 24시간 안에 나랑 맞는 팀원 찾기" 같은 결과 카드)
 
-## 큰 그림: 키는 서버 밖으로 나가지 않아요
+## 큰 그림: 비밀 키는 서버에만 둬요
+
+- 키가 서버를 아예 안 떠나는 건 아니다. 서버가 OpenAI·Supabase에 요청할 때 키를 같이 보낸다. 요점은 브라우저(사용자 쪽)로는 절대 안 간다는 것.
 
 - 브라우저 (누구나 개발자도구로 열어볼 수 있음): `app/page.tsx` 입력 폼과 결과 카드 표시, `app/specs/page.tsx` 목록 화면
 - Next.js 서버 (코드와 키가 사용자에게 안 보임): `app/api/specs/route.ts`
@@ -62,7 +64,9 @@ NEXT 15기 개발세션 8. 2026-10-11(일), 1시간. 학회원 약 17명, 개발
 
 ## 바이브 코딩 루프
 
-1 문서 확인(docs/에 적힌 대로만) → 2 프롬프트(Step 하나씩만 시키기) → 3 직접 확인(브라우저, 터미널, Supabase를 눈으로) → 4 이해 질문(방금 코드가 어떤 순서로 도는지 AI한테 묻기) → 5 git commit(되돌릴 지점 만들기) → 다음 Step
+1 문서 확인(docs/에 적힌 대로만) → 2 프롬프트(Step 하나씩만 시키기) → 3 직접 확인(브라우저, 터미널, Supabase를 눈으로) → 4 이해 질문(방금 코드가 어떤 순서로 도는지 AI한테 묻기) → 5 git commit(되돌릴 지점 만들기. 커밋 메시지 쓰기와 커밋 자체는 AI에게 맡겨도 된다) → 다음 Step
+
+- AI가 코드를 쓰는 건 2와 3 사이다. 나머지 1·3·4는 내가 하는 일이다.
 
 지난 연사 세션에서 들은 것:
 - docs 폴더부터: 기능별로 결정한 걸 docs/에 문서로 깔아 두고, AI가 코드를 뒤지기 전에 문서부터 읽게 한다. 맥락이 덜 오염되고 토큰도 아낄 수 있다.
@@ -287,6 +291,19 @@ git restore .
 ## 과제 (마감 10/26(월) 세션 전까지)
 
 - Vercel 배포: Session 6에서 한 그대로 하되, Environment Variables에 4개(OPENAI_API_KEY, OPENAI_MODEL, SUPABASE_URL, SUPABASE_SECRET_KEY) 등록하고 Redeploy
-- P1 기능 1개 더: 마크다운 복사 버튼, 또는 /specs/[id] 상세 보기와 삭제
+- Step 4 내 버전 + P1 기능 1개: PRD 8번에 정한 내 버전, 그리고 마크다운 복사 버튼이나 /specs/[id] 상세 보기와 삭제
 - 해커톤 아이디어로 PRD 뽑기: 10/31에 팀원한테 바로 보여줄 PRD 하나 만들어 두기
 - 제출: 노션 과제 페이지에 GitHub 레포 링크 + 배포 링크
+
+
+## 발표 자료 이후 정정한 것 (2026-10-10 공식 문서로 확인. 이 내용이 위보다 우선)
+
+- .env.local을 고친 뒤: Next 16의 npm run dev는 저장하면 보통 자동으로 다시 읽고 터미널에 "Reload env: .env.local"을 찍는다. 그래도 안 바뀌면 Ctrl+C 후 npm run dev. 재시작은 마지막 수단이다.
+- create-next-app의 첫 커밋: git에 user.name / user.email 설정이 없으면 첫 커밋이 조용히 빠진다. git log --oneline에 "Initial commit from Create Next App"이 없으면 git config --global user.name "이름", git config --global user.email "이메일"을 먼저 하고 커밋한다.
+- push 전: git branch --show-current로 main인지 확인. 아니면 git branch -M main.
+- Claude Code plan 모드: 화면 아래 "plan mode on"이 보일 때까지 Shift+Tab(최신 버전은 보통 세 번), 또는 프롬프트 앞에 /plan. Windows에서 Shift+Tab이 안 먹으면 Alt+M. Codex CLI도 /plan 또는 Shift+Tab으로 Plan 모드가 있고, 파일이 절대 안 바뀌게 하려면 /permissions에서 Read Only.
+- Supabase: Project URL은 프로젝트 화면 위쪽 Connect 버튼에서, secret 키는 Settings > API Keys의 Secret keys에서 복사한다. 2026-05-30부터 새 프로젝트는 "새 테이블 자동 노출"이 꺼진 채로 만들어지는 게 기본이라 grant가 필요하다(설정이 켜져 있으면 자동으로 붙지만, grant 문은 어느 쪽이든 넣어 두면 안전하다).
+- Windows 실행 정책: Set-ExecutionPolicy 후 바꿀지 물어보면 Y, 안 물어보면 이미 된 것. 그다음 터미널을 다시 열고 npx를 다시 실행.
+- 시간표(현실화): 오프닝 6분 · 준비 10분 · 기획 6분 · Step 0~1 10분 · Step 2 10분 · Step 3 10분 · 데모·과제 8분. Step 4는 시간 남으면, 아니면 과제.
+- 과제 마감: 10/26(월) 세션 전까지. 과제는 Vercel 배포, Step 4 내 버전 + P1 기능 1개, 해커톤 아이디어로 PRD 뽑기.
+- 이 노트 사이트 주소는 next-guide-15.vercel.app (NEXT 15기 개발 가이드). 구글로 로그인하고 본명을 적는다.

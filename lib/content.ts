@@ -61,12 +61,13 @@ OPENAI_API_KEY=sk-...
 OPENAI_MODEL=gpt-6-luna`,
   },
   envDb: {
-    both: `# .env.local 에 두 줄 추가 (Supabase > Settings > API Keys)
+    both: `# .env.local 에 두 줄 추가 (URL은 위쪽 Connect 버튼, 키는 Settings > API Keys)
 SUPABASE_URL=https://xxxx.supabase.co
 SUPABASE_SECRET_KEY=sb_secret_...`,
   },
   restart: {
-    both: `# 터미널에서 Ctrl+C 로 끄고 다시 켜기
+    both: `# 보통은 저장만 하면 자동 반영 (터미널에 Reload env: .env.local)
+# 그래도 안 바뀌면 Ctrl+C 로 끄고 다시 켜기
 npm run dev`,
   },
   getdesign: {
@@ -87,11 +88,11 @@ export const STEPS: Step[] = [
     title: "레포를 만들고, 문서부터 깔아요",
     lead: "빈 폴더에서 시작해요. AI가 코드를 쓰기 전에 읽을 문서를 레포에 먼저 넣어 두는 게 이번 단계의 전부예요.",
     todo: [
-      { label: "프로젝트 만들기", cmd: "create", tip: "cd prd-maker는 방금 만든 prd-maker 폴더로 들어가는 명령이에요. VS Code에서 파일 > 폴더 열기로 prd-maker를 열고 그 안의 터미널(보기 > 터미널)을 쓰면 이미 그 폴더라서, cd 없이 npm install부터 치면 돼요." },
-      { label: "Windows에서 에러가 나면", cmd: "winPolicy", os: "win", tip: "PowerShell 창에 그대로 붙여넣고 Enter. 바꿀지 물어보면 Y를 누르면 돼요. 한 번만 하면 다음부터는 안 나와요." },
+      { label: "프로젝트 만들기", cmd: "create", tip: "끝나면 git log --oneline에 Initial commit from Create Next App이 보이는지 확인해요. 안 보이면 git에 이름·이메일이 설정 안 된 거라, git config --global user.name \"이름\" 과 git config --global user.email \"이메일\"을 먼저 치고 git add . && git commit -m \"init\" 해요. cd prd-maker는 방금 만든 prd-maker 폴더로 들어가는 명령이에요. VS Code에서 파일 > 폴더 열기로 prd-maker를 열고 그 안의 터미널(보기 > 터미널)을 쓰면 이미 그 폴더라서, cd 없이 npm install부터 치면 돼요." },
+      { label: "Windows에서 에러가 나면", cmd: "winPolicy", os: "win", tip: "PowerShell 창에 그대로 붙여넣고 Enter. 바꿀지 물어보면 Y를 누르고, 안 물어보면 그냥 된 거예요. 그다음 터미널을 닫았다 다시 열고 npx를 다시 실행해요." },
       { label: "문서팩 받기", download: { href: "/prd-maker-pack.zip", label: "prd-maker-pack.zip 받기" }, tip: "받은 zip을 두 번 클릭(Windows는 오른쪽 클릭 > 압축 풀기)하면 다운로드 폴더에 prd-maker-pack 폴더가 생겨요. 아래 명령어는 그 위치를 기준으로 해요." },
       { label: "문서팩 넣기", cmd: "pack", tip: "명령어가 낯설면 손으로 해도 결과는 같아요. 압축 푼 prd-maker-pack에서 docs, supabase 폴더와 CLAUDE.md, env.example을 prd-maker 폴더로 끌어다 놓고, AGENTS.append.md 내용을 복사해 prd-maker의 AGENTS.md 맨 아래에 붙여넣은 다음, env.example을 복사해 이름을 .env.local로 바꾸면 끝이에요. Mac Finder에서는 점(.)으로 시작하는 파일이 숨겨져 있어서 Cmd+Shift+. 을 눌러야 보여요." },
-      { label: "GitHub에 올리기", cmd: "push", tip: "GitHub에서 레포를 먼저 만들고 clone해서 시작하는 방법도 많이 써요. 오늘은 create-next-app이 빈 폴더에서 git까지 만들어 주니까, 내 컴퓨터에서 먼저 만들고 빈 레포에 연결해서 올리는 순서로 가요. New repository는 GitHub 웹사이트 오른쪽 위 + 버튼에서 만들어요. 이름만 prd-maker로 적고 나머지는 그대로 두면 돼요. push할 때 아이디와 비밀번호를 물어보면 손 들어 주세요. GitHub는 비밀번호 대신 브라우저 로그인이나 토큰을 써서, 처음엔 다들 여기서 한 번 막혀요." },
+      { label: "GitHub에 올리기", cmd: "push", tip: "GitHub에서 레포를 먼저 만들고 clone해서 시작하는 방법도 많이 써요. 오늘은 create-next-app이 빈 폴더에서 git까지 만들어 주니까, 내 컴퓨터에서 먼저 만들고 빈 레포에 연결해서 올리는 순서로 가요. New repository는 GitHub 웹사이트 오른쪽 위 + 버튼에서 만들어요. 이름만 prd-maker로 적고 나머지는 그대로 두면 돼요. push 전에 git branch --show-current로 main인지 확인하고, 아니면 git branch -M main을 먼저 쳐요. push할 때 아이디와 비밀번호를 물어보면 손 들어 주세요. GitHub는 비밀번호 대신 브라우저 로그인이나 토큰을 써서, 처음엔 다들 여기서 한 번 막혀요." },
     ],
     checks: [
       { text: "localhost:3000에 Next 기본 화면이 떴다", sub: "확인했으면 Ctrl+C로 꺼 두기. Mac도 Cmd가 아니라 Ctrl이에요" },
@@ -141,7 +142,7 @@ export const STEPS: Step[] = [
     checks: [
       { text: "AI의 5줄 요약을 PRD와 비교했다", sub: "다르면 여기서 바로 잡기. 나중에 잡으면 비싸요" },
       { text: "계획에 문서에 없는 패키지가 있으면 빼 달라고 했다", sub: "zod, shadcn, axios 같은 것" },
-      { text: "Claude Code라면 Shift+Tab으로 plan 모드를 켜고 보냈다", sub: "Codex는 \"계획부터 보여 줘\"로 충분해요" },
+      { text: "plan 모드로 보냈다", sub: "Claude Code는 화면 아래 plan mode on이 보일 때까지 Shift+Tab(보통 세 번), 또는 프롬프트 앞에 /plan. Codex도 /plan" },
     ],
     questions: [
       { id: "diff", label: "AI 요약에서 PRD와 다르거나 빠진 게 있었나요? 어떻게 바로잡았나요?", hint: "없었다면 요약에서 제일 중요한 한 줄을 골라 적기" },
@@ -158,7 +159,7 @@ export const STEPS: Step[] = [
     prompt: `Step 1. docs/PRD.md, docs/DESIGN.md대로 화면만 만들어 줘. 아직 API는 없으니 가짜 데이터로.
 코드 쓰기 전에 계획(만들 파일, 각 파일이 하는 일)부터 보여 줘.`,
     checks: [
-      { text: "AI 계획을 받았다", sub: "Claude Code는 Shift+Tab으로 plan 모드" },
+      { text: "AI 계획을 받았다", sub: "plan 모드: Shift+Tab을 plan mode on이 보일 때까지, 또는 /plan" },
       { text: "계획에 질문하거나 하나 고쳤다", sub: "예: 이 파일은 왜 필요해? / 이건 이번 단계에서 빼 줘" },
       { text: "버튼을 누르면 1초 뒤 가짜 결과 카드가 뜬다" },
       { text: "커밋했다" },
@@ -178,7 +179,7 @@ export const STEPS: Step[] = [
     lead: "진짜 PRD가 나와요. 키가 서버 밖으로 나가지 않는지 내 눈으로 확인하는 게 이번 단계의 핵심이에요.",
     todo: [
       { label: "내 OpenAI 키 넣기", cmd: "envAi", tip: ".env.local은 VS Code 같은 편집기에서 열어 = 뒤에 키를 붙여넣고 저장하면 돼요. 키 앞뒤에 따옴표나 공백은 넣지 않아요." },
-      { label: "dev 서버 다시 켜기", cmd: "restart", tip: "Ctrl+C는 Mac에서도 Cmd가 아니라 Ctrl이에요. 꺼진 뒤 키보드 위 화살표를 누르면 방금 친 npm run dev가 다시 나와요." },
+      { label: "반영됐는지 확인", cmd: "restart", tip: "npm run dev가 켜진 채로 .env.local을 저장하면 보통 자동으로 다시 읽어요. 터미널에 Reload env: .env.local이 뜨면 된 거예요. 그래도 안 바뀌면 Ctrl+C로 끄고(Mac도 Cmd가 아니라 Ctrl) 키보드 위 화살표 → Enter로 다시 켜요." },
     ],
     prompt: `Step 2. docs/API.md 4번, 6번대로 OpenAI를 연결해 줘. 이번엔 Supabase 저장 없이 결과만 화면에.
 코드 쓰기 전에 계획부터. 특히 키를 어느 파일에서 읽는지 알려 줘.`,
@@ -204,8 +205,8 @@ export const STEPS: Step[] = [
     lead: "새로고침해도 남아 있는 게 목표예요. RLS 정책이 0개인데 왜 저장되는지 설명할 수 있으면 통과예요.",
     todo: [
       { label: "Supabase SQL Editor에서 supabase/schema.sql 전체를 붙여넣고 Run", note: "Success. No rows returned 가 나오면 성공", tip: "터미널이 아니라 Supabase 웹 화면에서 하는 일이에요. 내 프로젝트의 supabase/schema.sql을 편집기로 열어 전체 선택해서 복사한 뒤 SQL Editor에 붙여넣으면 돼요." },
-      { label: "Supabase 키 넣기", cmd: "envDb", tip: "Step 2에서 연 .env.local 맨 아래에 두 줄을 이어 붙이면 돼요. 새 파일을 만들 필요는 없어요." },
-      { label: "dev 서버 다시 켜기", cmd: "restart", tip: "Ctrl+C는 Mac에서도 Cmd가 아니라 Ctrl이에요. 꺼진 뒤 키보드 위 화살표를 누르면 방금 친 npm run dev가 다시 나와요." },
+      { label: "Supabase 키 넣기", cmd: "envDb", tip: "Project URL은 Supabase 프로젝트 화면 위쪽 Connect 버튼에서, secret 키는 Settings > API Keys의 Secret keys에서 복사해요. Step 2에서 연 .env.local 맨 아래에 두 줄을 이어 붙이면 돼요." },
+      { label: "반영됐는지 확인", cmd: "restart", tip: "npm run dev가 켜진 채로 .env.local을 저장하면 보통 자동으로 다시 읽어요. 터미널에 Reload env: .env.local이 뜨면 된 거예요. 그래도 안 바뀌면 Ctrl+C로 끄고(Mac도 Cmd가 아니라 Ctrl) 키보드 위 화살표 → Enter로 다시 켜요." },
     ],
     prompt: `Step 3. docs/API.md 4번, 5번대로 생성 결과를 Supabase specs 테이블에 저장하고, /specs 목록 페이지를 만들어 줘.
 코드 쓰기 전에 계획부터. 어떤 키로 Supabase에 붙는지도 알려 줘.`,
@@ -384,7 +385,7 @@ export const GUIDE_SECTIONS: { title: string; lead: string; art?: "prd" | "desig
     lead: "프롬프트는 짧게, 문서는 자세하게. 디테일은 문서에 있으니 프롬프트엔 의도만 담아요.",
     points: [
       { t: "한 번에 한 단계", d: "\"Step 2만 해\"처럼 범위를 못 박아요. 다음 단계를 미리 하면 꼬여요." },
-      { t: "계획부터", d: "Claude Code는 plan 모드(Shift+Tab), Codex는 \"계획부터 보여 줘\". 실행 전에 리뷰해요." },
+      { t: "계획부터", d: "Claude Code는 plan 모드(Shift+Tab을 plan mode on이 보일 때까지, 또는 /plan), Codex도 /plan. 실행 전에 리뷰해요." },
       { t: "확인 방법까지 묻기", d: "\"끝나면 어떻게 확인하는지 알려 줘\"를 붙이면 테스트까지 같이 생각해요." },
       { t: "단계마다 커밋", d: "되돌릴 지점이 있어야 AI에게 과감하게 시킬 수 있어요." },
       { t: "규칙은 AGENTS.md에", d: "매번 말하는 규칙(패키지 금지, 키 위치)은 AGENTS.md/CLAUDE.md에 적어 두면 매번 안 말해도 돼요." },
@@ -426,8 +427,9 @@ export const HACKATHON = [
 /* ---------------- 자주 만나는 에러 (발표 자료 표 그대로, 단계별로 골라 보여 준다) ---------------- */
 
 export const ERRORS: { sym: string; cause: string; fix: string; steps: string[]; os?: OS }[] = [
+  { sym: "git commit 할 때 Please tell me who you are", cause: "git에 이름·이메일 설정이 없음 (그래서 첫 커밋도 빠져 있을 수 있어요)", fix: "git config --global user.name \"이름\" 과 git config --global user.email \"이메일\" 입력 후 다시 커밋", steps: ["setup"] },
   { sym: 'Windows: "running scripts is disabled"', cause: "PowerShell 실행 정책", fix: "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned 입력 후 다시 실행", steps: ["setup"], os: "win" },
-  { sym: '"OPENAI_API_KEY가 .env.local에 없습니다"', cause: "dev 서버 재시작 안 함, 파일 위치나 이름 오타", fix: "Ctrl+C → npm run dev, .env.local이 프로젝트 맨 위 폴더에 있는지 확인", steps: ["s2"] },
+  { sym: '"OPENAI_API_KEY가 .env.local에 없습니다"', cause: "파일 위치나 이름 오타, 저장 안 함, 아직 반영 전", fix: ".env.local이 프로젝트 맨 위 폴더에 있는지 확인하고 저장. 터미널에 Reload env가 안 뜨면 Ctrl+C → npm run dev", steps: ["s2"] },
   { sym: "OpenAI 401", cause: "키 복사 누락, 앞뒤 공백", fix: "키를 다시 복사해서 붙여넣기", steps: ["s2"] },
   { sym: "OpenAI 404 모델 없음", cause: "모델명 오타, 접근 권한", fix: "OPENAI_MODEL=gpt-5.4-mini 로 바꿔 보기", steps: ["s2"] },
   { sym: "OpenAI 400 Invalid schema", cause: "required 누락, additionalProperties 빠짐", fix: "docs/API.md 6번 strict 규칙대로 고쳐 달라고 하기", steps: ["s2", "s4"] },
@@ -444,7 +446,7 @@ export const ASSIGNMENT = {
   due: "10/26(월) 세션 전까지",
   items: [
     { t: "Vercel 배포", d: "Session 6에서 한 그대로. Environment Variables에 OPENAI_API_KEY, OPENAI_MODEL, SUPABASE_URL, SUPABASE_SECRET_KEY 4개를 넣고 Redeploy" },
-    { t: "P1 기능 1개 더", d: "마크다운 복사 버튼, 또는 /specs/[id] 상세 보기와 삭제" },
+    { t: "Step 4 내 버전 + P1 기능 1개", d: "PRD 8번에 정한 내 버전, 그리고 마크다운 복사 버튼이나 /specs/[id] 상세 보기와 삭제" },
     { t: "해커톤 아이디어로 PRD 뽑기", d: "10/31에 팀원한테 바로 보여줄 PRD 하나 만들어 두기" },
   ],
   submit: "노션 과제 페이지에 GitHub 레포 링크 + 배포 링크. 이 노트 회고 단계의 링크 제출에도 넣어 두면 제출 현황에 떠요.",
