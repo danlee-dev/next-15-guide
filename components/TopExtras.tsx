@@ -23,8 +23,8 @@ export const EXTRA_PAGES: [string, string][] = [
 ];
 
 // 깜빡이는 "live" 점 대신, 들어온 사람들 이름 첫 글자를 겹쳐 보여 준다 (최근에 움직인 사람부터 3명)
-export function BoardButton({ active, onClick }: { active: boolean; onClick: () => void }) {
-  const { items } = useBoard();
+export function BoardButton({ sid, active, onClick }: { sid: string; active: boolean; onClick: () => void }) {
+  const { items } = useBoard(sid);
   const seen = new Set<string>();
   const names = items
     ? items
@@ -140,7 +140,7 @@ export function MenuSheet({
                   <div className="sheet-h">
                     <div>
                       <h2 id="sheet-title">더 보기</h2>
-                      <p>자료, 도구, 내 이름</p>
+                      <p>세션, 자료, 도구, 내 이름</p>
                     </div>
                     <button
                       type="button"
@@ -162,6 +162,14 @@ export function MenuSheet({
                       </svg>
                     </button>
                   </div>
+
+                  <ul className="sheet-list">
+                    <li>
+                      <button type="button" aria-current={cur === "home" ? "page" : undefined} onClick={() => pick("home")}>
+                        전체 세션
+                      </button>
+                    </li>
+                  </ul>
 
                   <div className="sheet-sec">자료</div>
                   <ul className="sheet-list">

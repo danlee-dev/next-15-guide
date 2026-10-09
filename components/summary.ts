@@ -1,8 +1,12 @@
 import { STEPS } from "@/lib/content";
+import { SESSIONS, type Session } from "@/lib/sessions";
+
+// 모든 세션의 단계 (단계 id 는 세션끼리 안 겹친다)
+const ALL_STEPS = SESSIONS.flatMap((x) => x.steps);
 import { VERDICT_LABEL, type Store } from "./store";
 
 export function stepState(s: Store, id: string): "todo" | "part" | "done" | "stuck" {
-  const st = STEPS.find((x) => x.id === id);
+  const st = ALL_STEPS.find((x) => x.id === id);
   if (!st) return "todo";
   if (s.stuck[id]) return "stuck";
   const c = s.checks[id] || {};
@@ -14,7 +18,7 @@ export function stepState(s: Store, id: string): "todo" | "part" | "done" | "stu
 
 // 사이드바 링이 얼마나 찼는지 (체크 + 내 말로 답하기). 0~1
 export function stepProgress(s: Store, id: string) {
-  const st = STEPS.find((x) => x.id === id);
+  const st = ALL_STEPS.find((x) => x.id === id);
   if (!st) return 0;
   const c = s.checks[id] || {};
   const a = s.ans[id] || {};
@@ -22,6 +26,9 @@ export function stepProgress(s: Store, id: string) {
   const done = st.checks.filter((_, i) => c[i]).length + st.questions.filter((q) => (a[q.id] || "").trim()).length;
   return total ? done / total : 0;
 }
+
+// 세션 하나에서 끝낸 단계 수
+export const sessionDone = (s: Store, ses: Session) => ses.steps.filter((x) => stepState(s, x.id) === "done").length;
 
 export function summaryText(s: Store) {
   const L = [`[Session 8 실습 노트] ${s.name || "(이름 없음)"}`];

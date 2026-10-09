@@ -20,6 +20,15 @@ alter table public.board add column if not exists tool text check (tool in ('cla
 -- 과제로 추가한 기능 설명 (2026-10-10 추가)
 alter table public.board add column if not exists feature text;
 
+-- 세션별 현황 (2026-10-10 추가). 한 계정이 세션마다 한 줄. 기존 줄은 Session 8 로 둔다
+alter table public.board add column if not exists session text not null default 's8';
+do $$ begin
+  if exists (select 1 from pg_constraint where conname = 'board_pkey' and array_length(conkey, 1) = 1) then
+    alter table public.board drop constraint board_pkey;
+    alter table public.board add constraint board_pkey primary key (client_id, session);
+  end if;
+end $$;
+
 create index if not exists board_updated_at_idx on public.board (updated_at desc);
 
 -- 실습 앱과 같은 방식: RLS를 켜고 정책은 0개. publishable 키로는 못 읽고, 서버(secret 키)만 읽고 쓴다.

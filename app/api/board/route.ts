@@ -2,8 +2,10 @@ import { after } from "next/server";
 import { broadcastBoard, listBoard, upsertBoard } from "@/lib/board";
 import { getUser } from "@/lib/auth";
 import { clip, rateLimited } from "@/lib/limit";
+import { CURRENT, SESSION_IDS } from "@/lib/sessions";
 
 type Body = {
+  session?: string;
   name?: string;
   cur?: string;
   done?: number;
@@ -30,11 +32,14 @@ function cleanUrl(v: unknown, host?: RegExp): string | null | "bad" {
   }
 }
 
-// GET /api/board : 누구나 보는 제출 현황 (client_id 는 빼고)
+const sessionParam = (v: unknown) => (typeof v === "string" && SESSION_IDS.includes(v) ? v : CURRENT.id);
+
+// GET /api/board?session=s8 : 누구나 보는 세션별 제출 현황 (client_id 는 빼고)
 export async function GET(req: Request) {
   if (rateLimited(req, "board-get", 30, 600)) return Response.json({ error: "잠시 뒤에 다시 열어 주세요" }, { status: 429 });
   try {
-    return Response.json({ items: await listBoard() }, { headers: { "Cache-Control": "no-store" } });
+    const session = sessionParam(new URL(req.url).searchParams.get("session"));
+    return Response.json({ items: await listBoard(session) }, { headers: { "Cache-Control": "no-store" } });
   } catch (e) {
     console.error("[board GET]", e);
     return Response.json({ error: "현황을 불러오지 못했어요" }, { status: 500 });
@@ -57,8 +62,10 @@ export async function POST(req: Request) {
   const name = clip(body.name, 30).trim();
   if (!name) return Response.json({ error: "이름을 적어 주세요" }, { status: 400 });
 
+  const session = sessionParam(body.session);
   const row: Record<string, unknown> = {
     client_id: client,
+    session,
     name,
     cur: clip(body.cur, 20) || null,
     done: Math.max(0, Math.min(50, Math.floor(Number(body.done) || 0))),
@@ -86,7 +93,7 @@ export async function POST(req: Request) {
   try {
     await upsertBoard(row);
     // 응답을 먼저 보내고, 다른 화면에 "바뀌었어요" 신호
-    after(() => broadcastBoard({ kind: row.submitted_at ? "submit" : "update", name }));
+    after(() => broadcastBoard({ kind: row.submitted_at ? "submit" : "update", name, session }));
     return Response.json({ ok: true });
   } catch (e) {
     console.error("[board POST]", e);

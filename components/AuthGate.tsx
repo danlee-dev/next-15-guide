@@ -119,8 +119,8 @@ export default function AuthGate({
           {phase === "signin" && (
             <motion.div className="gate-card" role="dialog" aria-modal="true" aria-labelledby="gate-title" initial={{ opacity: 0, y: 18, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.5, ease }}>
               <Image src="/next-logo-ink.png" alt="NEXT" width={407} height={96} className="gate-logo" priority />
-              <h2 id="gate-title">NEXT 15기 개발 가이드</h2>
-              <p>Session 8 실습 노트와 바이브 코딩 가이드, 개발 세팅 자료가 여기 있어요. 구글로 로그인하면 진행 상황이 저장되고, 노트북이든 폰이든 이어서 볼 수 있어요.</p>
+              <h2 id="gate-title">NEXT 15기 개발 세션</h2>
+              <p>세션마다 실습 노트와 제출 현황, 그리고 개발 자료가 여기 있어요. 구글로 로그인하면 진행 상황이 저장되고, 노트북이든 폰이든 이어서 볼 수 있어요.</p>
               <button type="button" className="btn google-btn" onClick={login} disabled={busy}>
                 <GoogleMark />
                 {busy ? "구글로 이동하는 중..." : "Google로 계속하기"}

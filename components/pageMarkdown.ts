@@ -1,5 +1,6 @@
 import { ASSIGNMENT, COMMANDS, ERRORS, GUIDE_SECTIONS, HACKATHON, INTERVENE, PROMPT_PAIRS, REFS, ROLES, STEPS, TOOL_LABEL, tailor, tl, type AgentTool, type CommandKey, type OS, type Step } from "@/lib/content";
 import { DOCS, DOC_MAP, LIBRARY, type Block, type Doc } from "@/lib/docs";
+import { SESSIONS } from "@/lib/sessions";
 
 // "페이지 복사": 학회원이 Claude Code / ChatGPT 등에 붙여넣고 질문할 수 있게 화면 내용을 마크다운으로 만든다.
 // 내 OS에 맞는 명령어만 넣는다. 학회원이 쓴 답은 넣지 않는다 (AI가 대신 답하게 만들지 않으려고).
@@ -159,9 +160,24 @@ export function libraryMarkdown() {
   return L.join("\n");
 }
 
+// 세션 개요: 순서와 과제
+function sessionsMarkdown(only?: string) {
+  const L: string[] = [];
+  for (const x of SESSIONS.filter((v) => !only || v.id === only)) {
+    L.push(`## Session ${x.no}. ${x.title} (${x.dateLabel}, ${x.length})`, "", x.lead, "", "### 순서");
+    for (const st of x.steps) L.push(`- ${st.start} ${st.label}: ${st.title} (${SITE}/#${st.id})`);
+    if (x.assignment) {
+      L.push("", `### 과제 (${x.assignment.due})`);
+      for (const a of x.assignment.items) L.push(`- ${a.t}: ${a.d}`);
+      L.push(`- 제출: ${x.assignment.submit}`);
+    }
+  }
+  return L.join("\n");
+}
+
 function header(what: string, tool: AgentTool | "") {
   const who = tool ? TOOL_LABEL[tool] : "Claude Code / Codex";
-  return `# NEXT 15기 개발 가이드: ${what}\n\n출처: ${SITE}\n오늘 실습: 빈 폴더에서 ${who}로 "PRD 메이커"(Next.js + OpenAI + Supabase)를 만든다. 아래 내용을 기준으로 내 질문에 답해 줘. 코드를 대신 다 써 주기보다, 내가 이해하고 직접 확인할 수 있게 설명해 줘.`;
+  return `# NEXT 15기 개발 세션: ${what}\n\n출처: ${SITE}\n오늘 실습: 빈 폴더에서 ${who}로 "PRD 메이커"(Next.js + OpenAI + Supabase)를 만든다. 아래 내용을 기준으로 내 질문에 답해 줘. 코드를 대신 다 써 주기보다, 내가 이해하고 직접 확인할 수 있게 설명해 줘.`;
 }
 
 export function pageMarkdown(page: string, os: OS, tool: AgentTool | "" = "") {
@@ -170,6 +186,9 @@ export function pageMarkdown(page: string, os: OS, tool: AgentTool | "" = "") {
   if (page === "guide") return `${header("바이브 코딩 가이드", tool)}\n\n${guideMarkdown(tool)}\n`;
   if (page === "refs") return `${header("디자인 레퍼런스", tool)}\n\n${refsMarkdown(os)}\n`;
   if (page === "library") return `${header("자료실", tool)}\n\n${libraryMarkdown()}\n`;
+  if (page === "home") return `${header("홈", tool)}\n\n${sessionsMarkdown()}\n\n${libraryMarkdown()}\n`;
+  const ses = SESSIONS.find((x) => x.page === page);
+  if (ses) return `${header(`Session ${ses.no} 개요`, tool)}\n\n${sessionsMarkdown(ses.id)}\n`;
   const doc = DOC_MAP[page];
   if (doc) return `${header(doc.label, tool)}\n\n${docMarkdown(doc, os, tool)}\n`;
   return allMarkdown(os, tool);

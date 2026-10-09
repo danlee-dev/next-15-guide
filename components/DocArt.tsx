@@ -428,6 +428,58 @@ function Radius() {
   );
 }
 
+/* ---------- Apple식 연속 곡선 ---------- */
+// 초타원(|x|^n + |y|^n = 1, n=5)으로 그린 모양. iOS 앱 아이콘처럼 곡률이 서서히 변한다
+function superellipse(size: number, n = 5, steps = 120) {
+  const a = size / 2;
+  const pts: string[] = [];
+  for (let i = 0; i < steps; i++) {
+    const t = (i / steps) * Math.PI * 2;
+    const c = Math.cos(t);
+    const s = Math.sin(t);
+    const x = a + a * Math.sign(c) * Math.abs(c) ** (2 / n);
+    const y = a + a * Math.sign(s) * Math.abs(s) ** (2 / n);
+    pts.push(`${x.toFixed(2)} ${y.toFixed(2)}`);
+  }
+  return `M${pts.join("L")}Z`;
+}
+const SQ = superellipse(120);
+
+function Squircle() {
+  return (
+    <div className="art sq">
+      <figure>
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <rect width="120" height="120" rx="27" className="sq-fill" />
+        </svg>
+        <figcaption>
+          <b>border-radius</b>
+          원을 붙인 모양이라 직선이 끝나는 곳에서 꺾임이 보여요
+        </figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="0 0 120 120" aria-hidden="true">
+          <path d={SQ} className="sq-fill" />
+        </svg>
+        <figcaption>
+          <b>연속 곡선 (squircle)</b>
+          곡률이 서서히 변해서 더 매끈해요. iOS 앱 아이콘 모양
+        </figcaption>
+      </figure>
+      <figure>
+        <svg viewBox="-4 -4 128 128" aria-hidden="true">
+          <path d={SQ} className="sq-soft" />
+          <rect width="120" height="120" rx="27" className="sq-line" />
+        </svg>
+        <figcaption>
+          <b>겹쳐 보면</b>
+          점선이 border-radius. 모서리 근처에서 차이가 나요
+        </figcaption>
+      </figure>
+    </div>
+  );
+}
+
 /* ---------- 모션 ---------- */
 const MOTIONS: [string, string, number, string][] = [
   ["linear", "linear", 500, "0.5초, 일정한 속도. 기계 같아요"],
@@ -469,9 +521,15 @@ function MotionDemo() {
           </div>
         </div>
       ))}
-      <button type="button" className="btn btn-soft btn-sm mo-btn" onClick={() => setRun((n) => n + 1)}>
-        다시 보기
-      </button>
+      <div className="mo-foot">
+        <button type="button" className="mo-btn" onClick={() => setRun((n) => n + 1)}>
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M2.8 8a5.2 5.2 0 1 0 1.6-3.75" />
+            <path d="M2.6 2.4v2.9h2.9" />
+          </svg>
+          다시 보기
+        </button>
+      </div>
     </div>
   );
 }
@@ -487,6 +545,7 @@ export default function DocArt({ kind, cap }: { kind: DocArtKind; cap?: string }
     deploy: <Deploy />,
     tracking: <Tracking />,
     radius: <Radius />,
+    squircle: <Squircle />,
     motion: <MotionDemo />,
   }[kind];
   return (

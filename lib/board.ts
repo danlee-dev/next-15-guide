@@ -35,18 +35,18 @@ async function rest(path: string, init: RequestInit = {}) {
   });
 }
 
-const COLS = "client_id,name,cur,done,total,stuck,tool,feature,repo_url,deploy_url,submitted_at,updated_at";
+const COLS = "client_id,session,name,cur,done,total,stuck,tool,feature,repo_url,deploy_url,submitted_at,updated_at";
 
 // client_id 는 절대 그대로 내보내지 않는다. 그걸 알면 남의 줄을 덮어쓸 수 있어서 해시로 바꾼다.
-export async function listBoard(): Promise<BoardItem[]> {
-  const r = await rest(`board?select=${COLS}&order=updated_at.desc&limit=300`);
+export async function listBoard(session: string): Promise<BoardItem[]> {
+  const r = await rest(`board?select=${COLS}&session=eq.${encodeURIComponent(session)}&order=updated_at.desc&limit=300`);
   if (!r.ok) throw new Error(`board list ${r.status} ${await r.text()}`);
   const rows: (Omit<BoardItem, "id"> & { client_id: string })[] = await r.json();
   return rows.map(({ client_id, ...rest }) => ({ id: createHash("sha256").update(client_id).digest("hex").slice(0, 12), ...rest }));
 }
 
 export async function upsertBoard(row: Record<string, unknown>) {
-  const r = await rest("board?on_conflict=client_id", {
+  const r = await rest("board?on_conflict=client_id,session", {
     method: "POST",
     headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
     body: JSON.stringify(row),
@@ -57,7 +57,7 @@ export async function upsertBoard(row: Record<string, unknown>) {
 // 현황판이 바뀌었다고 열려 있는 화면들에 알린다 (Supabase Realtime Broadcast, 공개 채널 "board").
 // 테이블은 서버만 읽을 수 있어서 DB 변경을 직접 구독하게 할 수 없다. 그래서 이름과 종류만 실어 보내고,
 // 받은 화면이 /api/board 로 다시 읽어 간다. 실패해도 저장에는 영향 없음
-export async function broadcastBoard(payload: { kind: "update" | "submit"; name: string }) {
+export async function broadcastBoard(payload: { kind: "update" | "submit"; name: string; session: string }) {
   try {
     const { url, key } = conf();
     await fetch(`${url}/realtime/v1/api/broadcast`, {
@@ -73,7 +73,8 @@ export async function broadcastBoard(payload: { kind: "update" | "submit"; name:
 
 // 로그인한 사람의 저장된 이름과 도구 (다른 기기에서 로그인해도 기억하려고)
 export async function getMe(clientId: string): Promise<{ name: string | null; tool: string | null }> {
-  const r = await rest(`board?select=name,tool&client_id=eq.${encodeURIComponent(clientId)}&limit=1`);
+  // 세션마다 줄이 따로 있어서, 가장 최근에 저장한 줄의 이름과 도구를 쓴다
+  const r = await rest(`board?select=name,tool&client_id=eq.${encodeURIComponent(clientId)}&order=updated_at.desc&limit=1`);
   if (!r.ok) throw new Error(`board me ${r.status} ${await r.text()}`);
   const rows: { name: string; tool: string | null }[] = await r.json();
   return { name: rows[0]?.name ?? null, tool: rows[0]?.tool ?? null };

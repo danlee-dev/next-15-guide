@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { useEffect, useRef } from "react";
 import { ASSIGNMENT, ERRORS, STEPS, type Step } from "@/lib/content";
+import { sessionOf } from "@/lib/sessions";
 import { CheckPath, CodeBlock, Command, CopyMenu, Hero, Prompt, Section, ease, useCopy } from "./ui";
 import { FeedbackPanel, TutorChat } from "./Tutor";
 import type { Patch, Store } from "./store";
@@ -22,9 +23,12 @@ function AutoText({ id, value, onChange }: { id: string; value: string; onChange
 }
 
 export default function StepView({ step, s, patch, go }: { step: Step; s: Store; patch: Patch; go: (id: string) => void }) {
-  const idx = STEPS.indexOf(step);
-  const prev = STEPS[idx - 1];
-  const next = STEPS[idx + 1];
+  // step 은 도구에 맞춘 사본이라 id 로 찾는다 (indexOf 로 찾으면 -1 이 나온다)
+  const ses = sessionOf(step.id);
+  const list = ses?.steps || STEPS;
+  const idx = list.findIndex((x) => x.id === step.id);
+  const prev = list[idx - 1];
+  const next = list[idx + 1];
   const ans = s.ans[step.id] || {};
   const checks = s.checks[step.id] || {};
   const { copy, Fallback } = useCopy();
@@ -273,6 +277,10 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
           <button type="button" className="btn btn-soft" onClick={() => go(prev.id)}>
             ← {prev.label}
           </button>
+        ) : ses ? (
+          <button type="button" className="btn btn-soft" onClick={() => go(ses.page)}>
+            ← 개요
+          </button>
         ) : (
           <span />
         )}
@@ -281,8 +289,8 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
             {next.label} →
           </button>
         ) : (
-          <button type="button" className="btn btn-soft" onClick={() => go("guide")}>
-            바이브 코딩 가이드 →
+          <button type="button" className="btn btn-soft" onClick={() => go(ses?.boardPage || "board")}>
+            제출 현황 →
           </button>
         )}
       </motion.nav>

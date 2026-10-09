@@ -22,7 +22,7 @@ export type Store = {
   submittedAt: number | null;
 };
 
-export const EMPTY: Store = { name: "", os: "mac", osPicked: false, tool: "", cur: "setup", last: "setup", ans: {}, checks: {}, fb: {}, chat: {}, stuck: {}, links: { repo: "", deploy: "" }, submittedAt: null };
+export const EMPTY: Store = { name: "", os: "mac", osPicked: false, tool: "", cur: "home", last: "setup", ans: {}, checks: {}, fb: {}, chat: {}, stuck: {}, links: { repo: "", deploy: "" }, submittedAt: null };
 
 const KEY = "next-s8-note-v1";
 

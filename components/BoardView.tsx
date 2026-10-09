@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { TOOL_LABEL } from "@/lib/content";
 import { PAGE_LABEL, useBoard, type BoardItem } from "./board";
 import { Hero, Section, ease } from "./ui";
+import type { Session } from "@/lib/sessions";
 import type { Store } from "./store";
 
 function ago(iso: string | null) {
@@ -28,8 +29,8 @@ const VercelMark = () => (
   </svg>
 );
 
-export default function BoardView({ s }: { s: Store; go: (id: string) => void }) {
-  const { items, err } = useBoard();
+export default function BoardView({ s, ses, go }: { s: Store; ses: Session; go: (id: string) => void }) {
+  const { items, err } = useBoard(ses.id);
   // "3분 전" 같은 글자만 다시 그린다. 데이터는 실시간으로 들어온다
   const [, setTick] = useState(0);
   useEffect(() => {
@@ -70,8 +71,8 @@ export default function BoardView({ s }: { s: Store; go: (id: string) => void })
   return (
     <article>
       <Hero
-        chip="현황"
-        meta="실시간으로 바뀌어요"
+        chip={`Session ${ses.no}`}
+        meta="제출 현황 · 실시간으로 바뀌어요"
         title="다 같이 어디까지 왔나"
         lead="이름을 적은 사람은 모두 여기에 떠요. 회고 단계에서 GitHub 레포, 배포 링크, 추가한 기능을 제출하면 바로 여기에 걸려요."
       />
@@ -146,6 +147,13 @@ export default function BoardView({ s }: { s: Store; go: (id: string) => void })
           </AnimatePresence>
         </ul>
       </Section>
+
+      <nav className="pager">
+        <button type="button" className="btn btn-soft" onClick={() => go(ses.page)}>
+          ← Session {ses.no} 개요
+        </button>
+        <span />
+      </nav>
     </article>
   );
 }

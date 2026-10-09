@@ -4,7 +4,7 @@ import type { AgentTool, OS } from "./content";
 // 수치와 명령어는 2026-10-10 공식 문서 기준 (knowledge/toolkit-research.md, knowledge/factcheck.md 에 출처).
 // 문장 안의 `...` 는 코드 글씨로 보인다.
 
-export type DocArtKind = "harness" | "loop" | "context" | "arch" | "reqflow" | "mcp" | "deploy" | "tracking" | "radius" | "motion";
+export type DocArtKind = "harness" | "loop" | "context" | "arch" | "reqflow" | "mcp" | "deploy" | "tracking" | "radius" | "squircle" | "motion";
 
 export type Tool = { name: string; logo?: string; url: string; d: string };
 
@@ -876,6 +876,18 @@ h1, h2 { line-height: 1.25; letter-spacing: -0.02em; }`,
             { t: "큰 것은 크게, 작은 것은 작게", d: "큰 카드 24~28px, 입력창 12~14px, 작은 칩은 둥근 알약(999px). 28/20/14px은 예시 값이에요." },
             { t: "한 화면에 radius 종류는 적게", d: "세 단계 정도를 토큰으로 정해 두고 그것만 써요." },
           ],
+        },
+        { k: "art", name: "squircle" },
+        { k: "p", t: "Apple 화면의 둥근 모서리는 원을 붙인 모양이 아니라 곡률이 서서히 변하는 연속 곡선(continuous corner)이에요. SwiftUI에서는 `RoundedRectangle(cornerRadius: 20, style: .continuous)`, Figma에서는 모서리의 Corner smoothing 값(iOS 느낌은 60%)으로 만들어요. 웹 CSS는 `corner-shape: squircle` 이 새로 생겼지만 아직 일부 브라우저만 지원해서, 지원할 때만 켜요." },
+        {
+          k: "code",
+          label: "웹에서 연속 곡선 쓰기 (지원하는 브라우저에서만 바뀌어요)",
+          both: `.card { border-radius: 28px; }
+
+@supports (corner-shape: squircle) {
+  /* 같은 값이면 덜 둥글어 보여서 조금 키워요 */
+  .card { corner-shape: squircle; border-radius: 40px; }
+}`,
         },
         {
           k: "code",
