@@ -343,15 +343,13 @@ function App() {
             </LayoutGroup>
             {authed && (
               <div className="side-me">
-                <span>
-                  {s.name}
-                  <em className="sync" data-s={sync}>
-                    {sync === "saving" ? "저장 중" : sync === "error" ? "저장 안 됨, 다시 시도 중" : sync === "loading" ? "불러오는 중" : "저장됨"}
-                  </em>
-                </span>
+                <span className="side-name">{s.name}</span>
                 <button type="button" className="textlink" onClick={logout}>
                   로그아웃
                 </button>
+                <em className="sync" data-s={sync}>
+                  {sync === "saving" ? "저장 중" : sync === "error" ? "저장 안 됨, 다시 시도 중" : sync === "loading" ? "불러오는 중" : "저장됨"}
+                </em>
               </div>
             )}
           </SideScroll>

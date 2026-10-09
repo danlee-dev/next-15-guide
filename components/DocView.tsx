@@ -5,6 +5,7 @@ import Image from "next/image";
 import { tailor, type AgentTool, type OS } from "@/lib/content";
 import { LIBRARY, type Block, type Doc } from "@/lib/docs";
 import DocArt from "./DocArt";
+import { Lightbox, ZoomHint } from "./Lightbox";
 import { EXTRA_PAGES } from "./TopExtras";
 import { ArrowUpRight, CodeBlock, CopyMenu, Hero, Prompt, Section, ease } from "./ui";
 import type { Store } from "./store";
@@ -123,31 +124,41 @@ function BlockView({ b, s, go }: { b: Block; s: Store; go: (id: string) => void 
       return <DocArt kind={b.name} cap={b.cap} />;
     case "shot":
       return (
-        <figure className="shot">
-          <a href={b.href} target="_blank" rel="noopener noreferrer">
-            <Image src={b.src} alt={b.alt} width={1280} height={800} sizes="(max-width: 760px) 100vw, 780px" />
-          </a>
-          <figcaption>
-            {b.cap}
-            <a href={b.href} target="_blank" rel="noopener noreferrer">
-              {new URL(b.href).hostname.replace(/^www\./, "")}
-              <ArrowUpRight />
-            </a>
-          </figcaption>
-        </figure>
+        <Lightbox items={[{ src: b.src, alt: b.alt, cap: b.cap, w: 1280, h: 800 }]}>
+          {(open) => (
+            <figure className="shot">
+              <button type="button" className="shot-btn" onClick={() => open(0)} aria-label={`${b.alt} 크게 보기`}>
+                <Image src={b.src} alt={b.alt} width={1280} height={800} sizes="(max-width: 760px) 100vw, 780px" />
+                <ZoomHint />
+              </button>
+              <figcaption>
+                {b.cap}
+                <a href={b.href} target="_blank" rel="noopener noreferrer">
+                  {new URL(b.href).hostname.replace(/^www\./, "")}
+                  <ArrowUpRight />
+                </a>
+              </figcaption>
+            </figure>
+          )}
+        </Lightbox>
       );
     case "shots":
       return (
-        <div className="shots">
-          {b.items.map((x) => (
-            <figure key={x.src}>
-              <a href={x.src} target="_blank" rel="noopener noreferrer">
-                <Image src={x.src} alt={x.alt} width={x.w} height={x.h} sizes="(max-width: 760px) 100vw, 380px" />
-              </a>
-              <figcaption>{x.cap}</figcaption>
-            </figure>
-          ))}
-        </div>
+        <Lightbox items={b.items}>
+          {(open) => (
+            <div className="shots">
+              {b.items.map((x, i) => (
+                <figure key={x.src}>
+                  <button type="button" className="shot-btn" onClick={() => open(i)} aria-label={`${x.alt} 크게 보기`}>
+                    <Image src={x.src} alt={x.alt} width={x.w} height={x.h} sizes="(max-width: 760px) 100vw, 380px" />
+                    <ZoomHint />
+                  </button>
+                  <figcaption>{x.cap}</figcaption>
+                </figure>
+              ))}
+            </div>
+          )}
+        </Lightbox>
       );
     case "tools":
       return (
