@@ -139,6 +139,9 @@ export function docMarkdown(doc: Doc, os: OS, tool: AgentTool | "") {
         case "shot":
           L.push("", `(화면: ${b.cap} ${b.href})`);
           break;
+        case "shots":
+          for (const x of b.items) L.push("", `(화면: ${x.cap})`);
+          break;
         case "go":
           L.push("", `→ ${b.t}: ${SITE}/#${b.to}`);
           break;

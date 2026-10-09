@@ -136,6 +136,19 @@ function BlockView({ b, s, go }: { b: Block; s: Store; go: (id: string) => void 
           </figcaption>
         </figure>
       );
+    case "shots":
+      return (
+        <div className="shots">
+          {b.items.map((x) => (
+            <figure key={x.src}>
+              <a href={x.src} target="_blank" rel="noopener noreferrer">
+                <Image src={x.src} alt={x.alt} width={x.w} height={x.h} sizes="(max-width: 760px) 100vw, 380px" />
+              </a>
+              <figcaption>{x.cap}</figcaption>
+            </figure>
+          ))}
+        </div>
+      );
     case "tools":
       return (
         <ul className="tools" data-ordered={b.ordered ? "1" : "0"}>

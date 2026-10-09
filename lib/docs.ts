@@ -18,6 +18,7 @@ export type Block =
   | { k: "table"; cols: string[]; rows: string[][] }
   | { k: "art"; name: DocArtKind; cap?: string }
   | { k: "shot"; src: string; alt: string; cap: string; href: string }
+  | { k: "shots"; items: { src: string; alt: string; cap: string; w: number; h: number }[] }
   | { k: "tools"; items: Tool[]; ordered?: boolean }
   | { k: "warn"; title?: string; items: string[]; os?: OS }
   | { k: "go"; to: string; t: string };
@@ -703,6 +704,15 @@ const deploy: Doc = {
             "SQL Editor > New query에 schema.sql을 붙여넣고 Run. \"Success. No rows returned\"가 뜨면 성공이에요.",
           ],
         },
+        {
+          k: "shots",
+          items: [
+            { src: "/refs/dash/supabase-home.webp", alt: "Supabase 프로젝트 첫 화면", cap: "프로젝트 첫 화면. 위쪽 초록 Connect 버튼, 또는 주소 옆 Copy로 Project URL을 복사해요", w: 1400, h: 671 },
+            { src: "/refs/dash/supabase-connect-env.webp", alt: "Supabase Connect 창", cap: "Connect 창 아래쪽 .env.local 탭. https://로 시작하는 주소만 SUPABASE_URL에 넣어요", w: 647, h: 400 },
+            { src: "/refs/dash/supabase-keys.webp", alt: "Supabase API Keys 설정", cap: "Settings > API Keys. Secret keys 줄의 복사 버튼으로 sb_secret_ 키를 복사해요", w: 1098, h: 708 },
+            { src: "/refs/dash/supabase-sql.webp", alt: "Supabase SQL Editor", cap: "SQL Editor. schema.sql을 붙여넣고 오른쪽 위 Run을 눌러요", w: 1098, h: 708 },
+          ],
+        },
         { k: "warn", items: ["secret 키는 RLS를 건너뛰는 마스터키예요. `.env.local` 과 Vercel 환경 변수에만 두고, 브라우저 코드와 git에는 절대 넣지 않아요.", "SQL Editor에서 \"Potential issue detected\" 창이 뜨면 내용을 읽고, 의도한 거면 실행을 눌러요."] },
       ],
     },
@@ -740,6 +750,14 @@ where table_schema = 'public' and table_name = 'specs';`,
             "Framework Preset이 Next.js로 잡혔는지 봐요.",
             "Environment Variables에 `OPENAI_API_KEY`, `OPENAI_MODEL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` 4개를 넣어요.",
             "Deploy를 누르고 1~2분 기다리면 `https://프로젝트이름.vercel.app` 같은 주소가 생겨요.",
+          ],
+        },
+        {
+          k: "shots",
+          items: [
+            { src: "/refs/dash/vercel-new.webp", alt: "Vercel 새 프로젝트 화면", cap: "Add New… > Project. 왼쪽 목록에서 내 레포 옆 Import를 눌러요", w: 1217, h: 627 },
+            { src: "/refs/dash/vercel-env-add.webp", alt: "Vercel 환경 변수 추가 창", cap: "환경 변수 추가. Key에 이름, Value에 값. Secret으로 두면 저장 뒤 값이 다시 안 보여요. .env.local 내용을 통째로 붙여넣어도 돼요", w: 986, h: 770 },
+            { src: "/refs/dash/vercel-env.webp", alt: "Vercel 환경 변수 목록", cap: "저장된 목록. 값은 가려져요 (이 사이트의 화면이라 이름은 실습과 달라요)", w: 1120, h: 681 },
           ],
         },
         { k: "p", t: "그다음부터는 main 브랜치에 push할 때마다 자동으로 다시 배포돼요. main이 아닌 브랜치를 push하면 미리보기(Preview) 주소가 따로 생겨요." },
