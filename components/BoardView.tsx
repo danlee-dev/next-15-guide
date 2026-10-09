@@ -53,9 +53,26 @@ export default function BoardView({ s }: { s: Store; go: (id: string) => void })
     };
   }, []);
 
+  // 같은 사람이 노트북과 폰처럼 브라우저 두 개로 열면 줄이 둘 생긴다. 이름이 같으면 한 줄로 합친다
+  const merged = new Map<string, BoardItem>();
+  for (const x of items || []) {
+    const prev = merged.get(x.name);
+    if (!prev) {
+      merged.set(x.name, x);
+      continue;
+    }
+    const [lead, other] = x.done > prev.done || (x.done === prev.done && x.updated_at > prev.updated_at) ? [x, prev] : [prev, x];
+    merged.set(x.name, {
+      ...lead,
+      stuck: lead.stuck || other.stuck,
+      repo_url: lead.repo_url || other.repo_url,
+      deploy_url: lead.deploy_url || other.deploy_url,
+      submitted_at: lead.submitted_at || other.submitted_at,
+    });
+  }
+
   // 막힌 사람이 맨 위, 그다음 많이 간 순서
-  const list = (items || [])
-    .slice()
+  const list = [...merged.values()]
     .sort((a, b) => Number(!!b.stuck) - Number(!!a.stuck) || b.done - a.done || +new Date(b.updated_at) - +new Date(a.updated_at));
   const stats: [string, number][] = [
     ["참여", list.length],

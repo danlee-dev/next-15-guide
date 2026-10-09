@@ -25,7 +25,7 @@ export function BoardButton({
     let alive = true;
     const load = () =>
       fetchBoard()
-        .then((x) => alive && setN(x.length))
+        .then((x) => alive && setN(new Set(x.map((i) => i.name)).size))
         .catch(() => {});
     load();
     const id = setInterval(() => {
