@@ -10,7 +10,7 @@ export type Step = {
   start: string;
   title: string;
   lead: string;
-  todo?: { label: string; cmd?: keyof typeof COMMANDS; os?: OS; note?: string; tip?: string }[];
+  todo?: { label: string; cmd?: keyof typeof COMMANDS; os?: OS; note?: string; tip?: string; download?: { href: string; label: string } }[];
   prompt?: string;
   ownPrompt?: boolean;
   design?: boolean;
@@ -89,8 +89,9 @@ export const STEPS: Step[] = [
     todo: [
       { label: "프로젝트 만들기", cmd: "create", tip: "cd prd-maker는 방금 만든 prd-maker 폴더로 들어가는 명령이에요. VS Code에서 파일 > 폴더 열기로 prd-maker를 열고 그 안의 터미널(보기 > 터미널)을 쓰면 이미 그 폴더라서, cd 없이 npm install부터 치면 돼요." },
       { label: "Windows에서 에러가 나면", cmd: "winPolicy", os: "win", tip: "PowerShell 창에 그대로 붙여넣고 Enter. 바꿀지 물어보면 Y를 누르면 돼요. 한 번만 하면 다음부터는 안 나와요." },
+      { label: "문서팩 받기", download: { href: "/prd-maker-pack.zip", label: "prd-maker-pack.zip 받기" }, tip: "받은 zip을 두 번 클릭(Windows는 오른쪽 클릭 > 압축 풀기)하면 다운로드 폴더에 prd-maker-pack 폴더가 생겨요. 아래 명령어는 그 위치를 기준으로 해요." },
       { label: "문서팩 넣기", cmd: "pack", tip: "명령어가 낯설면 손으로 해도 결과는 같아요. 압축 푼 prd-maker-pack에서 docs, supabase 폴더와 CLAUDE.md, env.example을 prd-maker 폴더로 끌어다 놓고, AGENTS.append.md 내용을 복사해 prd-maker의 AGENTS.md 맨 아래에 붙여넣은 다음, env.example을 복사해 이름을 .env.local로 바꾸면 끝이에요. Mac Finder에서는 점(.)으로 시작하는 파일이 숨겨져 있어서 Cmd+Shift+. 을 눌러야 보여요." },
-      { label: "GitHub에 올리기", cmd: "push", tip: "New repository는 GitHub 웹사이트 오른쪽 위 + 버튼에서 만들어요. 이름만 prd-maker로 적고 나머지는 그대로 두면 돼요. push할 때 아이디와 비밀번호를 물어보면 손 들어 주세요. GitHub는 비밀번호 대신 브라우저 로그인이나 토큰을 써서, 처음엔 다들 여기서 한 번 막혀요." },
+      { label: "GitHub에 올리기", cmd: "push", tip: "GitHub에서 레포를 먼저 만들고 clone해서 시작하는 방법도 많이 써요. 오늘은 create-next-app이 빈 폴더에서 git까지 만들어 주니까, 내 컴퓨터에서 먼저 만들고 빈 레포에 연결해서 올리는 순서로 가요. New repository는 GitHub 웹사이트 오른쪽 위 + 버튼에서 만들어요. 이름만 prd-maker로 적고 나머지는 그대로 두면 돼요. push할 때 아이디와 비밀번호를 물어보면 손 들어 주세요. GitHub는 비밀번호 대신 브라우저 로그인이나 토큰을 써서, 처음엔 다들 여기서 한 번 막혀요." },
     ],
     checks: [
       { text: "localhost:3000에 Next 기본 화면이 떴다", sub: "확인했으면 Ctrl+C로 꺼 두기. Mac도 Cmd가 아니라 Ctrl이에요" },
@@ -424,8 +425,8 @@ export const HACKATHON = [
 
 /* ---------------- 자주 만나는 에러 (발표 자료 표 그대로, 단계별로 골라 보여 준다) ---------------- */
 
-export const ERRORS: { sym: string; cause: string; fix: string; steps: string[] }[] = [
-  { sym: 'Windows: "running scripts is disabled"', cause: "PowerShell 실행 정책", fix: "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned 입력 후 다시 실행", steps: ["setup"] },
+export const ERRORS: { sym: string; cause: string; fix: string; steps: string[]; os?: OS }[] = [
+  { sym: 'Windows: "running scripts is disabled"', cause: "PowerShell 실행 정책", fix: "Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned 입력 후 다시 실행", steps: ["setup"], os: "win" },
   { sym: '"OPENAI_API_KEY가 .env.local에 없습니다"', cause: "dev 서버 재시작 안 함, 파일 위치나 이름 오타", fix: "Ctrl+C → npm run dev, .env.local이 프로젝트 맨 위 폴더에 있는지 확인", steps: ["s2"] },
   { sym: "OpenAI 401", cause: "키 복사 누락, 앞뒤 공백", fix: "키를 다시 복사해서 붙여넣기", steps: ["s2"] },
   { sym: "OpenAI 404 모델 없음", cause: "모델명 오타, 접근 권한", fix: "OPENAI_MODEL=gpt-5.4-mini 로 바꿔 보기", steps: ["s2"] },

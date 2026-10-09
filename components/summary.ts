@@ -12,6 +12,17 @@ export function stepState(s: Store, id: string): "todo" | "part" | "done" | "stu
   return done === 0 ? "todo" : done >= total ? "done" : "part";
 }
 
+// 사이드바 링이 얼마나 찼는지 (체크 + 내 말로 답하기). 0~1
+export function stepProgress(s: Store, id: string) {
+  const st = STEPS.find((x) => x.id === id);
+  if (!st) return 0;
+  const c = s.checks[id] || {};
+  const a = s.ans[id] || {};
+  const total = st.checks.length + st.questions.length;
+  const done = st.checks.filter((_, i) => c[i]).length + st.questions.filter((q) => (a[q.id] || "").trim()).length;
+  return total ? done / total : 0;
+}
+
 export function summaryText(s: Store) {
   const L = [`[Session 8 실습 노트] ${s.name || "(이름 없음)"}`];
   const label = { done: "완료", part: "진행 중", stuck: "막힘", todo: "안 함" } as const;

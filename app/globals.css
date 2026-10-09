@@ -104,8 +104,9 @@ a { color: inherit; }
 .navitem[aria-current="page"] .lbl { font-weight: 600; }
 .navitem .time { font-size: 12.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
 .dot { width: 18px; height: 18px; flex: none; border-radius: 50%; display: grid; place-items: center; box-shadow: inset 0 0 0 1.5px var(--field); transition: background 0.3s, box-shadow 0.3s; }
-.dot[data-s="part"] { box-shadow: inset 0 0 0 1.5px var(--ink); }
-.dot[data-s="part"]::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--ink); }
+/* 진행 중: 한 만큼 시계 방향으로 차오르는 링 (--p = 0~1) */
+.dot[data-s="part"] { position: relative; box-shadow: none; background: conic-gradient(var(--ink) calc(var(--p, 0) * 360deg), var(--field) 0); transition: background 0.4s; }
+.dot[data-s="part"]::after { content: ""; position: absolute; inset: 2.5px; border-radius: 50%; background: var(--bg); }
 .dot[data-s="done"] { background: var(--ink); box-shadow: none; }
 .dot[data-s="stuck"] { box-shadow: inset 0 0 0 1.5px var(--err); }
 .dot[data-s="stuck"]::after { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--err); }
@@ -438,8 +439,13 @@ textarea.field { min-height: 110px; overflow: hidden; }
 .board-btn:hover { background: var(--surface-2); }
 .board-btn[aria-current="page"] { background: var(--btn); color: var(--on-btn); }
 .board-btn b { min-width: 22px; height: 22px; padding: 0 7px; border-radius: 999px; background: var(--bg); color: var(--ink); font-size: 12px; font-weight: 700; display: inline-grid; place-items: center; font-variant-numeric: tabular-nums; }
-.board-btn .live { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 50%, transparent); animation: live 2.4s ease-out infinite; }
-@keyframes live { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 45%, transparent); } 70%, 100% { box-shadow: 0 0 0 7px transparent; } }
+.faces { display: inline-flex; margin-left: -4px; }
+.faces i { width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 700; background: var(--btn); color: var(--on-btn); box-shadow: 0 0 0 2px var(--surface); }
+.faces i + i { margin-left: -7px; }
+.faces i[data-i="1"] { background: #48484a; }
+.faces i[data-i="2"] { background: #8e8e93; }
+.board-btn:hover .faces i { box-shadow: 0 0 0 2px var(--surface-2); }
+.board-btn[aria-current="page"] .faces i { background: var(--on-btn); color: var(--btn); box-shadow: 0 0 0 2px var(--btn); }
 .menu-btn { display: none; flex: none; width: 36px; height: 36px; border: 0; border-radius: 50%; background: var(--surface); color: var(--ink); place-items: center; cursor: pointer; }
 .sheet-backdrop { position: fixed; inset: 0; z-index: 70; background: rgba(0, 0, 0, 0.28); }
 .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 71; max-height: 86dvh; overflow-y: auto; padding: 24px 20px calc(24px + env(safe-area-inset-bottom, 0px)); border-radius: 28px 28px 0 0; background: var(--bg); box-shadow: 0 -20px 60px -30px rgba(0, 0, 0, 0.35); }
@@ -460,6 +466,7 @@ textarea.field { min-height: 110px; overflow: hidden; }
 @media (max-width: 760px) {
   .top .namebox { display: none; }
   .board-btn .lg { display: none; }
+  .faces i[data-i="2"] { display: none; }
   .board-btn { padding: 0 12px; }
   .top .grow { display: block; }
 }
@@ -473,3 +480,12 @@ textarea.field { min-height: 110px; overflow: hidden; }
 .llogo { flex: none; width: 28px; height: 28px; border-radius: 8px; object-fit: contain; background: var(--bg); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06); }
 .ltile { display: inline-grid; place-items: center; font-size: 14px; font-weight: 700; color: var(--ink); }
 .brand { flex: none; }
+
+.btn.dl { text-decoration: none; margin-top: 2px; }
+
+.checks-left { margin: 18px 0 0; padding: 12px 16px; border-radius: var(--r-md); background: var(--surface); font-size: 14.5px; color: var(--ink); font-weight: 500; }
+@media (max-width: 960px) {
+  .navitem .dot[data-s="part"]::after { background: var(--surface); }
+  .navitem[aria-current="page"] .dot[data-s="part"] { background: conic-gradient(var(--on-btn) calc(var(--p, 0) * 360deg), rgba(255, 255, 255, 0.3) 0); }
+  .navitem[aria-current="page"] .dot[data-s="part"]::after { background: var(--btn); }
+}

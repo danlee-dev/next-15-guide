@@ -2,7 +2,7 @@
 
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import Image from "next/image";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { STEPS, type OS } from "@/lib/content";
 import { CheckPath, ToastProvider, ease, useCopy, useToast } from "./ui";
 import StepView from "./StepView";
@@ -13,7 +13,7 @@ import NameGate from "./NameGate";
 import { boardPayload, postBoard } from "./board";
 import { BoardButton, EXTRA_PAGES, MenuSheet } from "./TopExtras";
 import { EMPTY, loadStore, saveStore, type Patch, type Store } from "./store";
-import { stepState, summaryText } from "./summary";
+import { stepProgress, stepState, summaryText } from "./summary";
 
 const PAGES = new Set([...STEPS.map((s) => s.id), "board", "guide", "refs"]);
 
@@ -146,7 +146,7 @@ function App() {
                       <li key={x.id}>
                         <button type="button" className="navitem" aria-current={active ? "page" : undefined} onClick={() => go(x.id)}>
                           {active && <motion.span layoutId="nav-hl" className="hl" transition={{ type: "spring", stiffness: 420, damping: 36 }} />}
-                          <span className="dot" data-s={st}>
+                          <span className="dot" data-s={st} style={{ "--p": stepProgress(s, x.id) } as CSSProperties}>
                             <CheckPath on={st === "done"} color="#ffffff" />
                           </span>
                           <span className="lbl">{x.label}</span>

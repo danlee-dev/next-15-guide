@@ -26,6 +26,7 @@ export function stepMarkdown(step: Step, os: OS) {
     L.push("", "### 먼저 할 일");
     for (const t of todo) {
       L.push("", `- ${t.label}${t.note ? ` (${t.note})` : ""}`);
+      if (t.download) L.push("", `받기: ${SITE}${t.download.href}`);
       if (t.cmd) L.push("", fence(cmd(t.cmd, os), "bash"));
       if (t.tip) L.push("", t.tip);
     }
@@ -41,7 +42,7 @@ export function stepMarkdown(step: Step, os: OS) {
     for (const c of step.checks) L.push(`- [ ] ${c.text}${c.sub ? ` (${c.sub})` : ""}`);
   }
   if (step.commit) L.push("", "### 끝나면 커밋 (AI에게 시켜도 된다)", "", fence(commitPrompt(step.commit)), "", "직접 할 때:", "", fence(step.commit, "bash"));
-  const errs = ERRORS.filter((e) => e.steps.includes(step.id));
+  const errs = ERRORS.filter((e) => e.steps.includes(step.id) && (!e.os || e.os === os));
   if (errs.length) {
     L.push("", "### 자주 만나는 에러");
     for (const e of errs) L.push(`- ${e.sym}: 원인 ${e.cause} / 해결 ${e.fix}`);

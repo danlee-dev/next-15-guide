@@ -13,19 +13,23 @@ export const EXTRA_PAGES: [string, string][] = [
   ["refs", "디자인 레퍼런스"],
 ];
 
-export function BoardButton({
-  active,
-  onClick,
-}: {
-  active: boolean;
-  onClick: () => void;
-}) {
-  const [n, setN] = useState<number | null>(null);
+// 깜빡이는 "live" 점 대신, 들어온 사람들 이름 첫 글자를 겹쳐 보여 준다 (최근에 움직인 사람부터 3명)
+export function BoardButton({ active, onClick }: { active: boolean; onClick: () => void }) {
+  const [names, setNames] = useState<string[] | null>(null);
   useEffect(() => {
     let alive = true;
     const load = () =>
       fetchBoard()
-        .then((x) => alive && setN(new Set(x.map((i) => i.name)).size))
+        .then((x) => {
+          if (!alive) return;
+          const seen = new Set<string>();
+          const recent = x
+            .slice()
+            .sort((a, b) => +new Date(b.updated_at) - +new Date(a.updated_at))
+            .map((i) => i.name)
+            .filter((nm) => (seen.has(nm) ? false : (seen.add(nm), true)));
+          setNames(recent);
+        })
         .catch(() => {});
     load();
     const id = setInterval(() => {
@@ -37,17 +41,20 @@ export function BoardButton({
     };
   }, []);
   return (
-    <button
-      type="button"
-      className="board-btn"
-      aria-current={active ? "page" : undefined}
-      onClick={onClick}
-    >
-      <span className="live" aria-hidden="true" />
+    <button type="button" className="board-btn" aria-current={active ? "page" : undefined} onClick={onClick} aria-label={`제출 현황${names ? `, ${names.length}명` : ""}`}>
+      {names && names.length > 0 && (
+        <span className="faces" aria-hidden="true">
+          {names.slice(0, 3).map((nm, i) => (
+            <i key={nm} data-i={i}>
+              {nm.trim().slice(0, 1)}
+            </i>
+          ))}
+        </span>
+      )}
       <span>
         <span className="lg">제출 </span>현황
       </span>
-      {n !== null && <b>{n}</b>}
+      {names && <b>{names.length}</b>}
     </button>
   );
 }

@@ -36,7 +36,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
 
   const visibleTodo = (step.todo || []).filter((t) => !t.os || t.os === s.os);
   const stuck = s.stuck[step.id];
-  const errs = ERRORS.filter((e) => e.steps.includes(step.id));
+  const errs = ERRORS.filter((e) => e.steps.includes(step.id) && (!e.os || e.os === s.os));
 
   return (
     <article>
@@ -48,6 +48,14 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
             <div className="blk" key={i}>
               <div className="blk-label">{t.label}</div>
               {t.note && <div className="blk-note">{t.note}</div>}
+              {t.download && (
+                <a className="btn btn-ink dl" href={t.download.href} download>
+                  <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M8 2.5v8M4.5 7.5 8 11l3.5-3.5M3 13.5h10" />
+                  </svg>
+                  {t.download.label}
+                </a>
+              )}
               {t.cmd && <Command k={t.cmd} os={s.os} />}
               {t.tip && <p className="blk-tip">{t.tip}</p>}
             </div>
@@ -112,6 +120,11 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
               );
             })}
           </ul>
+          {step.checks.every((_, i) => checks[i]) && step.questions.some((q) => !(ans[q.id] || "").trim()) && (
+            <p className="checks-left">
+              체크 완료. 아래 &quot;내 말로 답하기&quot; {step.questions.filter((q) => !(ans[q.id] || "").trim()).length}개까지 쓰면 이 단계가 끝나요.
+            </p>
+          )}
           {step.commit && (
             <div className="blk" style={{ marginTop: 28 }}>
               <div className="blk-label">끝나면 커밋: AI에게 시켜도 돼요</div>
