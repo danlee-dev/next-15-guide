@@ -40,7 +40,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
 
   return (
     <article>
-      <Hero chip={step.label} meta={`${step.start} 시작`} title={step.title} lead={step.lead} aside={<CopyMenu page={step.id} os={s.os} />} />
+      <Hero chip={step.label} meta={step.start.includes(":") ? `${step.start} 시작` : "시간 남으면, 아니면 과제로"} title={step.title} lead={step.lead} aside={<CopyMenu page={step.id} os={s.os} />} />
 
       {visibleTodo.length > 0 && (
         <Section i={n++} title="먼저 할 일">

@@ -1,7 +1,8 @@
 "use client";
 
 import { STEPS } from "@/lib/content";
-import { clientId, type Store } from "./store";
+import type { Store } from "./store";
+import { authHeader } from "./supa";
 import { stepState } from "./summary";
 
 export type BoardItem = {
@@ -33,7 +34,7 @@ export function boardPayload(s: Store, submit = false) {
 export async function postBoard(body: string) {
   const res = await fetch("/api/board", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "x-client-id": clientId() },
+    headers: { "Content-Type": "application/json", ...(await authHeader()) },
     body,
   });
   const json = await res.json().catch(() => ({}));
@@ -41,7 +42,7 @@ export async function postBoard(body: string) {
 }
 
 export async function fetchBoard(): Promise<BoardItem[]> {
-  const res = await fetch("/api/board", { headers: { "x-client-id": clientId() }, cache: "no-store" });
+  const res = await fetch("/api/board", { cache: "no-store" });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.error || "현황을 불러오지 못했어요");
   return json.items || [];
@@ -53,3 +54,11 @@ export const PAGE_LABEL: Record<string, string> = {
   refs: "레퍼런스",
   board: "현황판",
 };
+
+// 로그인한 사람의 저장된 이름 (없으면 구글 계정 이름을 제안값으로)
+export async function fetchMe(): Promise<{ name: string | null; suggested: string | null }> {
+  const res = await fetch("/api/me", { headers: await authHeader(), cache: "no-store" });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || "정보를 불러오지 못했어요");
+  return { name: json.name ?? null, suggested: json.suggested ?? null };
+}

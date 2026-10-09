@@ -98,7 +98,7 @@ Step마다: 프롬프트 → 직접 확인 → 이해 질문 → 커밋.
 2. 그래도 안 되면 손 들어 주세요. 에러 메시지는 화면과 터미널 둘 다 준비.
 3. 세션 안에 안 풀리면 운영진이 기록해 두고 끝나고 같이 봐요. 혼자 10분 넘게 붙잡지 않기.
 
-## 과제 (10/28까지)
+## 과제 (10/26 월요일 세션 전까지)
 
 - [ ] Vercel 배포: Environment Variables에 `OPENAI_API_KEY`, `OPENAI_MODEL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` 등록 후 Redeploy
 - [ ] P1 기능 하나 더 (마크다운 복사, 상세/삭제)

@@ -18,7 +18,8 @@ export function clientKey(req: Request) {
   return { ip, client: clip(req.headers.get("x-client-id"), 64) };
 }
 
-export function rateLimited(req: Request, scope: string, perClient: number, perIp: number) {
+// who: 로그인한 계정 id 를 넘기면 그걸로 센다 (없으면 브라우저 id, 그것도 없으면 IP)
+export function rateLimited(req: Request, scope: string, perClient: number, perIp: number, who?: string) {
   const { ip, client } = clientKey(req);
-  return hit(`${scope}:c:${client || ip}`, perClient, 60_000) || hit(`${scope}:ip:${ip}`, perIp, 60_000);
+  return hit(`${scope}:c:${who || client || ip}`, perClient, 60_000) || hit(`${scope}:ip:${ip}`, perIp, 60_000);
 }

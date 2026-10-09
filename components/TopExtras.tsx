@@ -60,11 +60,13 @@ export function BoardButton({ active, onClick }: { active: boolean; onClick: () 
 }
 
 export function MenuSheet({
+  onLogout,
   name,
   onName,
   cur,
   go,
 }: {
+  onLogout: () => void;
   name: string;
   onName: (v: string) => void;
   cur: string;
@@ -188,6 +190,16 @@ export function MenuSheet({
                     autoComplete="name"
                     aria-label="내 이름"
                   />
+              <button
+                type="button"
+                className="btn btn-ghost sheet-logout"
+                onClick={() => {
+                  setOpen(false);
+                  onLogout();
+                }}
+              >
+                로그아웃
+              </button>
                 </motion.div>
               </>
             )}

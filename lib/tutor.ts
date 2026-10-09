@@ -90,4 +90,4 @@ export function logUsage(route: string, model: string, started: number, u?: Anth
 }
 
 // 튜터: 한 사람 분당 12번, 강의실 IP 하나에 분당 150번
-export const tutorLimited = (req: Request) => rateLimited(req, "tutor", 12, 150);
+export const tutorLimited = (req: Request, userId: string) => rateLimited(req, "tutor", 12, 150, userId);

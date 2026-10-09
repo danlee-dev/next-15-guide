@@ -1,11 +1,15 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { MODEL, STEP_FOCUS, clip, fallback, getClient, logUsage, systemBlocks, tutorLimited } from "@/lib/tutor";
+import { getUser } from "@/lib/auth";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
 // POST /api/tutor/chat : 자유 질문, 텍스트 스트리밍으로 응답
 export async function POST(req: Request) {
-  if (tutorLimited(req)) return new Response("요청이 몰렸어요. 1분 뒤에 다시 물어봐 주세요.", { status: 429 });
+  // 튜터는 로그인한 학회원만 쓴다 (링크가 밖으로 새도 Claude 키가 안전하게)
+  const user = await getUser(req);
+  if (!user) return new Response("로그인이 필요해요. 새로고침하고 구글로 로그인해 주세요.", { status: 401 });
+  if (tutorLimited(req, user.id)) return new Response("요청이 몰렸어요. 1분 뒤에 다시 물어봐 주세요.", { status: 429 });
 
   let body: { stepId?: string; stepTitle?: string; messages?: Msg[] };
   try {

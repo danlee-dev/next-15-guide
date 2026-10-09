@@ -83,7 +83,7 @@ export const STEPS: Step[] = [
   {
     id: "setup",
     label: "준비",
-    start: "0:10",
+    start: "0:06",
     title: "레포를 만들고, 문서부터 깔아요",
     lead: "빈 폴더에서 시작해요. AI가 코드를 쓰기 전에 읽을 문서를 레포에 먼저 넣어 두는 게 이번 단계의 전부예요.",
     todo: [
@@ -108,7 +108,7 @@ export const STEPS: Step[] = [
   {
     id: "plan",
     label: "기획",
-    start: "0:17",
+    start: "0:16",
     title: "AI와 같이 내 버전을 정해요",
     lead: "PRD는 혼자 쓰지 않아요. AI에게 질문을 먼저 받고, 후보를 받고, 결정은 내가 해요.",
     prompt: `docs/PRD.md를 읽어. 나는 이 PRD 메이커를 [___]용으로 바꾸고 싶어.
@@ -131,7 +131,7 @@ export const STEPS: Step[] = [
   {
     id: "s0",
     label: "Step 0",
-    start: "0:23",
+    start: "0:22",
     title: "계획만 세워요, 코드 0줄",
     lead: "코드를 쓰기 전에 AI가 문서를 제대로 읽었는지부터 확인해요. 계획부터 세우면 AI가 혼자 판단해서 산으로 가는 걸 시작 전에 막을 수 있어요.",
     prompt: `docs/PRD.md, docs/DESIGN.md, docs/API.md, AGENTS.md를 읽어.
@@ -173,7 +173,7 @@ export const STEPS: Step[] = [
   {
     id: "s2",
     label: "Step 2",
-    start: "0:31",
+    start: "0:32",
     title: "OpenAI를 연결해요",
     lead: "진짜 PRD가 나와요. 키가 서버 밖으로 나가지 않는지 내 눈으로 확인하는 게 이번 단계의 핵심이에요.",
     todo: [
@@ -199,7 +199,7 @@ export const STEPS: Step[] = [
   {
     id: "s3",
     label: "Step 3",
-    start: "0:39",
+    start: "0:42",
     title: "Supabase에 저장하고 목록을 만들어요",
     lead: "새로고침해도 남아 있는 게 목표예요. RLS 정책이 0개인데 왜 저장되는지 설명할 수 있으면 통과예요.",
     todo: [
@@ -225,9 +225,9 @@ export const STEPS: Step[] = [
   {
     id: "s4",
     label: "Step 4",
-    start: "0:47",
+    start: "선택",
     title: "내 버전을 만들고 push해요",
-    lead: "정해진 프롬프트가 없어요. PRD.md 8번에 내가 정한 걸 내 말로 시켜 보세요. 못 끝내면 과제로 이어서 해도 돼요.",
+    lead: "시간이 남은 사람만 해요. 못 하면 과제로 이어서 해도 돼요. 정해진 프롬프트 없이, PRD.md 8번에 내가 정한 걸 내 말로 시켜 보세요.",
     prompt: `docs/PRD.md 8번 "내 버전"에 적은 것만 구현해 줘. 계획부터 보여 줘.`,
     ownPrompt: true,
     more: {
@@ -441,7 +441,7 @@ export const ERRORS: { sym: string; cause: string; fix: string; steps: string[];
 /* ---------------- 과제 ---------------- */
 
 export const ASSIGNMENT = {
-  due: "10/28(수) 해커톤 사전 네트워킹 전까지",
+  due: "10/26(월) 세션 전까지",
   items: [
     { t: "Vercel 배포", d: "Session 6에서 한 그대로. Environment Variables에 OPENAI_API_KEY, OPENAI_MODEL, SUPABASE_URL, SUPABASE_SECRET_KEY 4개를 넣고 Redeploy" },
     { t: "P1 기능 1개 더", d: "마크다운 복사 버튼, 또는 /specs/[id] 상세 보기와 삭제" },

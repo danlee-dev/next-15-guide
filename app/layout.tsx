@@ -16,15 +16,16 @@ const mono = localFont({
   display: "swap",
 });
 
-const description = "NEXT 15기 개발세션 8. 바이브 코딩으로 PRD 메이커를 끝까지 만들어 보는 실습 노트";
+const description = "NEXT 15기 개발 가이드. Session 8 실습 노트, 바이브 코딩 가이드, 개발 세팅과 디자인 자료.";
 
 export const metadata: Metadata = {
-  title: "Session 8 실습 노트 | NEXT",
+  metadataBase: new URL("https://next-guide-15.vercel.app"),
+  title: "NEXT 15기 개발 가이드",
   description,
   // 제출 현황판에 본명이 떠서 검색엔진에는 올리지 않는다
   robots: { index: false, follow: false },
   // 잡담방 링크 미리보기용. 이미지는 app/opengraph-image.png 를 Next가 자동으로 붙인다
-  openGraph: { title: "Session 8 실습 노트", description, siteName: "NEXT", locale: "ko_KR", type: "website" },
+  openGraph: { title: "NEXT 15기 개발 가이드", description, siteName: "NEXT", locale: "ko_KR", type: "website" },
 };
 
 export const viewport: Viewport = { themeColor: "#ffffff", width: "device-width", initialScale: 1, viewportFit: "cover" };

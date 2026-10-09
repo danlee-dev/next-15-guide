@@ -1,4 +1,5 @@
 import { MODEL, STEP_FOCUS, clip, fallback, getClient, logUsage, systemBlocks, tutorLimited } from "@/lib/tutor";
+import { getUser } from "@/lib/auth";
 
 type Body = { stepId?: string; stepTitle?: string; answers?: { q?: string; a?: string }[]; log?: string };
 
@@ -15,7 +16,10 @@ const schema = {
 
 // POST /api/tutor/feedback : 학회원 답을 보고 판정 + 피드백 + 다음 질문
 export async function POST(req: Request) {
-  if (tutorLimited(req)) return Response.json({ error: "요청이 몰렸어요. 1분 뒤에 다시 눌러 주세요." }, { status: 429 });
+  // 튜터는 로그인한 학회원만 쓴다 (링크가 밖으로 새도 Claude 키가 안전하게)
+  const user = await getUser(req);
+  if (!user) return Response.json({ error: "로그인이 필요해요. 새로고침하고 구글로 로그인해 주세요." }, { status: 401 });
+  if (tutorLimited(req, user.id)) return Response.json({ error: "요청이 몰렸어요. 1분 뒤에 다시 눌러 주세요." }, { status: 429 });
 
   let body: Body;
   try {

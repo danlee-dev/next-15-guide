@@ -9,7 +9,8 @@ import StepView from "./StepView";
 import GuideView from "./GuideView";
 import RefsView from "./RefsView";
 import BoardView from "./BoardView";
-import NameGate from "./NameGate";
+import AuthGate from "./AuthGate";
+import { supa } from "./supa";
 import { boardPayload, postBoard } from "./board";
 import { BoardButton, EXTRA_PAGES, MenuSheet } from "./TopExtras";
 import { EMPTY, loadStore, saveStore, type Patch, type Store } from "./store";
@@ -28,7 +29,8 @@ export default function Notebook() {
 function App() {
   const [s, setS] = useState<Store>(EMPTY);
   const [ready, setReady] = useState(false);
-  const [gate, setGate] = useState(false);
+  // 구글 로그인이 끝나고 이름까지 정해졌는지. 그 전에는 현황판에 아무것도 올리지 않는다
+  const [authed, setAuthed] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const toast = useToast();
 
@@ -38,7 +40,6 @@ function App() {
     const hash = location.hash.slice(1);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setS(PAGES.has(hash) ? { ...loaded, cur: hash } : loaded);
-    setGate(!loaded.name.trim());
     setReady(true);
     const onHash = () => {
       const h = location.hash.slice(1);
@@ -58,7 +59,7 @@ function App() {
   }, [s, ready]);
 
   // 이름을 적은 뒤부터 내 진행 상황(이름, 단계, 막힘, 링크)을 제출 현황판에 자동으로 올린다. 1.5초씩 모아서 보낸다
-  const syncBody = ready && !gate && s.name.trim() ? JSON.stringify(boardPayload(s)) : "";
+  const syncBody = ready && authed && s.name.trim() ? JSON.stringify(boardPayload(s)) : "";
   useEffect(() => {
     if (!syncBody) return;
     const t = setTimeout(() => postBoard(syncBody).catch(() => {}), 1500);
@@ -76,6 +77,11 @@ function App() {
     [],
   );
 
+  const logout = () => {
+    supa().auth.signOut();
+    patch((st) => ({ ...st, name: "" }));
+  };
+
   const setOS = (os: OS) => {
     if (os === s.os) return;
     patch((st) => ({ ...st, os, osPicked: true }));
@@ -91,7 +97,7 @@ function App() {
         <div className="top-in">
           <div className="brand">
             <Image src="/next-logo-ink.png" alt="NEXT" width={407} height={96} className="logo" priority />
-            <span>Session 8 실습 노트</span>
+            <span>15기 개발 가이드</span>
           </div>
           <div className="grow" />
           <div className="namebox">
@@ -108,6 +114,7 @@ function App() {
           </div>
           <BoardButton active={s.cur === "board"} onClick={() => go("board")} />
           <MenuSheet
+            onLogout={logout}
             name={s.name}
             onName={(v) => patch((st) => ({ ...st, name: v }))}
             cur={s.cur}
@@ -170,6 +177,14 @@ function App() {
               </div>
             </div>
           </LayoutGroup>
+          {authed && (
+            <div className="side-me">
+              <span>{s.name}</span>
+              <button type="button" className="textlink" onClick={logout}>
+                로그아웃
+              </button>
+            </div>
+          )}
         </aside>
 
         <main className="page">
@@ -197,17 +212,15 @@ function App() {
         </main>
       </div>
 
-      <AnimatePresence>
-        {gate && (
-          <NameGate
-            onDone={(name) => {
+      {ready && (
+          <AuthGate
+            onReady={(name) => {
               patch((st) => ({ ...st, name }));
-              setGate(false);
-              toast(`${name}님, 반가워요`);
+              setAuthed(true);
             }}
+            onSignedOut={() => setAuthed(false)}
           />
         )}
-      </AnimatePresence>
     </>
   );
 }

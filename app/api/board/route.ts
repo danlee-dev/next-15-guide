@@ -1,5 +1,6 @@
 import { listBoard, upsertBoard } from "@/lib/board";
-import { clientKey, clip, rateLimited } from "@/lib/limit";
+import { getUser } from "@/lib/auth";
+import { clip, rateLimited } from "@/lib/limit";
 
 type Body = {
   name?: string;
@@ -37,11 +38,12 @@ export async function GET(req: Request) {
   }
 }
 
-// POST /api/board : 내 줄 저장 (이름, 진행, 막힘, 제출 링크). 브라우저마다 만든 x-client-id 로 구분한다
+// POST /api/board : 내 줄 저장 (이름, 진행, 막힘, 제출 링크). 구글 로그인 계정 id 로 구분한다
 export async function POST(req: Request) {
-  if (rateLimited(req, "board-post", 40, 900)) return Response.json({ error: "요청이 몰렸어요. 잠시 뒤 다시 해 주세요." }, { status: 429 });
-  const { client } = clientKey(req);
-  if (!/^[\w-]{8,64}$/.test(client)) return Response.json({ error: "요청 형식이 잘못됐어요" }, { status: 400 });
+  const user = await getUser(req);
+  if (!user) return Response.json({ error: "로그인이 필요해요" }, { status: 401 });
+  if (rateLimited(req, "board-post", 40, 900, user.id)) return Response.json({ error: "요청이 몰렸어요. 잠시 뒤 다시 해 주세요." }, { status: 429 });
+  const client = user.id;
 
   let body: Body;
   try {

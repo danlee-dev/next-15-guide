@@ -51,3 +51,11 @@ export async function upsertBoard(row: Record<string, unknown>) {
   });
   if (!r.ok) throw new Error(`board upsert ${r.status} ${await r.text()}`);
 }
+
+// 로그인한 사람의 저장된 이름 (다른 기기에서 로그인해도 이름을 기억하려고)
+export async function getName(clientId: string): Promise<string | null> {
+  const r = await rest(`board?select=name&client_id=eq.${encodeURIComponent(clientId)}&limit=1`);
+  if (!r.ok) throw new Error(`board name ${r.status} ${await r.text()}`);
+  const rows: { name: string }[] = await r.json();
+  return rows[0]?.name ?? null;
+}

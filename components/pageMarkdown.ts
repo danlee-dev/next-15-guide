@@ -3,7 +3,7 @@ import { ASSIGNMENT, COMMANDS, ERRORS, GUIDE_SECTIONS, HACKATHON, INTERVENE, PRO
 // "페이지 복사": 학회원이 Claude Code / ChatGPT 등에 붙여넣고 질문할 수 있게 화면 내용을 마크다운으로 만든다.
 // 내 OS에 맞는 명령어만 넣는다. 학회원이 쓴 답은 넣지 않는다 (AI가 대신 답하게 만들지 않으려고).
 
-const SITE = "https://next-session8.vercel.app";
+const SITE = "https://next-guide-15.vercel.app";
 
 function cmd(k: CommandKey, os: OS) {
   const c = COMMANDS[k] as { both?: string; mac?: string; win?: string };
