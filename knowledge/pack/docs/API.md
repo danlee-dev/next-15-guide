@@ -77,7 +77,7 @@ supabase/
 
 응답 201:
 ```json
-{ "id": "uuid", "created_at": "2026-10-11T...", "spec": { "...": "Spec 객체 (6번 참고)" } }
+{ "id": "uuid", "created_at": "2026-10-10T...", "spec": { "...": "Spec 객체 (6번 참고)" } }
 ```
 
 Step 2에서는 3번(저장)을 빼고 `{ "spec": ... }`만 돌려준다. Step 3에서 저장을 붙인다.
