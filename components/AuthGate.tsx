@@ -159,7 +159,9 @@ export default function AuthGate({
                       if (err) setErr("");
                     }}
                   >
-                    <Image className="gate-tool-ic" src={t === "claude" ? "/refs/logos/claude-code.png" : "/refs/logos/codex.png"} alt="" width={32} height={32} />
+                    <span className="gate-tool-ic">
+                      <Image src={t === "claude" ? "/refs/logos/claude.svg" : "/refs/logos/codex-mark.png"} alt="" width={24} height={24} />
+                    </span>
                     <b>{TOOL_LABEL[t]}</b>
                     <span>{t === "claude" ? "CLAUDE.md" : "AGENTS.md"}</span>
                   </button>

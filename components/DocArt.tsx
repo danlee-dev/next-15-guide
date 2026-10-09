@@ -278,6 +278,14 @@ function Mcp() {
   return (
     <div className="art mx">
       <Rise className="mx-agent">
+        <span className="mx-marks" aria-hidden="true">
+          <i>
+            <Image src="/refs/logos/claude.svg" alt="" width={18} height={18} />
+          </i>
+          <i>
+            <Image src="/refs/logos/codex-mark.png" alt="" width={20} height={20} />
+          </i>
+        </span>
         <b>Claude Code · Codex</b>
         <span>내 계정 권한으로 대신 움직여요</span>
       </Rise>

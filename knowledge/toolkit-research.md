@@ -124,7 +124,7 @@ npm run build가 이 에러로 실패해: [에러 붙여넣기]. 원인을 고�
 - Claude가 맞는지 확인할 수단(테스트, 빌드, 스크린샷)을 같이 주라는 게 공식 모범 사례의 첫 번째 항목이에요.
 
 - 스크린샷: public/refs/claude-code.webp (공식 문서 Overview의 Get started 섹션)
-- 로고: public/refs/logos/claude-code.png
+- 로고: public/refs/logos/claude.svg (simple-icons 15.17.0 의 Claude 마크, #D97757)
 - 확인한 출처: code.claude.com/docs/en/setup, /permission-modes, /memory, /commands, /skills, /sub-agents, /best-practices (2026-10-10). npm 최신 버전 2.1.296 확인(2026-10-10).
 
 ### 1.2 OpenAI Codex CLI
@@ -194,7 +194,7 @@ codex          # "Sign in with ChatGPT" 선택 → 브라우저 로그인
 - 문서가 작업 전후로 git 커밋(체크포인트)을 남기라고 권장해요.
 
 - 스크린샷: public/refs/codex-cli.webp (Codex CLI 공식 문서 첫 화면)
-- 로고: public/refs/logos/codex-cli.svg (learn.chatgpt.com이 제공하는 favicon.svg)
+- 로고: public/refs/logos/codex-mark.png (Codex 데스크톱 앱 번들의 구름 마크. 예전 codex-cli.svg 는 learn.chatgpt.com 파비콘이라 Codex 로고가 아님)
 - 확인한 출처: learn.chatgpt.com/docs/codex/cli, /agent-approvals-security, /permission-modes, /agent-configuration/agents-md, /developer-commands, /build-skills, /windows/windows-sandbox, /windows/wsl, /pricing, github.com/openai/codex README (2026-10-10). npm 최신 0.162.1 확인.
 
 ### 1.3 AGENTS.md / CLAUDE.md (에이전트용 프로젝트 설명서)

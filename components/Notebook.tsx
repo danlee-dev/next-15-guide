@@ -35,7 +35,7 @@ const PAGES = new Set([
 const isStep = (id: string) => ALL_STEPS.some((x) => x.id === id);
 
 const ToolMark = ({ t }: { t: AgentTool }) => (
-  <Image src={t === "claude" ? "/refs/logos/claude-code.png" : "/refs/logos/codex.png"} alt="" width={22} height={22} className="tool-ic" />
+  <Image src={t === "claude" ? "/refs/logos/claude.svg" : "/refs/logos/codex-mark.png"} alt="" width={20} height={20} className="tool-ic" />
 );
 
 export default function Notebook() {
@@ -122,9 +122,8 @@ function App() {
     toast(`${TOOL_LABEL[tool]} 기준으로 바꿨어요`);
   };
 
-  // 지금 보고 있는 세션 (자료·홈이면 null). 상단 "제출 현황"은 이 세션, 없으면 이번 세션
+  // 지금 보고 있는 세션 (자료·홈이면 null)
   const ses = sessionOf(s.cur);
-  const boardSes = ses || CURRENT;
   // {{Claude Code|Codex}} 표시를 고른 도구에 맞춘 단계
   const rawStep = ALL_STEPS.find((x) => x.id === s.cur);
   const step = useMemo(() => (rawStep ? tailor(rawStep, s.tool) : undefined), [rawStep, s.tool]);
@@ -174,7 +173,8 @@ function App() {
               </button>
             ))}
           </div>
-          <BoardButton sid={boardSes.id} active={s.cur === boardSes.boardPage} onClick={() => go(boardSes.boardPage)} />
+          {/* 제출 현황은 세션마다 따로라서, 세션 안에 있을 때만 그 세션 것을 보여 준다. 홈에서는 세션 카드에서 들어간다 */}
+          {ses && <BoardButton sid={ses.id} active={s.cur === ses.boardPage} onClick={() => go(ses.boardPage)} />}
           <MenuSheet onLogout={logout} name={s.name} onName={(v) => patch((st) => ({ ...st, name: v }))} tool={s.tool} onTool={setTool} cur={s.cur} go={go} />
         </div>
       </header>

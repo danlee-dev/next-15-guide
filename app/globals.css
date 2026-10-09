@@ -779,7 +779,8 @@ textarea.field { min-height: 110px; overflow: hidden; }
 .live-face { display: inline-grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%; background: var(--on-btn); color: var(--btn); font-style: normal; font-size: 13px; font-weight: 700; }
 .live-go { display: inline-flex; align-items: center; height: 30px; margin-left: 4px; padding: 0 12px; border-radius: 999px; background: rgba(255, 255, 255, 0.14); font-size: 13px; font-weight: 600; }
 @media (max-width: 760px) { .live-note { top: calc(env(safe-area-inset-top, 0px) + 70px); } }
-.gate-tool-ic { display: block; width: 32px; height: 32px; margin-bottom: 8px; border-radius: 9px; object-fit: contain; }
+.gate-tool-ic { display: grid; place-items: center; width: 40px; height: 40px; margin-bottom: 10px; border-radius: 50%; background: var(--bg); box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 2px 6px -2px rgba(0, 0, 0, 0.12); }
+.gate-tool-ic img { display: block; width: 24px; height: 24px; object-fit: contain; }
 
 /* 줄바꿈: 제목은 줄 길이를 고르게, 본문은 마지막 줄에 한 단어만 남지 않게 */
 .gate-card h2, .sec-h h2, .lib-t, .tname b, .points b { text-wrap: balance; }
@@ -799,7 +800,7 @@ textarea.field { min-height: 110px; overflow: hidden; }
 /* ---------- 세션 구조 ---------- */
 button.brand { padding: 0; border: 0; background: transparent; color: inherit; font: inherit; cursor: pointer; }
 .tool-seg button { padding: 0 11px; }
-.tool-ic { display: block; width: 22px; height: 22px; border-radius: 6px; transition: opacity 0.2s, filter 0.2s; }
+.tool-ic { display: block; width: 20px; height: 20px; object-fit: contain; transition: opacity 0.2s, filter 0.2s; }
 .tool-seg button[aria-pressed="false"] .tool-ic { opacity: 0.45; filter: grayscale(1); }
 .tool-seg button[aria-pressed="false"]:hover .tool-ic { opacity: 0.85; filter: none; }
 
@@ -892,3 +893,7 @@ button.brand { padding: 0; border: 0; background: transparent; color: inherit; f
 .blank-help b { font-weight: 600; color: var(--ink); }
 /* 폰: 긴 명령어 줄을 접어서 빈칸이 화면 밖으로 안 나가게 (복사는 원래 줄 그대로) */
 @media (max-width: 640px) { .code pre { white-space: pre-wrap; overflow-wrap: anywhere; } }
+
+.mx-agent .mx-marks { display: flex; gap: 6px; margin: 0 0 12px; }
+.mx-marks i { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #fff; }
+.mx-marks img { display: block; object-fit: contain; }

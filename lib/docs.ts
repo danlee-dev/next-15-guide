@@ -314,7 +314,7 @@ const env: Doc = {
             { name: "Node.js 24 LTS", logo: L("nodejs.svg"), url: "https://nodejs.org/en/download", d: "Next.js, npm, npx를 돌리는 실행 환경" },
             { name: "Git", logo: L("git.png"), url: "https://git-scm.com", d: "변경 기록. AI가 망쳐도 되돌릴 수 있어요" },
             { name: "GitHub CLI", logo: L("gh-cli.png"), url: "https://cli.github.com", d: "터미널에서 레포 만들기, PR, 로그인" },
-            { name: "Claude Code 또는 Codex", logo: L("claude-code.png"), url: "https://code.claude.com/docs/en/setup", d: "터미널에서 도는 AI 코딩 에이전트" },
+            { name: "Claude Code 또는 Codex", logo: L("claude.svg"), url: "https://code.claude.com/docs/en/setup", d: "터미널에서 도는 AI 코딩 에이전트" },
           ],
         },
       ],
@@ -400,8 +400,8 @@ gh auth login   # GitHub.com → HTTPS → 브라우저로 로그인`,
         {
           k: "tools",
           items: [
-            { name: "Claude Code", logo: L("claude-code.png"), url: "https://code.claude.com/docs/en/setup", d: "Claude Pro 이상 구독 또는 API 키. 무료 플랜에는 없어요" },
-            { name: "Codex CLI", logo: L("codex.png"), url: "https://learn.chatgpt.com/docs/codex/cli", d: "ChatGPT Plus 이상 구독 또는 API 키" },
+            { name: "Claude Code", logo: L("claude.svg"), url: "https://code.claude.com/docs/en/setup", d: "Claude Pro 이상 구독 또는 API 키. 무료 플랜에는 없어요" },
+            { name: "Codex CLI", logo: L("codex-mark.png"), url: "https://learn.chatgpt.com/docs/codex/cli", d: "ChatGPT Plus 이상 구독 또는 API 키" },
           ],
         },
         {
