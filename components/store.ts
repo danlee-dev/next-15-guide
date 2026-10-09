@@ -1,6 +1,6 @@
 "use client";
 
-import type { OS } from "@/lib/content";
+import type { AgentTool, OS } from "@/lib/content";
 
 export type Verdict = "good" | "close" | "retry";
 export type Feedback = { verdict: Verdict; feedback: string; next: string };
@@ -10,6 +10,7 @@ export type Store = {
   name: string;
   os: OS;
   osPicked: boolean; // 사용자가 토글을 직접 눌렀으면 true. 아니면 열 때마다 기기를 보고 정한다
+  tool: AgentTool | ""; // 주로 쓰는 AI 도구. 처음 이름 확인 때 고른다
   cur: string;
   last: string;
   ans: Record<string, Record<string, string>>;
@@ -17,11 +18,11 @@ export type Store = {
   fb: Record<string, Feedback>;
   chat: Record<string, ChatMsg[]>;
   stuck: Record<string, string>;
-  links: { repo: string; deploy: string }; // 제출 현황판에 걸 링크
+  links: { repo: string; deploy: string; feature?: string; repoEdited?: boolean }; // 제출 현황판에 걸 링크와 과제로 추가한 기능 설명
   submittedAt: number | null;
 };
 
-export const EMPTY: Store = { name: "", os: "mac", osPicked: false, cur: "setup", last: "setup", ans: {}, checks: {}, fb: {}, chat: {}, stuck: {}, links: { repo: "", deploy: "" }, submittedAt: null };
+export const EMPTY: Store = { name: "", os: "mac", osPicked: false, tool: "", cur: "setup", last: "setup", ans: {}, checks: {}, fb: {}, chat: {}, stuck: {}, links: { repo: "", deploy: "" }, submittedAt: null };
 
 const KEY = "next-s8-note-v1";
 
@@ -67,5 +68,14 @@ export function clientId(): string {
 }
 
 export type Patch = (fn: (s: Store) => Store) => void;
+
+// 제출할 레포 주소. 제출 칸을 한 번이라도 고쳤으면 그 값(빈 값 포함)을 쓰고,
+// 아니면 준비 단계에서 적은 답을 가져온다. 단 GitHub 주소처럼 생겼을 때만 (예전엔 "-" 같은 답도 끌려와서 지워도 다시 생겼다)
+export function repoOf(s: Store): string {
+  if (s.links.repoEdited) return s.links.repo;
+  if (s.links.repo) return s.links.repo;
+  const fromSetup = (s.ans.setup?.repo || "").trim();
+  return /github\.com\/[^/\s]+\/[^/\s]+/i.test(fromSetup) ? fromSetup : "";
+}
 
 export const VERDICT_LABEL: Record<Verdict, string> = { good: "통과", close: "거의 다 왔어요", retry: "한 번 더 생각해 봐요" };

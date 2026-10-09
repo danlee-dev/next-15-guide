@@ -90,4 +90,11 @@ export function logUsage(route: string, model: string, started: number, u?: Anth
 }
 
 // 튜터: 한 사람 분당 12번, 강의실 IP 하나에 분당 150번
+// 학생이 주로 쓰는 도구. 이 줄은 캐시되는 지식 블록 뒤(extra)에만 붙어서 캐시를 깨지 않는다
+export function toolLine(tool: unknown) {
+  if (tool === "claude") return "[학생이 주로 쓰는 도구] Claude Code. 규칙 파일은 CLAUDE.md(안에서 @AGENTS.md를 불러옴), plan 모드는 Shift+Tab 또는 /plan, 새 대화는 /clear 로 안내한다.";
+  if (tool === "codex") return "[학생이 주로 쓰는 도구] Codex. 규칙 파일은 AGENTS.md, 계획은 /plan, 새 대화는 /new 로 안내한다.";
+  return "";
+}
+
 export const tutorLimited = (req: Request, userId: string) => rateLimited(req, "tutor", 12, 150, userId);

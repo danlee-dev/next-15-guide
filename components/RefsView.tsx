@@ -14,7 +14,7 @@ export default function RefsView({ s, go }: { s: Store; go: (id: string) => void
         meta="실습 중에도, 해커톤에서도"
         title="AI스러운 화면에서 벗어나는 법"
         lead="기준 없이 예쁘게 해 달라고 하면 다 비슷한 화면이 나와요. 디자인 규칙 파일과 레퍼런스를 먼저 주면 결과가 달라져요."
-        aside={<CopyMenu page="refs" os={s.os} />}
+        aside={<CopyMenu page="refs" os={s.os} tool={s.tool} />}
       />
 
       <Section i={n++} title="이렇게 써요">
@@ -67,8 +67,8 @@ export default function RefsView({ s, go }: { s: Store; go: (id: string) => void
         <button type="button" className="btn btn-soft" onClick={() => go("guide")}>
           ← 바이브 코딩 가이드
         </button>
-        <button type="button" className="btn btn-ink" onClick={() => go(s.last || "setup")}>
-          실습으로 돌아가기
+        <button type="button" className="btn btn-ink" onClick={() => go("design")}>
+          디자인 디테일 →
         </button>
       </nav>
     </article>

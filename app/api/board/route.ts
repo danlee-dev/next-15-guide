@@ -1,4 +1,5 @@
-import { listBoard, upsertBoard } from "@/lib/board";
+import { after } from "next/server";
+import { broadcastBoard, listBoard, upsertBoard } from "@/lib/board";
 import { getUser } from "@/lib/auth";
 import { clip, rateLimited } from "@/lib/limit";
 
@@ -8,6 +9,8 @@ type Body = {
   done?: number;
   total?: number;
   stuck?: string;
+  tool?: string;
+  feature?: string;
   links?: { repo?: string; deploy?: string };
   submit?: boolean;
 };
@@ -64,6 +67,10 @@ export async function POST(req: Request) {
     updated_at: new Date().toISOString(),
   };
 
+  if (body.tool === "claude" || body.tool === "codex") row.tool = body.tool;
+  // 과제로 추가한 기능 설명. 지운 것도 반영되게 문자열이 오면 항상 덮어쓴다
+  if (typeof body.feature === "string") row.feature = clip(body.feature, 400).trim() || null;
+
   if (body.links) {
     const repo = cleanUrl(body.links.repo, /(^|\.)github\.com$/i);
     const deploy = cleanUrl(body.links.deploy);
@@ -78,6 +85,8 @@ export async function POST(req: Request) {
 
   try {
     await upsertBoard(row);
+    // 응답을 먼저 보내고, 다른 화면에 "바뀌었어요" 신호
+    after(() => broadcastBoard({ kind: row.submitted_at ? "submit" : "update", name }));
     return Response.json({ ok: true });
   } catch (e) {
     console.error("[board POST]", e);

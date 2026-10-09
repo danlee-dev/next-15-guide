@@ -40,7 +40,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
 
   return (
     <article>
-      <Hero chip={step.label} meta={step.start.includes(":") ? `${step.start} 시작` : "시간 남으면, 아니면 과제로"} title={step.title} lead={step.lead} aside={<CopyMenu page={step.id} os={s.os} />} />
+      <Hero chip={step.label} meta={step.start.includes(":") ? `${step.start} 시작` : "시간 남으면, 아니면 과제로"} title={step.title} lead={step.lead} aside={<CopyMenu page={step.id} os={s.os} tool={s.tool} />} />
 
       {visibleTodo.length > 0 && (
         <Section i={n++} title="먼저 할 일">
@@ -186,6 +186,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
           </div>
         )}
         <FeedbackPanel
+          tool={s.tool}
           stepId={step.id}
           stepTitle={`${step.label}: ${step.title}`}
           qa={step.questions.map((q) => ({ q: q.label, a: ans[q.id] || "" }))}
@@ -196,7 +197,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
       </Section>
 
       <Section i={n++} title="튜터에게 묻기" note="코드는 안 줘요. 어디를 보면 되는지 알려 줘요">
-        <TutorChat stepId={step.id} stepTitle={`${step.label}: ${step.title}`} chips={step.chips} thread={s.chat[step.id] || []} patch={patch} />
+        <TutorChat stepId={step.id} stepTitle={`${step.label}: ${step.title}`} chips={step.chips} thread={s.chat[step.id] || []} patch={patch} tool={s.tool} />
       </Section>
 
       <Section i={n++} title="막혔나요?">

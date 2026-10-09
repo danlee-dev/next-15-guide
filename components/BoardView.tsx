@@ -2,7 +2,8 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { PAGE_LABEL, fetchBoard, type BoardItem } from "./board";
+import { TOOL_LABEL } from "@/lib/content";
+import { PAGE_LABEL, useBoard, type BoardItem } from "./board";
 import { Hero, Section, ease } from "./ui";
 import type { Store } from "./store";
 
@@ -28,29 +29,12 @@ const VercelMark = () => (
 );
 
 export default function BoardView({ s }: { s: Store; go: (id: string) => void }) {
-  const [items, setItems] = useState<BoardItem[] | null>(null);
-  const [err, setErr] = useState("");
+  const { items, err } = useBoard();
+  // "3분 전" 같은 글자만 다시 그린다. 데이터는 실시간으로 들어온다
   const [, setTick] = useState(0);
-
   useEffect(() => {
-    let alive = true;
-    const load = () =>
-      fetchBoard()
-        .then((x) => {
-          if (!alive) return;
-          setItems(x);
-          setErr("");
-        })
-        .catch((e: Error) => alive && setErr(e.message));
-    load();
-    const id = setInterval(() => {
-      if (document.visibilityState === "visible") load();
-      setTick((n) => n + 1);
-    }, 10_000);
-    return () => {
-      alive = false;
-      clearInterval(id);
-    };
+    const id = setInterval(() => setTick((n) => n + 1), 20_000);
+    return () => clearInterval(id);
   }, []);
 
   // 같은 사람이 노트북과 폰처럼 브라우저 두 개로 열면 줄이 둘 생긴다. 이름이 같으면 한 줄로 합친다
@@ -65,6 +49,7 @@ export default function BoardView({ s }: { s: Store; go: (id: string) => void })
     merged.set(x.name, {
       ...lead,
       stuck: lead.stuck || other.stuck,
+      feature: lead.feature || other.feature,
       repo_url: lead.repo_url || other.repo_url,
       deploy_url: lead.deploy_url || other.deploy_url,
       submitted_at: lead.submitted_at || other.submitted_at,
@@ -86,9 +71,9 @@ export default function BoardView({ s }: { s: Store; go: (id: string) => void })
     <article>
       <Hero
         chip="현황"
-        meta="10초마다 새로고침"
+        meta="실시간으로 바뀌어요"
         title="다 같이 어디까지 왔나"
-        lead="이름을 적은 사람은 모두 여기에 떠요. 회고 단계에서 GitHub 레포와 배포 링크를 제출하면 바로 링크가 걸려요."
+        lead="이름을 적은 사람은 모두 여기에 떠요. 회고 단계에서 GitHub 레포, 배포 링크, 추가한 기능을 제출하면 바로 여기에 걸려요."
       />
 
       <Section i={0} title="한눈에">
@@ -125,7 +110,8 @@ export default function BoardView({ s }: { s: Store; go: (id: string) => void })
                     {x.name === me && <span className="b-me">나</span>}
                   </b>
                   <span>
-                    {x.cur ? PAGE_LABEL[x.cur] || x.cur : "시작 전"} · {ago(x.updated_at)}
+                    {x.cur ? PAGE_LABEL[x.cur] || x.cur : "시작 전"}
+                    {x.tool ? ` · ${TOOL_LABEL[x.tool]}` : ""} · {ago(x.updated_at)}
                   </span>
                 </div>
                 <div className="b-prog" aria-label={`${x.done} / ${x.total} 단계`}>
@@ -152,6 +138,7 @@ export default function BoardView({ s }: { s: Store; go: (id: string) => void })
                     </a>
                   )}
                 </div>
+                {x.feature && <p className="b-feat">{x.feature}</p>}
                 {x.stuck && <p className="b-stuck">막힘 · {x.stuck}</p>}
                 {x.submitted_at && <p className="b-sub">제출 {ago(x.submitted_at)}</p>}
               </motion.li>

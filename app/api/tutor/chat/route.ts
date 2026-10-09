@@ -1,5 +1,5 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import { MODEL, STEP_FOCUS, clip, fallback, getClient, logUsage, systemBlocks, tutorLimited } from "@/lib/tutor";
+import { MODEL, STEP_FOCUS, clip, fallback, getClient, logUsage, systemBlocks, toolLine, tutorLimited } from "@/lib/tutor";
 import { getUser } from "@/lib/auth";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
   if (!user) return new Response("로그인이 필요해요. 새로고침하고 구글로 로그인해 주세요.", { status: 401 });
   if (tutorLimited(req, user.id)) return new Response("요청이 몰렸어요. 1분 뒤에 다시 물어봐 주세요.", { status: 429 });
 
-  let body: { stepId?: string; stepTitle?: string; messages?: Msg[] };
+  let body: { stepId?: string; stepTitle?: string; messages?: Msg[]; tool?: string };
   try {
     body = await req.json();
   } catch {
@@ -37,6 +37,7 @@ export async function POST(req: Request) {
       system: systemBlocks(`자유 질문 대화다. 개념 질문에는 비유 하나와 함께 짧게(5문장 이내) 설명하고, "내 코드에서 어디를 보면 되는지"로 끝낸다. 코드 블록은 쓰지 않는다. 마크다운 서식(별표, 샵)도 쓰지 않는다. 명령어나 AI에게 보낼 말을 알려줄 때는 따옴표로 감싼다.
 
 [지금 보고 있는 화면] ${clip(body.stepTitle, 80)}
+${toolLine(body.tool)}
 ${STEP_FOCUS[stepId] || ""}`),
       messages,
       output_config: { effort: "low" },

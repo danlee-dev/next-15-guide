@@ -2,21 +2,23 @@
 
 import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import Image from "next/image";
-import { useCallback, useEffect, useState, type CSSProperties } from "react";
-import { STEPS, type OS } from "@/lib/content";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import { STEPS, TOOL_LABEL, tailor, type AgentTool, type OS } from "@/lib/content";
+import { DOCS, DOC_MAP } from "@/lib/docs";
 import { CheckPath, ToastProvider, ease, useToast } from "./ui";
 import StepView from "./StepView";
 import GuideView from "./GuideView";
 import RefsView from "./RefsView";
 import BoardView from "./BoardView";
+import DocView, { LibraryView } from "./DocView";
 import AuthGate from "./AuthGate";
 import { supa } from "./supa";
-import { boardPayload, postBoard } from "./board";
+import { boardPayload, postBoard, useBoardLive } from "./board";
 import { BoardButton, EXTRA_PAGES, MenuSheet } from "./TopExtras";
 import { EMPTY, loadStore, saveStore, type Patch, type Store } from "./store";
 import { stepProgress, stepState } from "./summary";
 
-const PAGES = new Set([...STEPS.map((s) => s.id), "board", "guide", "refs"]);
+const PAGES = new Set([...STEPS.map((s) => s.id), "board", "guide", "refs", "library", ...DOCS.map((d) => d.id)]);
 
 export default function Notebook() {
   return (
@@ -68,6 +70,17 @@ function App() {
 
   const patch: Patch = useCallback((fn) => setS((st) => fn(st)), []);
 
+  // 다른 사람이 제출하면 위쪽에 잠깐 알림 (내 제출은 빼고)
+  const [notice, setNotice] = useState<{ name: string; at: number } | null>(null);
+  useBoardLive((name) => {
+    if (name.trim() && name.trim() !== s.name.trim()) setNotice({ name, at: Date.now() });
+  });
+  useEffect(() => {
+    if (!notice) return;
+    const t = setTimeout(() => setNotice(null), 5000);
+    return () => clearTimeout(t);
+  }, [notice]);
+
   const go = useCallback(
     (id: string) => {
       setS((st) => (st.cur === id ? st : { ...st, last: STEPS.some((x) => x.id === st.cur) ? st.cur : st.last, cur: id }));
@@ -88,8 +101,17 @@ function App() {
     toast(os === "win" ? "Windows 명령어로 바꿨어요" : "macOS 명령어로 바꿨어요");
   };
 
+  const setTool = (tool: AgentTool) => {
+    if (tool === s.tool) return;
+    patch((st) => ({ ...st, tool }));
+    toast(`${TOOL_LABEL[tool]} 기준으로 바꿨어요`);
+  };
+
   const done = STEPS.filter((x) => stepState(s, x.id) === "done").length;
-  const step = STEPS.find((x) => x.id === s.cur);
+  // {{Claude Code|Codex}} 표시를 고른 도구에 맞춘 단계
+  const rawStep = STEPS.find((x) => x.id === s.cur);
+  const step = useMemo(() => (rawStep ? tailor(rawStep, s.tool) : undefined), [rawStep, s.tool]);
+  const doc = DOC_MAP[s.cur];
 
   return (
     <>
@@ -112,16 +134,53 @@ function App() {
               </button>
             ))}
           </div>
+          <div className="seg tool-seg" role="group" aria-label="주로 쓰는 AI 도구">
+            {(["claude", "codex"] as const).map((t) => (
+              <button key={t} type="button" aria-pressed={s.tool === t} onClick={() => setTool(t)}>
+                {s.tool === t && <motion.span layoutId="tool-thumb" className="thumb" transition={{ type: "spring", stiffness: 500, damping: 38 }} />}
+                {TOOL_LABEL[t]}
+              </button>
+            ))}
+          </div>
           <BoardButton active={s.cur === "board"} onClick={() => go("board")} />
           <MenuSheet
             onLogout={logout}
             name={s.name}
             onName={(v) => patch((st) => ({ ...st, name: v }))}
+            tool={s.tool}
+            onTool={setTool}
             cur={s.cur}
             go={go}
           />
         </div>
       </header>
+
+      <AnimatePresence>
+        {notice && (
+          <motion.button
+            key={notice.at}
+            type="button"
+            className="live-note"
+            role="status"
+            initial={{ opacity: 0, y: -14, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, x: "-50%" }}
+            exit={{ opacity: 0, y: -10, x: "-50%" }}
+            transition={{ duration: 0.4, ease }}
+            onClick={() => {
+              setNotice(null);
+              go("board");
+            }}
+          >
+            <i className="live-face" aria-hidden="true">
+              {notice.name.trim().slice(0, 1)}
+            </i>
+            <span>
+              <b>{notice.name}</b>님이 제출했어요
+            </span>
+            <span className="live-go">보기</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       <div className="shell">
         <aside className="side">
@@ -203,8 +262,12 @@ function App() {
                   <BoardView s={s} go={go} />
                 ) : s.cur === "guide" ? (
                   <GuideView s={s} patch={patch} go={go} />
-                ) : (
+                ) : s.cur === "refs" ? (
                   <RefsView s={s} go={go} />
+                ) : doc ? (
+                  <DocView doc={doc} s={s} go={go} />
+                ) : (
+                  <LibraryView s={s} go={go} />
                 )}
               </motion.div>
             </AnimatePresence>
@@ -214,8 +277,9 @@ function App() {
 
       {ready && (
           <AuthGate
-            onReady={(name) => {
-              patch((st) => ({ ...st, name }));
+            tool={s.tool}
+            onReady={(name, tool) => {
+              patch((st) => ({ ...st, name, tool }));
               setAuthed(true);
             }}
             onSignedOut={() => setAuthed(false)}

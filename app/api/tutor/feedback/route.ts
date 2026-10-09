@@ -1,7 +1,7 @@
-import { MODEL, STEP_FOCUS, clip, fallback, getClient, logUsage, systemBlocks, tutorLimited } from "@/lib/tutor";
+import { MODEL, STEP_FOCUS, clip, fallback, getClient, logUsage, systemBlocks, toolLine, tutorLimited } from "@/lib/tutor";
 import { getUser } from "@/lib/auth";
 
-type Body = { stepId?: string; stepTitle?: string; answers?: { q?: string; a?: string }[]; log?: string };
+type Body = { stepId?: string; stepTitle?: string; answers?: { q?: string; a?: string }[]; log?: string; tool?: string };
 
 const schema = {
   type: "object",
@@ -43,6 +43,7 @@ ${answers.join("\n\n")}${body.log ? `\n\n[git log] ${clip(body.log, 200)}` : ""}
       max_tokens: 8000,
       ...fallback(model),
       system: systemBlocks(`[지금 단계] ${clip(body.stepTitle, 80)}
+${toolLine(body.tool)}
 ${STEP_FOCUS[stepId] || ""}
 
 학회원이 "내 말로 답하기"에 쓴 답을 판정한다.

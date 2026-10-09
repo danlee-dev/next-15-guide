@@ -13,6 +13,7 @@ export function FeedbackPanel({
   log,
   fb,
   patch,
+  tool,
 }: {
   stepId: string;
   stepTitle: string;
@@ -20,6 +21,7 @@ export function FeedbackPanel({
   log?: string;
   fb?: Feedback;
   patch: Patch;
+  tool: string;
 }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -35,7 +37,7 @@ export function FeedbackPanel({
       const res = await fetch("/api/tutor/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(await authHeader()) },
-        body: JSON.stringify({ stepId, stepTitle, answers: qa, log }),
+        body: JSON.stringify({ stepId, stepTitle, answers: qa, log, tool }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || "튜터 연결이 끊겼어요");
@@ -95,12 +97,14 @@ export function TutorChat({
   chips,
   thread,
   patch,
+  tool,
 }: {
   stepId: string;
   stepTitle: string;
   chips: string[];
   thread: ChatMsg[];
   patch: Patch;
+  tool: string;
 }) {
   const [text, setText] = useState("");
   const [streaming, setStreaming] = useState<string | null>(null);
@@ -121,7 +125,7 @@ export function TutorChat({
       const res = await fetch("/api/tutor/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json", ...(await authHeader()) },
-        body: JSON.stringify({ stepId, stepTitle, messages: next }),
+        body: JSON.stringify({ stepId, stepTitle, messages: next, tool }),
       });
       if (!res.ok || !res.body) throw new Error((await res.text()) || "튜터 연결이 끊겼어요");
       const reader = res.body.getReader();

@@ -1,4 +1,5 @@
-import { ASSIGNMENT, COMMANDS, ERRORS, GUIDE_SECTIONS, HACKATHON, INTERVENE, PROMPT_PAIRS, REFS, ROLES, STEPS, type CommandKey, type OS, type Step } from "@/lib/content";
+import { ASSIGNMENT, COMMANDS, ERRORS, GUIDE_SECTIONS, HACKATHON, INTERVENE, PROMPT_PAIRS, REFS, ROLES, STEPS, TOOL_LABEL, tailor, tl, type AgentTool, type CommandKey, type OS, type Step } from "@/lib/content";
+import { DOCS, DOC_MAP, LIBRARY, type Block, type Doc } from "@/lib/docs";
 
 // "페이지 복사": 학회원이 Claude Code / ChatGPT 등에 붙여넣고 질문할 수 있게 화면 내용을 마크다운으로 만든다.
 // 내 OS에 맞는 명령어만 넣는다. 학회원이 쓴 답은 넣지 않는다 (AI가 대신 답하게 만들지 않으려고).
@@ -59,7 +60,7 @@ export function stepMarkdown(step: Step, os: OS) {
   return L.join("\n");
 }
 
-export function guideMarkdown() {
+export function guideMarkdown(tool: AgentTool | "") {
   const L: string[] = ["## 바이브 코딩 가이드", "", "### 사람이 하는 일"];
   for (const r of ROLES.human) L.push(`- ${r.t}: ${r.d}`);
   L.push("", "### AI에게 맡길 일");
@@ -74,7 +75,7 @@ export function guideMarkdown() {
   }
   L.push("", "### 해커톤 체크리스트");
   for (const h of HACKATHON) L.push(`- [ ] ${h}`);
-  return L.join("\n");
+  return tl(L.join("\n"), tool);
 }
 
 export function refsMarkdown(os: OS) {
@@ -94,18 +95,88 @@ export function refsMarkdown(os: OS) {
   return L.join("\n");
 }
 
-function header(what: string) {
-  return `# NEXT Session 8 실습 노트: ${what}\n\n출처: ${SITE}\n오늘 실습: 빈 폴더에서 Claude Code / Codex로 "PRD 메이커"(Next.js + OpenAI + Supabase)를 만든다. 아래 내용을 기준으로 내 질문에 답해 줘. 코드를 대신 다 써 주기보다, 내가 이해하고 직접 확인할 수 있게 설명해 줘.`;
+// 자료실 페이지 한 장. 화면에서 고른 OS·도구에 맞는 블록만 넣는다
+const shown = (b: Block, os: OS, tool: AgentTool | "") => !(("os" in b && b.os && b.os !== os) || ("tool" in b && b.tool && tool && b.tool !== tool));
+
+export function docMarkdown(doc: Doc, os: OS, tool: AgentTool | "") {
+  const L: string[] = [`## ${doc.title}`, "", doc.lead];
+  for (const sec of doc.sections) {
+    L.push("", `### ${sec.title}`);
+    for (const b of sec.blocks) {
+      if (!shown(b, os, tool)) continue;
+      switch (b.k) {
+        case "p":
+          L.push("", b.t);
+          break;
+        case "points":
+          L.push("", ...b.items.map((x) => `- ${x.t}: ${x.d}`));
+          break;
+        case "steps":
+          L.push("", ...b.items.map((x, i) => `${i + 1}. ${x}`));
+          break;
+        case "list":
+          L.push("", ...b.items.map((x) => `- ${x}`));
+          break;
+        case "code": {
+          const text = b.both ?? b[os];
+          if (text) L.push("", `${b.label}:`, "", fence(text, "bash"));
+          if (text && b.tip) L.push("", b.tip);
+          break;
+        }
+        case "prompt":
+          L.push("", "AI에게 보낼 말:", "", fence(b.t));
+          break;
+        case "table":
+          L.push("", `| ${b.cols.join(" | ")} |`, `| ${b.cols.map(() => "---").join(" | ")} |`, ...b.rows.map((r) => `| ${r.join(" | ")} |`));
+          break;
+        case "tools":
+          L.push("", ...b.items.map((x, i) => `${b.ordered ? `${i + 1}.` : "-"} [${x.name}](${x.url}): ${x.d}`));
+          break;
+        case "warn":
+          L.push("", `${b.title || "조심할 것"}:`, ...b.items.map((x) => `- ${x}`));
+          break;
+        case "shot":
+          L.push("", `(화면: ${b.cap} ${b.href})`);
+          break;
+        case "go":
+          L.push("", `→ ${b.t}: ${SITE}/#${b.to}`);
+          break;
+        case "art":
+          if (b.cap) L.push("", `(그림 설명: ${b.cap})`);
+          break;
+      }
+    }
+  }
+  return tl(L.join("\n"), tool);
 }
 
-export function pageMarkdown(page: string, os: OS) {
+export function libraryMarkdown() {
+  const L: string[] = ["## 자료실"];
+  for (const g of LIBRARY) {
+    L.push("", `### ${g.title}`);
+    for (const it of g.items) L.push(`- [${it.label}](${SITE}/#${it.id}): ${it.desc}`);
+  }
+  return L.join("\n");
+}
+
+function header(what: string, tool: AgentTool | "") {
+  const who = tool ? TOOL_LABEL[tool] : "Claude Code / Codex";
+  return `# NEXT 15기 개발 가이드: ${what}\n\n출처: ${SITE}\n오늘 실습: 빈 폴더에서 ${who}로 "PRD 메이커"(Next.js + OpenAI + Supabase)를 만든다. 아래 내용을 기준으로 내 질문에 답해 줘. 코드를 대신 다 써 주기보다, 내가 이해하고 직접 확인할 수 있게 설명해 줘.`;
+}
+
+export function pageMarkdown(page: string, os: OS, tool: AgentTool | "" = "") {
   const step = STEPS.find((x) => x.id === page);
-  if (step) return `${header(step.label)}\n\n${stepMarkdown(step, os)}\n`;
-  if (page === "guide") return `${header("바이브 코딩 가이드")}\n\n${guideMarkdown()}\n`;
-  if (page === "refs") return `${header("디자인 레퍼런스")}\n\n${refsMarkdown(os)}\n`;
-  return allMarkdown(os);
+  if (step) return `${header(step.label, tool)}\n\n${stepMarkdown(tailor(step, tool), os)}\n`;
+  if (page === "guide") return `${header("바이브 코딩 가이드", tool)}\n\n${guideMarkdown(tool)}\n`;
+  if (page === "refs") return `${header("디자인 레퍼런스", tool)}\n\n${refsMarkdown(os)}\n`;
+  if (page === "library") return `${header("자료실", tool)}\n\n${libraryMarkdown()}\n`;
+  const doc = DOC_MAP[page];
+  if (doc) return `${header(doc.label, tool)}\n\n${docMarkdown(doc, os, tool)}\n`;
+  return allMarkdown(os, tool);
 }
 
-export function allMarkdown(os: OS) {
-  return [header("전체"), ...STEPS.map((x) => stepMarkdown(x, os)), guideMarkdown(), refsMarkdown(os)].join("\n\n") + "\n";
+export function allMarkdown(os: OS, tool: AgentTool | "" = "") {
+  return (
+    [header("전체", tool), ...STEPS.map((x) => stepMarkdown(tailor(x, tool), os)), guideMarkdown(tool), refsMarkdown(os), ...DOCS.map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n"
+  );
 }

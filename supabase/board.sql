@@ -15,6 +15,11 @@ create table if not exists public.board (
   updated_at   timestamptz not null default now()
 );
 
+-- 주로 쓰는 AI 도구 (2026-10-10 추가)
+alter table public.board add column if not exists tool text check (tool in ('claude', 'codex'));
+-- 과제로 추가한 기능 설명 (2026-10-10 추가)
+alter table public.board add column if not exists feature text;
+
 create index if not exists board_updated_at_idx on public.board (updated_at desc);
 
 -- 실습 앱과 같은 방식: RLS를 켜고 정책은 0개. publishable 키로는 못 읽고, 서버(secret 키)만 읽고 쓴다.

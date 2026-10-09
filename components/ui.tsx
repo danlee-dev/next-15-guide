@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { COMMANDS, type CommandKey, type OS } from "@/lib/content";
+import { COMMANDS, type AgentTool, type CommandKey, type OS } from "@/lib/content";
 import { allMarkdown, pageMarkdown } from "./pageMarkdown";
 
 export const ease = [0.22, 1, 0.36, 1] as const;
@@ -150,19 +150,75 @@ export function Command({ k, os }: { k: CommandKey; os: OS }) {
   return <CodeBlock text={t} where={os === "win" ? "Windows PowerShell" : "macOS 터미널"} />;
 }
 
+// 프롬프트 안의 [___] 칸은 그 자리에서 바로 입력한다. 복사하면 입력한 말이 들어가고, 비운 칸은 [___] 그대로 남는다.
+// 새로고침해도 남게 브라우저에 저장한다 (프롬프트 글이 바뀌면 다른 칸으로 본다)
+const PH = "[___]";
+const phKey = (text: string) => {
+  let h = 0;
+  for (let i = 0; i < text.length; i++) h = (h * 31 + text.charCodeAt(i)) | 0;
+  return `next-s8-ph:${h}`;
+};
+
+function usePromptBlanks(text: string, count: number) {
+  const [vals, setVals] = useState<string[]>(() => Array(count).fill(""));
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(phKey(text)) || "null");
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (Array.isArray(saved) && saved.length === count) setVals(saved.map(String));
+    } catch {}
+  }, [text, count]);
+  const save = (next: string[]) => {
+    setVals(next);
+    try {
+      if (next.some((v) => v.trim())) localStorage.setItem(phKey(text), JSON.stringify(next));
+      else localStorage.removeItem(phKey(text));
+    } catch {}
+  };
+  return [vals, save] as const;
+}
+
 export function Prompt({ text, own }: { text: string; own?: boolean }) {
   const { copy, Fallback } = useCopy();
+  const parts = text.split(PH);
+  const blanks = parts.length - 1;
+  const [vals, setVals] = usePromptBlanks(text, blanks);
+  const filled = vals.some((v) => v.trim());
+  const full = parts.reduce((acc, p, i) => acc + (i > 0 ? vals[i - 1]?.trim() || PH : "") + p, "");
+
   return (
     <div>
       <div className="prompt">
         <p>
-          {text.split(/(\[___\])/).map((p, i) => (p === "[___]" ? <span key={i} className="ph">{p}</span> : p))}
+          {parts.map((p, i) => (
+            <span key={i}>
+              {i > 0 && (
+                <span className="ph-in" data-v={vals[i - 1] || "___"}>
+                  <input
+                    value={vals[i - 1] || ""}
+                    onChange={(e) => setVals(vals.map((v, j) => (j === i - 1 ? e.target.value : v)))}
+                    placeholder="___"
+                    aria-label={`빈칸 ${i}${blanks > 1 ? ` / ${blanks}` : ""} 채우기`}
+                    size={1}
+                  />
+                </span>
+              )}
+              {p}
+            </span>
+          ))}
         </p>
         <div className="prompt-foot">
-          <span>{own ? "예시예요. 내 말로 바꿔서 보내 보세요" : "Claude Code나 Codex에 그대로 붙여넣기"}</span>
-          <button type="button" className="copybtn" onClick={() => copy(text, "프롬프트를 복사했어요")}>
-            복사
-          </button>
+          <span>{blanks ? "주황 칸에 바로 적고 복사하면 같이 들어가요" : own ? "예시예요. 내 말로 바꿔서 보내 보세요" : "그대로 붙여넣기"}</span>
+          <span className="prompt-acts">
+            {filled && (
+              <button type="button" className="copybtn ghost" onClick={() => setVals(Array(blanks).fill(""))}>
+                초기화
+              </button>
+            )}
+            <button type="button" className="copybtn" onClick={() => copy(full, filled || !blanks ? "프롬프트를 복사했어요" : "빈칸은 [___]로 두고 복사했어요")}>
+              복사
+            </button>
+          </span>
         </div>
       </div>
       {Fallback}
@@ -229,7 +285,7 @@ export function Hero({ chip, meta, title, lead, aside }: { chip: string; meta: s
 }
 
 // AI에게 붙여넣고 물어볼 수 있게 지금 페이지(또는 노트 전체)를 마크다운으로 복사. 제목 위 줄 오른쪽의 작은 메뉴
-export function CopyMenu({ page, os }: { page: string; os: OS }) {
+export function CopyMenu({ page, os, tool }: { page: string; os: OS; tool: AgentTool | "" }) {
   const { copy, Fallback } = useCopy();
   const [open, setOpen] = useState(false);
   const wrap = useRef<HTMLDivElement>(null);
@@ -268,13 +324,13 @@ export function CopyMenu({ page, os }: { page: string; os: OS }) {
             exit={{ opacity: 0, y: -4, scale: 0.98 }}
             transition={{ duration: 0.18, ease }}
           >
-            <button type="button" role="menuitem" onClick={() => pick(pageMarkdown(page, os), "이 페이지를 복사했어요")}>
+            <button type="button" role="menuitem" onClick={() => pick(pageMarkdown(page, os, tool), "이 페이지를 복사했어요")}>
               <b>이 페이지</b>
               <span>AI에게 붙여넣고 질문하기 좋게</span>
             </button>
-            <button type="button" role="menuitem" onClick={() => pick(allMarkdown(os), "노트 전체를 복사했어요")}>
+            <button type="button" role="menuitem" onClick={() => pick(allMarkdown(os, tool), "노트 전체를 복사했어요")}>
               <b>노트 전체</b>
-              <span>모든 단계와 가이드를 한 번에</span>
+              <span>모든 단계와 자료를 한 번에</span>
             </button>
           </motion.div>
         )}

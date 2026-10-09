@@ -3,12 +3,13 @@
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import { TOOL_LABEL, type AgentTool } from "@/lib/content";
 import { fetchMe } from "./board";
 import { signInWithGoogle, supa } from "./supa";
 import { ease } from "./ui";
 
-// 첫 화면: 구글 로그인 → (처음이면) 본명 확인 → 들어가기.
-// 이름은 서버(현황판 테이블)에 계정별로 저장돼서 다른 기기에서 로그인해도 기억한다.
+// 첫 화면: 구글 로그인 → (처음이면) 본명과 주로 쓰는 AI 도구 확인 → 들어가기.
+// 이름과 도구는 서버(현황판 테이블)에 계정별로 저장돼서 다른 기기에서 로그인해도 기억한다.
 type Phase = "loading" | "signin" | "name" | "done";
 
 const GoogleMark = () => (
@@ -20,9 +21,19 @@ const GoogleMark = () => (
   </svg>
 );
 
-export default function AuthGate({ onReady, onSignedOut }: { onReady: (name: string) => void; onSignedOut: () => void }) {
+export default function AuthGate({
+  tool: savedTool,
+  onReady,
+  onSignedOut,
+}: {
+  tool: AgentTool | "";
+  onReady: (name: string, tool: AgentTool) => void;
+  onSignedOut: () => void;
+}) {
   const [phase, setPhase] = useState<Phase>("loading");
   const [name, setName] = useState("");
+  const [tool, setTool] = useState<AgentTool | "">(savedTool);
+  const toolRef = useRef(savedTool);
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
   const cb = useRef({ onReady, onSignedOut });
@@ -43,11 +54,14 @@ export default function AuthGate({ onReady, onSignedOut }: { onReady: (name: str
       try {
         const me = await fetchMe();
         if (!alive) return;
-        if (me.name) {
-          cb.current.onReady(me.name);
+        const known = me.tool || toolRef.current;
+        if (me.name && known) {
+          cb.current.onReady(me.name, known);
           setPhase("done");
         } else {
-          setName(me.suggested || "");
+          // 이름은 있는데 도구를 아직 안 골랐으면(예전에 들어온 사람) 이름은 채워 두고 도구만 고르게 한다
+          setName(me.name || me.suggested || "");
+          if (known) setTool(known);
           setPhase("name");
         }
       } catch {
@@ -90,7 +104,11 @@ export default function AuthGate({ onReady, onSignedOut }: { onReady: (name: str
       setErr("본명을 두 글자 이상 적어 주세요");
       return;
     }
-    cb.current.onReady(n);
+    if (!tool) {
+      setErr("주로 쓰는 AI 도구를 골라 주세요");
+      return;
+    }
+    cb.current.onReady(n, tool);
     setPhase("done");
   };
 
@@ -113,8 +131,8 @@ export default function AuthGate({ onReady, onSignedOut }: { onReady: (name: str
           {phase === "name" && (
             <motion.form className="gate-card" role="dialog" aria-modal="true" aria-labelledby="gate-title" onSubmit={submit} initial={{ opacity: 0, y: 18, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.5, ease }}>
               <Image src="/next-logo-ink.png" alt="NEXT" width={407} height={96} className="gate-logo" priority />
-              <h2 id="gate-title">이름을 확인해 주세요</h2>
-              <p>꼭 본명으로 적어 주세요. 제출 현황판에 이 이름이 떠요. 한 번 정하면 기억하고, 나중에 이름 칸에서 고칠 수 있어요.</p>
+              <h2 id="gate-title">이름과 도구를 확인해 주세요</h2>
+              <p>꼭 본명으로 적어 주세요. 제출 현황판에 이 이름이 떠요. 도구는 고른 쪽에 맞춰 명령어와 파일 이름이 바뀌고, 나중에 위쪽에서 바꿀 수 있어요.</p>
               <input
                 autoFocus
                 value={name}
@@ -128,6 +146,24 @@ export default function AuthGate({ onReady, onSignedOut }: { onReady: (name: str
                 aria-label="본명"
                 aria-invalid={!!err}
               />
+              <div className="gate-label" id="gate-tool">주로 쓰는 AI 도구</div>
+              <div className="gate-tools" role="radiogroup" aria-labelledby="gate-tool">
+                {(["claude", "codex"] as const).map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    role="radio"
+                    aria-checked={tool === t}
+                    onClick={() => {
+                      setTool(t);
+                      if (err) setErr("");
+                    }}
+                  >
+                    <b>{TOOL_LABEL[t]}</b>
+                    <span>{t === "claude" ? "CLAUDE.md · Shift+Tab plan 모드" : "AGENTS.md · /plan"}</span>
+                  </button>
+                ))}
+              </div>
               {err && <div className="gate-err">{err}</div>}
               <button type="submit" className="btn btn-ink">
                 시작하기

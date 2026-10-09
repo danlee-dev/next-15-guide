@@ -1,13 +1,15 @@
 "use client";
 
 import { motion } from "motion/react";
-import { GUIDE_SECTIONS, HACKATHON, INTERVENE, PROMPT_PAIRS, ROLES } from "@/lib/content";
+import { GUIDE_SECTIONS as RAW_SECTIONS, HACKATHON as RAW_HACKATHON, INTERVENE, PROMPT_PAIRS, ROLES, tailor } from "@/lib/content";
 import { CopyMenu, Hero, Section, ease } from "./ui";
 import { TutorChat } from "./Tutor";
 import GuideArt from "./GuideArt";
 import type { Patch, Store } from "./store";
 
 export default function GuideView({ s, patch, go }: { s: Store; patch: Patch; go: (id: string) => void }) {
+  const GUIDE_SECTIONS = tailor(RAW_SECTIONS, s.tool);
+  const HACKATHON = tailor(RAW_HACKATHON, s.tool);
   let n = 0;
   return (
     <article>
@@ -16,7 +18,7 @@ export default function GuideView({ s, patch, go }: { s: Store; patch: Patch; go
         meta="해커톤 전에 한 번 읽어 두기"
         title="해 줘, 해 줘 말고. AI와 일을 나눠요"
         lead="바이브 코딩은 AI에게 다 맡기는 게 아니에요. 무엇을 만들지, 어디까지 만들지, 잘 됐는지는 사람이 정하고, 그 사이를 AI가 빠르게 채워요."
-        aside={<CopyMenu page="guide" os={s.os} />}
+        aside={<CopyMenu page="guide" os={s.os} tool={s.tool} />}
       />
 
       <Section i={n++} title="누가 무엇을 하나">
@@ -135,12 +137,13 @@ export default function GuideView({ s, patch, go }: { s: Store; patch: Patch; go
           chips={["계획 리뷰 때 뭘 봐야 해요?", "AI가 짠 코드를 어떻게 검토해요?", "새 세션은 언제 열어요?"]}
           thread={s.chat.guide || []}
           patch={patch}
+          tool={s.tool}
         />
       </Section>
 
       <nav className="pager">
-        <button type="button" className="btn btn-soft" onClick={() => go(s.last || "setup")}>
-          ← 실습으로
+        <button type="button" className="btn btn-soft" onClick={() => go("library")}>
+          ← 자료실
         </button>
         <button type="button" className="btn btn-ink" onClick={() => go("refs")}>
           디자인 레퍼런스 →
