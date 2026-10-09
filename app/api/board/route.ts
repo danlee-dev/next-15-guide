@@ -68,11 +68,12 @@ export async function POST(req: Request) {
     const repo = cleanUrl(body.links.repo, /(^|\.)github\.com$/i);
     const deploy = cleanUrl(body.links.deploy);
     // "제출" 버튼일 때만 이상한 주소를 알려 준다. 자동 저장 중엔 쓰다 만 주소일 수 있으니 그 칸만 건너뛴다
+    if (body.submit && !repo) return Response.json({ error: "GitHub 레포 주소를 적어 주세요" }, { status: 400 });
     if (body.submit && repo === "bad") return Response.json({ error: "GitHub 레포 주소가 이상해요. https://github.com/아이디/prd-maker 처럼 적어 주세요" }, { status: 400 });
     if (body.submit && deploy === "bad") return Response.json({ error: "배포 주소가 이상해요. https://로 시작하는 주소를 붙여 주세요" }, { status: 400 });
     if (repo !== "bad") row.repo_url = repo;
     if (deploy !== "bad") row.deploy_url = deploy;
-    if (body.submit && (repo || deploy)) row.submitted_at = new Date().toISOString();
+    if (body.submit && repo) row.submitted_at = new Date().toISOString();
   }
 
   try {
