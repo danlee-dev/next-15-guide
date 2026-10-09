@@ -784,3 +784,8 @@ textarea.field { min-height: 110px; overflow: hidden; }
 /* 줄바꿈: 제목은 줄 길이를 고르게, 본문은 마지막 줄에 한 단어만 남지 않게 */
 .gate-card h2, .sec-h h2, .lib-t, .tname b, .points b { text-wrap: balance; }
 .gate-card p, .hero p, .doc-p, .points span, .sec-lead, .blk-tip, .dlist li, .warn li, .numlist li { text-wrap: pretty; }
+
+/* 데스크톱 사이드바: 화면보다 길면 사이드바만 따로 스크롤 */
+@media (min-width: 961px) {
+  .side { max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 88px); overflow-y: auto; overscroll-behavior: contain; padding-bottom: 24px; scrollbar-width: thin; scrollbar-color: var(--field) transparent; -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%); mask-image: linear-gradient(to bottom, transparent 0, #000 20px, #000 calc(100% - 28px), transparent 100%); }
+}
