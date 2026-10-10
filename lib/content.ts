@@ -461,7 +461,6 @@ export const ASSIGNMENT = {
   items: [
     { t: "Vercel 배포", d: "Session 6에서 한 그대로. Environment Variables에 OPENAI_API_KEY, OPENAI_MODEL, SUPABASE_URL, SUPABASE_SECRET_KEY 4개를 넣고 Redeploy" },
     { t: "Step 4 내 버전 + P1 기능 1개", d: "PRD 8번에 정한 내 버전, 그리고 마크다운 복사 버튼이나 /specs/[id] 상세 보기와 삭제" },
-    { t: "해커톤 아이디어로 PRD 뽑기", d: "10/31에 팀원한테 바로 보여줄 PRD 하나 만들어 두기" },
   ],
   submit: "노션 과제 페이지에 GitHub 레포 링크 + 배포 링크 + 추가한 기능 한두 줄. 이 노트 회고 단계의 제출 칸에도 넣어 두면 제출 현황에 떠요.",
 };

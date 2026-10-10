@@ -292,7 +292,6 @@ git restore .
 
 - Vercel 배포: Session 6에서 한 그대로 하되, Environment Variables에 4개(OPENAI_API_KEY, OPENAI_MODEL, SUPABASE_URL, SUPABASE_SECRET_KEY) 등록하고 Redeploy
 - Step 4 내 버전 + P1 기능 1개: PRD 8번에 정한 내 버전, 그리고 마크다운 복사 버튼이나 /specs/[id] 상세 보기와 삭제
-- 해커톤 아이디어로 PRD 뽑기: 10/31에 팀원한테 바로 보여줄 PRD 하나 만들어 두기
 - 제출: 노션 과제 페이지에 GitHub 레포 링크 + 배포 링크
 
 
@@ -305,5 +304,5 @@ git restore .
 - Supabase: Project URL은 프로젝트 화면 위쪽 Connect 버튼에서, secret 키는 Settings > API Keys의 Secret keys에서 복사한다. 2026-05-30부터 새 프로젝트는 "새 테이블 자동 노출"이 꺼진 채로 만들어지는 게 기본이라 grant가 필요하다(설정이 켜져 있으면 자동으로 붙지만, grant 문은 어느 쪽이든 넣어 두면 안전하다).
 - Windows 실행 정책: Set-ExecutionPolicy 후 바꿀지 물어보면 Y, 안 물어보면 이미 된 것. 그다음 터미널을 다시 열고 npx를 다시 실행.
 - 시간표(현실화): 오프닝 6분 · 준비 10분 · 기획 6분 · Step 0~1 10분 · Step 2 10분 · Step 3 10분 · 데모·과제 8분. Step 4는 시간 남으면, 아니면 과제.
-- 과제 마감: 10/26(월) 세션 전까지. 과제는 Vercel 배포, Step 4 내 버전 + P1 기능 1개, 해커톤 아이디어로 PRD 뽑기.
+- 과제 마감: 10/26(월) 세션 전까지. 과제는 Vercel 배포, Step 4 내 버전 + P1 기능 1개. (해커톤 주제가 당일 공개될 수 있어서 "해커톤 아이디어로 PRD 뽑기"는 과제에서 뺐다)
 - 이 노트 사이트 주소는 nextku-dev.vercel.app (NEXT 15기 개발 세션). 구글로 로그인하고 본명을 적는다.

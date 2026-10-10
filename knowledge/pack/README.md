@@ -102,4 +102,3 @@ Step마다: 프롬프트 → 직접 확인 → 이해 질문 → 커밋.
 
 - [ ] Vercel 배포: Environment Variables에 `OPENAI_API_KEY`, `OPENAI_MODEL`, `SUPABASE_URL`, `SUPABASE_SECRET_KEY` 등록 후 Redeploy
 - [ ] P1 기능 하나 더 (마크다운 복사, 상세/삭제)
-- [ ] 해커톤 아이디어 하나 넣어서 PRD 뽑아 두기

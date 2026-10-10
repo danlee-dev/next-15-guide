@@ -1,10 +1,11 @@
 "use client";
 
 import { motion } from "motion/react";
+import type { CSSProperties } from "react";
 import { LIBRARY } from "@/lib/docs";
 import { CURRENT, SESSIONS, type Session } from "@/lib/sessions";
 import { useBoard } from "./board";
-import { sessionDone, stepState } from "./summary";
+import { sessionDone, stepProgress, stepState } from "./summary";
 import { CheckPath, Hero, Section, ease } from "./ui";
 import type { Store } from "./store";
 
@@ -132,7 +133,7 @@ export function SessionView({ ses, s, go }: { ses: Session; s: Store; go: (id: s
               <li key={x.id}>
                 <button type="button" onClick={() => go(x.id)}>
                   <span className="ag-time">{x.start}</span>
-                  <span className="dot" data-s={st}>
+                  <span className="dot" data-s={st} style={{ "--p": stepProgress(s, x.id) } as CSSProperties}>
                     <CheckPath on={st === "done"} color="#ffffff" />
                   </span>
                   <span className="ag-body">

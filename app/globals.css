@@ -945,3 +945,7 @@ button.brand { padding: 0; border: 0; background: transparent; color: inherit; f
 .side-me { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; column-gap: 8px; }
 .side-me .side-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .side-me .sync { grid-column: 1 / -1; margin-top: 2px; }
+
+/* 진행 중 링: 가운데를 흰 원으로 덮지 않고 뚫는다. 줄 배경(회색 하이라이트 등)이 그대로 보여서 어디서든 같은 모양 */
+.dot[data-s="part"]::after, .navitem .dot[data-s="part"]::after, .navitem[aria-current="page"] .dot[data-s="part"]::after { content: none; }
+.dot[data-s="part"] { -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px)); }
