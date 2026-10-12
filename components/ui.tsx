@@ -400,7 +400,7 @@ export function CopyMenu({ page, os, tool }: { page: string; os: OS; tool: Agent
   );
 }
 
-const CopyIcon = () => (
+export const CopyIcon = () => (
   <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round">
     <rect x="5.25" y="5.25" width="8" height="8" rx="2.2" />
     <path d="M10.75 3.6A1.9 1.9 0 0 0 8.9 2.75H4.6a1.85 1.85 0 0 0-1.85 1.85v4.3c0 .86.58 1.58 1.37 1.8" strokeLinecap="round" />

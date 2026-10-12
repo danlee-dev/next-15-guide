@@ -108,7 +108,7 @@ const ai: Doc = {
             ["스킬", "설명만 먼저, 쓸 때 본문까지", "`.claude/skills/이름/SKILL.md` (Codex는 `.agents/skills/`)", "배포 전 점검, 디자인 점검 같은 긴 절차"],
             ["서브에이전트", "따로 일하고 요약만 돌려줘요", "`.claude/agents/이름.md`", "넓게 뒤지는 조사, 코드 리뷰"],
             ["훅", "정해진 순간에 무조건 실행", "`.claude/settings.json`", "파일 고칠 때마다 포매터, 위험한 명령 막기"],
-            ["MCP", "필요할 때 도구를 불러와요", "`claude mcp add`, `codex mcp add`", "Supabase, Vercel, 브라우저 연결"],
+            ["MCP", "필요할 때 도구를 불러와요", "{{`claude mcp add`|`codex mcp add`}}", "Supabase, Vercel, 브라우저 연결"],
           ],
         },
         { k: "p", t: "CLAUDE.md는 짧을수록 잘 지켜요. Claude Code 문서는 200줄 아래로, \"이 줄을 지우면 AI가 실수할까?\"를 기준으로 줄이라고 해요. Claude Code는 CLAUDE.md가 없으면 AGENTS.md를 대신 읽어요." },

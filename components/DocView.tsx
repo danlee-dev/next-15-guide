@@ -7,7 +7,8 @@ import { LIBRARY, type Block, type Doc } from "@/lib/docs";
 import DocArt from "./DocArt";
 import { Lightbox, ZoomHint } from "./Lightbox";
 import { EXTRA_PAGES } from "./TopExtras";
-import { ArrowUpRight, CodeBlock, CopyMenu, Hero, Prompt, Section, ease } from "./ui";
+import { ArrowUpRight, CodeBlock, CopyIcon, CopyMenu, Hero, Prompt, Section, ease, useCopy } from "./ui";
+import { libraryAllMarkdown } from "./pageMarkdown";
 import type { Store } from "./store";
 
 // 자료실 페이지 한 장. lib/docs.ts 의 블록을 순서대로 그린다.
@@ -253,6 +254,8 @@ export default function DocView({ doc: raw, s, go }: { doc: Doc; s: Store; go: (
 
 export function LibraryView({ s, go }: { s: Store; go: (id: string) => void }) {
   let n = 0;
+  const { copy, Fallback } = useCopy();
+  const count = LIBRARY.reduce((a, g) => a + g.items.length, 0);
   return (
     <article>
       <Hero
@@ -260,7 +263,15 @@ export function LibraryView({ s, go }: { s: Store; go: (id: string) => void }) {
         meta="실습 끝나고, 해커톤 전에"
         title="필요할 때 꺼내 보는 자료"
         lead="실습 노트가 오늘 1시간용이라면, 여기는 해커톤과 그다음 프로젝트까지 쓰는 자료예요. 한 페이지에 한 주제씩 짧게 나눴어요."
+        aside={
+          // 자료 전체를 한 번에 AI 에게 붙여넣을 수 있게. 고른 OS·도구에 맞는 명령어만 들어간다
+          <button type="button" className="copy-trigger" onClick={() => copy(libraryAllMarkdown(s.os, s.tool), `자료 ${count}개를 한 번에 복사했어요`)}>
+            <CopyIcon />
+            자료 전체 복사
+          </button>
+        }
       />
+      {Fallback && <div className="lib-fallback">{Fallback}</div>}
       {LIBRARY.map((g) => (
         <Section key={g.title} i={n++} title={g.title}>
           <ul className="lib">

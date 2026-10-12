@@ -197,6 +197,11 @@ export function pageMarkdown(page: string, os: OS, tool: AgentTool | "" = "") {
   return allMarkdown(os, tool);
 }
 
+// 자료실 전체: 목록 + 바이브 코딩 가이드 + 디자인 레퍼런스 + 자료 6개. 고른 OS·도구에 맞는 명령어만 넣는다
+export function libraryAllMarkdown(os: OS, tool: AgentTool | "" = "") {
+  return [header("자료 전체", tool), libraryMarkdown(), guideMarkdown(tool), refsMarkdown(os), ...DOCS.map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n";
+}
+
 export function allMarkdown(os: OS, tool: AgentTool | "" = "") {
   return (
     [header("전체", tool), ...STEPS.map((x) => stepMarkdown(tailor(x, tool), os)), guideMarkdown(tool), refsMarkdown(os), ...DOCS.map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n"
