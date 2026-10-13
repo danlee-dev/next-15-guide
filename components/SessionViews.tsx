@@ -152,6 +152,8 @@ export function ClubView({ s, go }: { s: Store; go: (id: string) => void }) {
           <li><span><b>도구부터 제대로.</b> 채팅 앱 말고 코딩 에이전트(Claude Code나 Codex)로 프로젝트 폴더를 열어요.</span></li>
           <li><span><b>만들 것 하나.</b> 돈 낼 사람이 보이고, 화면 3개 안에 끝나고, 배울 기술이 들어간 것으로.</span></li>
           <li><span><b>규칙과 PRD.</b> &quot;PRD에 없는 기능은 만들지 않는다&quot;를 규칙 파일에 적고, P0는 3개까지.</span></li>
+          <li><span><b>사용자 흐름.</b> 시작부터 끝까지 화면, 행동, 결과 순서로. 갈림길이 나중에 엣지 케이스가 돼요.</span></li>
+          <li><span><b>Figma로 그려 보기.</b> Figma MCP로 흐름도와 화면 초안을 그리고, 그림에서 빠진 곳을 찾아요.</span></li>
           <li><span><b>흐름을 내 말로.</b> P0 하나가 버튼에서 API, DB까지 어떤 파일을 지나는지 말할 수 있을 때까지.</span></li>
           <li><span><b>여섯 칸으로 지시.</b> 지금, 구조, 원하는 동작, 엣지 케이스, 지키기, 끝. 계획부터 받아서 고쳐요.</span></li>
           <li><span><b>diff를 읽고 확인.</b> 바뀐 줄을 설명하지 못하면 커밋하지 않아요. &apos;끝&apos; 기준으로 직접 확인해요.</span></li>
@@ -175,7 +177,7 @@ export function ClubView({ s, go }: { s: Store; go: (id: string) => void }) {
 
       <Section i={n++} title="자료실에서 같이 볼 것">
         <ul className="lib lib-compact">
-          {[DOC_MAP.direct, DOC_MAP.install].map((d) => (
+          {[DOC_MAP.direct, DOC_MAP.install, DOC_MAP.figma].map((d) => (
             <li key={d.id}>
               <button type="button" onClick={() => go(d.id)}>
                 <span className="lib-t">{d.label}</span>

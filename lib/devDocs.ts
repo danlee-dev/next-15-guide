@@ -396,3 +396,161 @@ export const direct: Doc = {
     },
   ],
 };
+
+export const figma: Doc = {
+  id: "figma",
+  label: "Figma MCP 연결",
+  chip: "Figma",
+  meta: "2026년 10월 Figma 공식 문서 기준",
+  title: "AI가 Figma를 읽고, 그리게 연결해요",
+  lead: "Figma MCP를 연결하면 AI가 Figma 화면을 읽어서 코드로 옮기고, 반대로 사용자 흐름도나 화면 초안을 Figma에 직접 그려요. 서버 주소는 하나(https://mcp.figma.com/mcp)고, 쓰는 도구마다 연결하는 방법만 달라요.",
+  desc: "Claude Code, Claude 앱, Codex에서 연결하기, 요금제와 횟수, 할 수 있는 것, 자주 막히는 것",
+  sections: [
+    {
+      title: "무엇을 할 수 있나",
+      blocks: [
+        {
+          k: "table",
+          cols: ["하고 싶은 것", "AI가 쓰는 Figma 도구", "이렇게 시켜요"],
+          rows: [
+            ["사용자 흐름을 흐름도로", "generate_diagram (FigJam)", "docs/FLOW.md 의 흐름을 FigJam 흐름도로 그려 줘"],
+            ["화면 초안을 Figma에", "use_figma (Full 좌석 필요)", "새 Figma 파일에 화면 목록대로 모바일 와이어프레임을 그려 줘"],
+            ["Figma 화면을 코드로", "get_design_context, get_screenshot", "이 프레임 링크를 Next.js + Tailwind 로 만들어 줘"],
+            ["색, 간격 같은 디자인 값 가져오기", "get_variable_defs", "이 프레임에 쓰인 색과 간격 변수를 정리해 줘"],
+            ["만든 웹 화면을 Figma로", "generate_figma_design", "지금 만든 첫 화면을 Figma 레이어로 보내 줘"],
+          ],
+        },
+        {
+          k: "p",
+          t: "Figma 링크를 줄 때는 프레임을 선택하고 오른쪽 클릭 > Copy link to selection 으로 복사해요. 파일 링크만 주면 어느 화면인지 몰라요.",
+        },
+      ],
+    },
+    {
+      title: "먼저 확인: 요금제와 횟수",
+      note: "무료는 한 달 20번이라 금방 끝나요",
+      blocks: [
+        {
+          k: "table",
+          cols: ["Figma 플랜, 좌석", "Figma MCP 호출"],
+          rows: [
+            ["무료(Starter), 또는 View·Collab 좌석", "한 달 20번"],
+            ["Education (학생 인증, 무료)", "하루 200번, 분당 10번"],
+            ["Professional의 Dev·Full 좌석", "하루 200번"],
+          ],
+        },
+        {
+          k: "p",
+          t: "Figma에 직접 그리는 기능(use_figma)은 Full 좌석이 있어야 해요. Dev 좌석은 읽기만 돼요. 대학생은 학교 이메일로 figma.com/education/apply 에서 Education을 신청하면 Professional 플랜을 무료로 1년 받아요. 실습 전에 미리 신청해 두세요.",
+        },
+      ],
+    },
+    {
+      title: "Claude Code",
+      note: "터미널, 데스크톱 앱 Code 탭",
+      blocks: [
+        {
+          k: "code",
+          label: "플러그인으로 (공식 권장, 연결 설정과 스킬이 같이 들어와요)",
+          both: `claude plugin install figma@claude-plugins-official`,
+        },
+        {
+          k: "code",
+          label: "또는 직접 추가",
+          both: `claude mcp add --transport http --scope user figma https://mcp.figma.com/mcp`,
+          tip: "`--scope user` 를 붙이면 모든 프로젝트에서 써요. 빼면 지금 폴더에서만이에요.",
+        },
+        {
+          k: "steps",
+          items: [
+            "claude 를 새로 켜요. 연결은 새 세션부터 보여요.",
+            "`/mcp` 를 치고 figma 를 골라 Authenticate.",
+            "브라우저에서 Figma에 로그인하고 Allow Access. 터미널에 Authentication successful 이 뜨면 끝이에요.",
+            "Claude 데스크톱 앱 Code 탭이라면 입력창 옆 + > Plugins 에서 Figma를 설치해도 돼요.",
+          ],
+        },
+      ],
+    },
+    {
+      title: "Claude 앱 (Chat 탭, claude.ai)",
+      note: "Pro 이상",
+      blocks: [
+        {
+          k: "steps",
+          items: [
+            "채팅 입력창 왼쪽 아래 도구 버튼(+)을 눌러 커넥터 추가를 골라요. 설정 > 커넥터에서도 찾을 수 있어요.",
+            "목록에서 Figma를 찾아 연결해요.",
+            "Figma 창이 열리면 로그인하고 Allow access.",
+            "채팅에 Figma 프레임 링크를 붙여 넣고 질문해요.",
+          ],
+        },
+        {
+          k: "p",
+          t: "채팅은 내 프로젝트 파일을 못 고쳐요. 화면을 읽고 설명을 듣거나 흐름을 정리하는 데 쓰고, 코드로 옮기는 건 Claude Code에서 해요. 메뉴 이름은 자주 바뀌어서 화면과 조금 다를 수 있어요.",
+        },
+      ],
+    },
+    {
+      title: "Codex",
+      note: "CLI, ChatGPT 앱의 Codex",
+      blocks: [
+        {
+          k: "code",
+          label: "CLI",
+          both: `codex mcp add figma --url https://mcp.figma.com/mcp
+codex mcp login figma
+codex mcp list`,
+          tip: "`codex mcp login figma` 를 치면 브라우저가 열려요. Figma에 로그인하고 Allow access. codex 안에서는 `/mcp` 로 연결된 서버를 볼 수 있어요.",
+        },
+        {
+          k: "p",
+          t: "ChatGPT 데스크톱 앱의 Codex에서는 왼쪽 위 Plugins를 열고 Figma 옆 + > Install Figma > Allow access 순서로 연결해요.",
+        },
+      ],
+    },
+    {
+      title: "연결됐는지 확인",
+      blocks: [
+        {
+          k: "prompt",
+          t: `Figma MCP의 whoami 로 내 계정과 플랜을 알려 줘.`,
+        },
+        {
+          k: "p",
+          t: "이메일과 플랜이 나오면 연결된 거예요. 플랜이 Starter면 한 달 20번 제한이 걸려 있어요.",
+        },
+      ],
+    },
+    {
+      title: "자주 막히는 것",
+      blocks: [
+        {
+          k: "warn",
+          title: "이러면 이렇게",
+          items: [
+            "AI가 Figma 도구를 모른다 → 새 세션을 열어요. 연결은 새 세션부터 보여요",
+            "Claude Code에서 figma가 '인증 필요'로 남아 있다 → `/mcp` 에서 figma 고르고 Authenticate",
+            "한 달 20번을 다 썼다 → Education 신청, 아니면 다음 달까지 기다리기",
+            "Figma에 그려 달라는데 실패한다 → Full 좌석인지, 그 파일에 편집 권한이 있는지 확인",
+            "엉뚱한 화면을 코드로 만든다 → 파일 링크 말고 프레임의 Copy link to selection 링크를 줘요",
+          ],
+        },
+      ],
+    },
+    {
+      title: "공식 문서",
+      blocks: [
+        {
+          k: "tools",
+          items: [
+            { name: "Figma MCP 서버 연결", logo: L("figma-mcp.png"), url: "https://developers.figma.com/docs/figma-mcp-server/remote-server-installation/", d: "Claude Code, Codex, Cursor, VS Code 연결 방법" },
+            { name: "도구 목록", logo: L("figma-mcp.png"), url: "https://developers.figma.com/docs/figma-mcp-server/tools-and-prompts/", d: "읽기 도구, 쓰기 도구, 예시 프롬프트" },
+            { name: "요금제와 호출 횟수", logo: L("figma-mcp.png"), url: "https://developers.figma.com/docs/figma-mcp-server/rate-limits-access/", d: "플랜, 좌석마다 쓸 수 있는 횟수" },
+            { name: "Figma Education 신청", logo: L("figma-mcp.png"), url: "https://help.figma.com/hc/en-us/articles/360041061214-Verify-your-eligibility-for-Figma-s-Education-plan", d: "학생 무료 Professional 플랜" },
+            { name: "Claude 커넥터 연결", logo: L("claude.svg"), url: "https://support.claude.com/en/articles/11724452-browsing-and-connecting-to-tools-from-the-directory", d: "Claude 앱에서 커넥터 찾고 연결하기" },
+          ],
+        },
+      ],
+    },
+  ],
+};

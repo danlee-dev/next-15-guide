@@ -1,5 +1,5 @@
 import { compete, firstSteps, moneyPrd } from "./clubDocs";
-import { direct, install } from "./devDocs";
+import { direct, figma, install } from "./devDocs";
 import type { AgentTool, OS } from "./content";
 
 // 자료실 페이지들. 화면(DocView)과 "페이지 복사"(pageMarkdown)가 같은 데이터를 읽는다.
@@ -651,7 +651,7 @@ railway login`,
         {
           k: "tools",
           items: [
-            { name: "Figma MCP", logo: L("figma-mcp.png"), url: "https://developers.figma.com/docs/figma-mcp-server/", d: "디자이너가 준 Figma 시안을 코드로. 무료 좌석은 월 호출 수가 적어요" },
+            { name: "Figma MCP", logo: L("figma-mcp.png"), url: "https://developers.figma.com/docs/figma-mcp-server/", d: "Figma 화면을 코드로, 흐름도와 화면 초안을 Figma로. 도구별 연결은 자료실 'Figma MCP 연결'. 무료 좌석은 월 호출 수가 적어요" },
             { name: "shadcn MCP", logo: L("shadcn-mcp.png"), url: "https://ui.shadcn.com/docs/mcp", d: "shadcn 컴포넌트를 찾아서 설치" },
             { name: "GitHub", logo: L("gh-cli.png"), url: "https://cli.github.com", d: "MCP보다 gh CLI가 토큰을 덜 써서 공식 모범 사례도 gh를 권해요" },
           ],
@@ -981,7 +981,7 @@ h1, h2 { line-height: 1.25; letter-spacing: -0.02em; }`,
   ],
 };
 
-export const DOCS: Doc[] = [ai, arch, env, install, mcp, deploy, design, direct, moneyPrd, compete, firstSteps];
+export const DOCS: Doc[] = [ai, arch, env, install, mcp, figma, deploy, design, direct, moneyPrd, compete, firstSteps];
 // 소모임(NE:부자들) 전용 자료. 주소는 있지만 자료실 목록과 "자료 전체 복사"에는 넣지 않고, 소모임 화면에서만 보여 준다
 export const CLUB_DOCS: Doc[] = [moneyPrd, compete, firstSteps];
 export const LIBRARY_DOCS: Doc[] = DOCS.filter((d) => !CLUB_DOCS.includes(d));
@@ -1002,6 +1002,7 @@ export const LIBRARY: { title: string; items: { id: string; label: string; desc:
       { id: "env", label: env.label, desc: env.desc },
       { id: install.id, label: install.label, desc: install.desc },
       { id: "mcp", label: mcp.label, desc: mcp.desc },
+      { id: figma.id, label: figma.label, desc: figma.desc },
       { id: "deploy", label: deploy.label, desc: deploy.desc },
     ],
   },

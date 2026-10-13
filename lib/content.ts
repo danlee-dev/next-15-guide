@@ -57,6 +57,40 @@ mkdir docs`,
     both: `git add . && git commit -m "chore: project rules and docs folder"
 gh repo create <프로젝트> --private --source=. --push`,
   },
+  clubFlow: {
+    where: "docs/FLOW.md 에 붙여넣기",
+    plain: true,
+    both: `# 사용자 흐름: P0 1번 (기능 이름)
+
+누가:
+시작: (어디서 들어오나. 링크, 첫 화면)
+끝: (무엇을 이루면 끝인가)
+
+## 기본 흐름 (한 줄에 하나: 화면, 행동, 결과)
+1. [화면]
+2. [행동]
+3. [결과]
+
+## 갈림길
+- 데이터가 없을 때:
+- 실패했을 때:
+- 로그인 안 했을 때: (P0에 로그인이 없으면 "해당 없음")
+- 두 번째로 왔을 때:
+
+## 화면 목록 (3개 이하)
+| 경로 | 화면 | 나오는 단계 |
+| --- | --- | --- |
+| / |  |  |`,
+  },
+  clubFigma: {
+    where: "{{터미널에서 (Claude Code)|터미널에서 (Codex CLI)}}",
+    both: `{{claude plugin install figma@claude-plugins-official
+# claude 를 새로 켜고 /mcp → figma → Authenticate → 브라우저에서 Allow Access
+claude mcp list|codex mcp add figma --url https://mcp.figma.com/mcp
+codex mcp login figma
+# 브라우저에서 Figma 로그인 → Allow access
+codex mcp list}}`,
+  },
   clubComp: {
     where: "docs/COMPETITION.md 에 붙여넣기",
     plain: true,

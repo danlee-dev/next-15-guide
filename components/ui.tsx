@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { COMMANDS, tl, type AgentTool, type CommandKey, type OS } from "@/lib/content";
+import { COMMANDS, TOOL_LABEL, tl, type AgentTool, type CommandKey, type OS } from "@/lib/content";
 import { allMarkdown, pageMarkdown } from "./pageMarkdown";
 
 export const ease = [0.22, 1, 0.36, 1] as const;
@@ -201,10 +201,22 @@ export function CodeBlock({ text, where, plain }: { text: string; where: string;
   );
 }
 
-// where 에는 {{Claude Code용|Codex용}} 표시를 쓸 수 있다 (고른 도구에 맞춰 바뀜)
+// where 와 명령어에는 {{Claude Code용|Codex용}} 표시를 쓸 수 있다 (고른 도구에 맞춰 바뀜)
 export function Command({ k, os, tool = "" }: { k: CommandKey; os: OS; tool?: AgentTool | "" }) {
   const c = COMMANDS[k] as { both?: string; mac?: string; win?: string; where?: string; plain?: boolean };
-  if (c.both) return <CodeBlock text={c.both} where={c.where ? tl(c.where, tool) : "macOS · Windows 동일"} plain={c.plain} />;
+  if (c.both) {
+    // 도구별로 다른 명령인데 아직 도구를 안 골랐으면 둘 다 따로 보여 준다 (한 줄에 섞이지 않게)
+    if (!tool && /\{\{[^{}|]*\|[^{}|]*\}\}/.test(c.both)) {
+      return (
+        <>
+          {(["claude", "codex"] as const).map((t) => (
+            <CodeBlock key={t} text={tl(c.both!, t)} where={c.where ? tl(c.where, t) : TOOL_LABEL[t]} plain={c.plain} />
+          ))}
+        </>
+      );
+    }
+    return <CodeBlock text={tl(c.both, tool)} where={c.where ? tl(c.where, tool) : "macOS · Windows 동일"} plain={c.plain} />;
+  }
   const t = c[os];
   if (!t) return null;
   return <CodeBlock text={t} where={os === "win" ? "Windows PowerShell" : "macOS 터미널"} />;
