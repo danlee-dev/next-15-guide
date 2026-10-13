@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "motion/react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { COMMANDS, type AgentTool, type CommandKey, type OS } from "@/lib/content";
+import { COMMANDS, tl, type AgentTool, type CommandKey, type OS } from "@/lib/content";
 import { allMarkdown, pageMarkdown } from "./pageMarkdown";
 
 export const ease = [0.22, 1, 0.36, 1] as const;
@@ -201,9 +201,10 @@ export function CodeBlock({ text, where, plain }: { text: string; where: string;
   );
 }
 
-export function Command({ k, os }: { k: CommandKey; os: OS }) {
+// where 에는 {{Claude Code용|Codex용}} 표시를 쓸 수 있다 (고른 도구에 맞춰 바뀜)
+export function Command({ k, os, tool = "" }: { k: CommandKey; os: OS; tool?: AgentTool | "" }) {
   const c = COMMANDS[k] as { both?: string; mac?: string; win?: string; where?: string; plain?: boolean };
-  if (c.both) return <CodeBlock text={c.both} where={c.where || "macOS · Windows 동일"} plain={c.plain} />;
+  if (c.both) return <CodeBlock text={c.both} where={c.where ? tl(c.where, tool) : "macOS · Windows 동일"} plain={c.plain} />;
   const t = c[os];
   if (!t) return null;
   return <CodeBlock text={t} where={os === "win" ? "Windows PowerShell" : "macOS 터미널"} />;

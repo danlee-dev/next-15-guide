@@ -6,7 +6,7 @@ import { tailor, type AgentTool, type OS } from "@/lib/content";
 import { LIBRARY, type Block, type Doc } from "@/lib/docs";
 import DocArt from "./DocArt";
 import { Lightbox, ZoomHint } from "./Lightbox";
-import { EXTRA_PAGES } from "./TopExtras";
+import { CLUB_PAGES, EXTRA_PAGES } from "./TopExtras";
 import { ArrowUpRight, CodeBlock, CopyIcon, CopyMenu, Hero, Prompt, Section, ease, useCopy } from "./ui";
 import { libraryAllMarkdown } from "./pageMarkdown";
 import type { Store } from "./store";
@@ -204,10 +204,13 @@ function BlockView({ b, s, go }: { b: Block; s: Store; go: (id: string) => void 
   }
 }
 
+// 소모임 자료는 소모임 자료끼리, 나머지는 자료실 순서대로 이어진다
 function Pager({ id, go }: { id: string; go: (id: string) => void }) {
-  const i = EXTRA_PAGES.findIndex(([x]) => x === id);
-  const prev = EXTRA_PAGES[i - 1];
-  const next = EXTRA_PAGES[i + 1];
+  const club = CLUB_PAGES.some(([x]) => x === id);
+  const list = club ? CLUB_PAGES : EXTRA_PAGES;
+  const i = list.findIndex(([x]) => x === id);
+  const prev = list[i - 1];
+  const next = list[i + 1];
   return (
     <nav className="pager">
       {prev ? (
@@ -222,8 +225,8 @@ function Pager({ id, go }: { id: string; go: (id: string) => void }) {
           {next[1]} →
         </button>
       ) : (
-        <button type="button" className="btn btn-soft" onClick={() => go("library")}>
-          자료실로
+        <button type="button" className="btn btn-soft" onClick={() => go(club ? "club" : "library")}>
+          {club ? "NE:부자들로" : "자료실로"}
         </button>
       )}
     </nav>

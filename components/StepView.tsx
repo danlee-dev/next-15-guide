@@ -59,7 +59,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
                   {t.download.label}
                 </a>
               )}
-              {t.cmd && <Command k={t.cmd} os={s.os} />}
+              {t.cmd && <Command k={t.cmd} os={s.os} tool={s.tool} />}
               {t.tip && <p className="blk-tip">{t.tip}</p>}
             </div>
           ))}

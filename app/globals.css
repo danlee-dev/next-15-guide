@@ -957,7 +957,6 @@ button.brand { padding: 0; border: 0; background: transparent; color: inherit; f
 .club-rules em { grid-area: n; font-style: normal; font-size: 34px; font-weight: 300; line-height: 1; letter-spacing: -0.04em; color: var(--faint); font-variant-numeric: tabular-nums; }
 .club-rules b { grid-area: t; font-size: 19px; font-weight: 650; letter-spacing: -0.03em; color: var(--ink); text-wrap: balance; }
 .club-rules span { grid-area: d; font-size: 15.5px; line-height: 1.65; color: var(--text); text-wrap: pretty; }
-.club-go { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
 @media (max-width: 640px) {
   .club-rules li { grid-template-columns: 38px minmax(0, 1fr); }
   .club-rules em { font-size: 28px; }
@@ -970,3 +969,6 @@ button.brand { padding: 0; border: 0; background: transparent; color: inherit; f
   .pager > span:empty { display: none; }
   .pager .btn { width: 100%; padding: 0 20px; }
 }
+
+/* 사이드바 항목 포커스 테두리: 바깥으로 그리면 스크롤 영역에 잘려서 안쪽에 그린다 */
+.navitem:focus-visible { outline-offset: -2px; border-radius: 14px; }

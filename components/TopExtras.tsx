@@ -4,28 +4,17 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { TOOL_LABEL, type AgentTool } from "@/lib/content";
+import { CLUB_DOCS, LIBRARY } from "@/lib/docs";
 import { useBoard } from "./board";
 import { ease } from "./ui";
 
 // 상단바 오른쪽: 실습 단계와 성격이 다른 것들(다 같이 보는 현황, 자료)을 단계 목록에서 떼어 둔다
 
-// 자료 메뉴 순서. 자료실 페이지의 "이전/다음"도 이 순서를 따른다
-export const EXTRA_PAGES: [string, string][] = [
-  ["library", "자료실"],
-  ["ai", "AI 이해하기"],
-  ["arch", "아키텍처"],
-  ["env", "개발 환경 세팅"],
-  ["install", "Claude Code·Codex 설치"],
-  ["mcp", "MCP 연결"],
-  ["deploy", "배포·DB"],
-  ["direct", "방향을 주는 지시"],
-  ["guide", "바이브 코딩 가이드"],
-  ["refs", "디자인 레퍼런스"],
-  ["design", "디자인 디테일"],
-  ["money-prd", "돈 버는 PRD 쓰는 법"],
-  ["compete", "경쟁 분석하는 법"],
-  ["first-steps", "처음 시작하는 순서"],
-];
+// 자료 메뉴 순서 = 자료실 묶음 순서. 자료 페이지의 "이전/다음"도 이 순서를 따른다
+export const EXTRA_PAGES: [string, string][] = [["library", "자료실"], ...LIBRARY.flatMap((g) => g.items.map((it): [string, string] => [it.id, it.label]))];
+
+// 소모임 전용 자료. 자료실에는 안 나오고 소모임 화면과 그 안의 "이전/다음"에서만 이어진다
+export const CLUB_PAGES: [string, string][] = [["club", "NE:부자들"], ...CLUB_DOCS.map((d): [string, string] => [d.id, d.label])];
 
 // 깜빡이는 "live" 점 대신, 들어온 사람들 이름 첫 글자를 겹쳐 보여 준다 (최근에 움직인 사람부터 3명)
 export function BoardButton({ sid, active, onClick, club = false }: { sid: string; active: boolean; onClick: () => void; club?: boolean }) {
@@ -179,22 +168,27 @@ export function MenuSheet({
                         소모임 NE:부자들
                       </button>
                     </li>
+                    <li>
+                      <button type="button" aria-current={cur === "library" ? "page" : undefined} onClick={() => pick("library")}>
+                        자료실 전체
+                      </button>
+                    </li>
                   </ul>
 
-                  <div className="sheet-sec">자료</div>
-                  <ul className="sheet-list">
-                    {EXTRA_PAGES.map(([id, label]) => (
-                      <li key={id}>
-                        <button
-                          type="button"
-                          aria-current={cur === id ? "page" : undefined}
-                          onClick={() => pick(id)}
-                        >
-                          {label}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
+                  {LIBRARY.map((g) => (
+                    <div key={g.title}>
+                      <div className="sheet-sec">{g.title}</div>
+                      <ul className="sheet-list">
+                        {g.items.map((it) => (
+                          <li key={it.id}>
+                            <button type="button" aria-current={cur === it.id ? "page" : undefined} onClick={() => pick(it.id)}>
+                              {it.label}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
 
                   <div className="sheet-sec">주로 쓰는 AI 도구</div>
                   <div className="seg sheet-seg" role="group" aria-label="주로 쓰는 AI 도구">

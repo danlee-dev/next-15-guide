@@ -2,7 +2,7 @@
 
 import { motion } from "motion/react";
 import type { CSSProperties } from "react";
-import { LIBRARY } from "@/lib/docs";
+import { CLUB_DOCS, DOC_MAP, LIBRARY } from "@/lib/docs";
 import { CLUB } from "@/lib/club";
 import { CLUB_SESSIONS, CURRENT, SESSIONS, type Session } from "@/lib/sessions";
 import { useBoard } from "./board";
@@ -147,38 +147,47 @@ export function ClubView({ s, go }: { s: Store; go: (id: string) => void }) {
         </ul>
       </Section>
 
-      <Section i={n++} title="처음이라면 이 순서로">
+      <Section i={n++} title="한 바퀴는 이렇게" note="혼자여도, 팀이어도">
         <ol className="numlist">
-          <li><span><b>도구부터 제대로.</b> 채팅 앱 말고 코딩 에이전트(Claude Code나 Codex)가 깔려 있는지 확인해요.</span></li>
-          <li><span><b>성공 숫자.</b> 언제까지 무엇을 몇 건. 중단 기준도 같이 정해요.</span></li>
-          <li><span><b>돈 낼 사람이 보이는 아이템 하나.</b> 이미 그 문제에 돈이나 시간을 쓰는 사람이 있는지 봐요.</span></li>
-          <li><span><b>레포와 팀 규칙.</b> AGENTS.md에 &quot;PRD에 없는 기능은 만들지 않는다&quot;를 적어요.</span></li>
-          <li><span><b>분석 기준부터.</b> 경쟁사를 보기 전에 이 분석으로 바꿀 결정과 &quot;이런 결과면 이렇게 바꾼다&quot;를 적어요.</span></li>
-          <li><span><b>근거 칸이 있는 PRD.</b> 출처가 없는 기능은 보류함으로. P0는 3개까지.</span></li>
-          <li><span><b>아키텍처는 한 장.</b> 바꾸기 비싼 결정만 오늘, 나머지는 만들면서.</span></li>
-          <li><span><b>지시는 구조를 알고.</b> 고치기 전에 왜 이렇게 돼 있는지 묻고, 조건과 엣지 케이스를 넣어 시켜요.</span></li>
-          <li><span><b>첫 결제는 손으로.</b> 송금으로 먼저 받고, 결제 연동은 돈이 들어온 다음에.</span></li>
+          <li><span><b>도구부터 제대로.</b> 채팅 앱 말고 코딩 에이전트(Claude Code나 Codex)로 프로젝트 폴더를 열어요.</span></li>
+          <li><span><b>만들 것 하나.</b> 돈 낼 사람이 보이고, 화면 3개 안에 끝나고, 배울 기술이 들어간 것으로.</span></li>
+          <li><span><b>규칙과 PRD.</b> &quot;PRD에 없는 기능은 만들지 않는다&quot;를 규칙 파일에 적고, P0는 3개까지.</span></li>
+          <li><span><b>흐름을 내 말로.</b> P0 하나가 버튼에서 API, DB까지 어떤 파일을 지나는지 말할 수 있을 때까지.</span></li>
+          <li><span><b>여섯 칸으로 지시.</b> 지금, 구조, 원하는 동작, 엣지 케이스, 지키기, 끝. 계획부터 받아서 고쳐요.</span></li>
+          <li><span><b>diff를 읽고 확인.</b> 바뀐 줄을 설명하지 못하면 커밋하지 않아요. &apos;끝&apos; 기준으로 직접 확인해요.</span></li>
+          <li><span><b>분석으로 PRD 고치기.</b> 기능은 출처가 생겼을 때만 늘려요. 첫 결제는 송금처럼 손으로 먼저.</span></li>
         </ol>
-        <div className="club-go">
-          <button type="button" className="btn btn-soft" onClick={() => go("direct")}>
-            방향을 주는 지시
-          </button>
-          <button type="button" className="btn btn-soft" onClick={() => go("compete")}>
-            경쟁 분석하는 법
-          </button>
-          <button type="button" className="btn btn-soft" onClick={() => go("money-prd")}>
-            돈 버는 PRD 쓰는 법
-          </button>
-          <button type="button" className="btn btn-soft" onClick={() => go("install")}>
-            Claude Code·Codex 설치
-          </button>
-          <button type="button" className="btn btn-soft" onClick={() => go("first-steps")}>
-            처음 시작하는 순서와 아키텍처
-          </button>
-        </div>
       </Section>
 
-      <Section i={n++} title="좋은 자료" note="오늘 내용이 여기서 나왔어요">
+      <Section i={n++} title="소모임 자료" note="자료실에는 없고 여기에만 있어요">
+        <ul className="lib">
+          {CLUB_DOCS.map((d) => (
+            <li key={d.id}>
+              <button type="button" onClick={() => go(d.id)}>
+                <span className="lib-t">{d.label}</span>
+                <span className="lib-d">{d.desc}</span>
+                <Arrow />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section i={n++} title="자료실에서 같이 볼 것">
+        <ul className="lib lib-compact">
+          {[DOC_MAP.direct, DOC_MAP.install].map((d) => (
+            <li key={d.id}>
+              <button type="button" onClick={() => go(d.id)}>
+                <span className="lib-t">{d.label}</span>
+                <span className="lib-d">{d.desc}</span>
+                <Arrow />
+              </button>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
+      <Section i={n++} title="더 읽을거리" note="소모임 자료의 출처">
         <ul className="tools">
           {CLUB.refs.map((r) => (
             <li key={r.url}>

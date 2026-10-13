@@ -982,6 +982,9 @@ h1, h2 { line-height: 1.25; letter-spacing: -0.02em; }`,
 };
 
 export const DOCS: Doc[] = [ai, arch, env, install, mcp, deploy, design, direct, moneyPrd, compete, firstSteps];
+// 소모임(NE:부자들) 전용 자료. 주소는 있지만 자료실 목록과 "자료 전체 복사"에는 넣지 않고, 소모임 화면에서만 보여 준다
+export const CLUB_DOCS: Doc[] = [moneyPrd, compete, firstSteps];
+export const LIBRARY_DOCS: Doc[] = DOCS.filter((d) => !CLUB_DOCS.includes(d));
 export const DOC_MAP: Record<string, Doc> = Object.fromEntries(DOCS.map((d) => [d.id, d]));
 
 // 자료실 첫 화면 묶음. guide·refs 는 따로 만든 페이지라 설명만 여기 둔다
@@ -1009,14 +1012,6 @@ export const LIBRARY: { title: string; items: { id: string; label: string; desc:
       { id: "guide", label: "바이브 코딩 가이드", desc: "AI와 일 나누기, 개입할 때, 프롬프트, PRD, 해커톤 체크리스트" },
       { id: "refs", label: "디자인 레퍼런스", desc: "DESIGN.md, 컴포넌트, 레퍼런스 갤러리 링크와 실제 화면" },
       { id: "design", label: design.label, desc: design.desc },
-    ],
-  },
-  {
-    title: "만들어서 팔기",
-    items: [
-      { id: moneyPrd.id, label: moneyPrd.label, desc: moneyPrd.desc },
-      { id: compete.id, label: compete.label, desc: compete.desc },
-      { id: firstSteps.id, label: firstSteps.label, desc: firstSteps.desc },
     ],
   },
 ];

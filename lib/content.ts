@@ -44,9 +44,9 @@ cd <프로젝트>
 mkdir docs`,
   },
   clubRules: {
-    where: "AGENTS.md 맨 아래에 붙여넣기",
+    where: "{{AGENTS.md 맨 아래에 붙여넣기 (CLAUDE.md가 불러오는 파일)|AGENTS.md 맨 아래에 붙여넣기}}",
     plain: true,
-    both: `## 우리 팀 규칙 (NE:부자들)
+    both: `## 프로젝트 규칙 (NE:부자들)
 - docs/PRD.md 의 P0 기능만 만든다. PRD에 없는 기능, 화면, 패키지는 만들지 말고 PRD 8번 보류함에 한 줄로만 적는다.
 - 기능을 더하자고 할 때는 PRD 2번 근거 표의 몇 번째 줄 때문인지 같이 말한다. 근거가 없으면 보류함으로.
 - 경쟁사에 있다는 이유만으로 기능을 넣지 않는다. 그 기능 때문에 사용자가 돈을 내거나 불평한다는 출처가 있어야 근거다.
@@ -54,18 +54,18 @@ mkdir docs`,
 - 키는 .env.local 에만 둔다. 커밋 전에 npm run build 로 확인한다.`,
   },
   clubPush: {
-    both: `git add . && git commit -m "chore: team rules and docs folder"
+    both: `git add . && git commit -m "chore: project rules and docs folder"
 gh repo create <프로젝트> --private --source=. --push`,
   },
   clubComp: {
     where: "docs/COMPETITION.md 에 붙여넣기",
     plain: true,
-    both: `# 경쟁 분석: (아이템 이름)
+    both: `# 경쟁사 분석: (아이템 이름)
 
 ## 0. 이 분석으로 바꿀 결정 (경쟁사를 보기 전에 쓴다)
-| # | 바꿀 결정 (PRD 칸) | 질문 | 이런 결과면 이렇게 바꾼다 | 볼 곳 | 담당 |
-| --- | --- | --- | --- | --- | --- |
-| 1 | 가격 (4번) |  |  |  |  |
+| # | 바꿀 결정 (PRD 칸) | 질문 | 이런 결과면 이렇게 바꾼다 | 볼 곳 |
+| --- | --- | --- | --- | --- |
+| 1 | 가격 (4번) |  |  |  |
 
 ## 1. 대상 (3곳 이상, 대체 수단 1개 포함)
 | 이름 | 종류 (직접 경쟁 / 대체 수단 / 그냥 버팀) | 링크 |

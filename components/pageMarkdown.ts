@@ -1,5 +1,5 @@
 import { ASSIGNMENT, COMMANDS, ERRORS, GUIDE_SECTIONS, HACKATHON, INTERVENE, PROMPT_PAIRS, REFS, ROLES, STEPS, TOOL_LABEL, tailor, tl, type AgentTool, type CommandKey, type OS, type Step } from "@/lib/content";
-import { DOCS, DOC_MAP, LIBRARY, type Block, type Doc } from "@/lib/docs";
+import { CLUB_DOCS, DOC_MAP, LIBRARY, LIBRARY_DOCS, type Block, type Doc } from "@/lib/docs";
 import { CLUB } from "@/lib/club";
 import { CLUB_SESSIONS, SESSIONS, sessionOf } from "@/lib/sessions";
 
@@ -193,7 +193,7 @@ function header(what: string, tool: AgentTool | "", club = false) {
   return `# NEXT 15기 개발 세션: ${what}\n\n출처: ${SITE}\n오늘 실습: 빈 폴더에서 ${who}로 "PRD 메이커"(Next.js + OpenAI + Supabase)를 만든다. 아래 내용을 기준으로 내 질문에 답해 줘. 코드를 대신 다 써 주기보다, 내가 이해하고 직접 확인할 수 있게 설명해 줘.`;
 }
 
-const CLUB_DOC_IDS = ["money-prd", "compete", "first-steps"];
+const CLUB_DOC_IDS = CLUB_DOCS.map((d) => d.id);
 
 // 소모임 홈: 원칙, 회차, 자료
 function clubMarkdown() {
@@ -208,7 +208,7 @@ export function pageMarkdown(page: string, os: OS, tool: AgentTool | "" = "") {
   const ses = sessionOf(page);
   const club = ses?.kind === "club" || page === "club" || CLUB_DOC_IDS.includes(page);
   const step = ses?.steps.find((x) => x.id === page);
-  if (step) return `${header(`${ses!.label} ${step.label}`, tool, club)}\n\n${stepMarkdown(tailor(step, tool), os)}\n`;
+  if (step) return `${header(`${ses!.label} ${step.label}`, tool, club)}\n\n${tl(stepMarkdown(tailor(step, tool), os), tool)}\n`;
   if (page === "club") return `${header("홈", tool, true)}\n\n${clubMarkdown()}\n`;
   if (page === "guide") return `${header("바이브 코딩 가이드", tool)}\n\n${guideMarkdown(tool)}\n`;
   if (page === "refs") return `${header("디자인 레퍼런스", tool)}\n\n${refsMarkdown(os)}\n`;
@@ -222,17 +222,17 @@ export function pageMarkdown(page: string, os: OS, tool: AgentTool | "" = "") {
 
 // 자료실 전체: 목록 + 바이브 코딩 가이드 + 디자인 레퍼런스 + 자료 6개. 고른 OS·도구에 맞는 명령어만 넣는다
 export function libraryAllMarkdown(os: OS, tool: AgentTool | "" = "") {
-  return [header("자료 전체", tool), libraryMarkdown(), guideMarkdown(tool), refsMarkdown(os), ...DOCS.map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n";
+  return [header("자료 전체", tool), libraryMarkdown(), guideMarkdown(tool), refsMarkdown(os), ...LIBRARY_DOCS.map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n";
 }
 
 // 노트 전체. 소모임 화면에서 누르면 소모임 회차 단계와 소모임 자료만 묶는다
 export function allMarkdown(os: OS, tool: AgentTool | "" = "", page = "") {
   if (page === "club" || CLUB_DOC_IDS.includes(page) || sessionOf(page)?.kind === "club") {
     const steps = CLUB_SESSIONS.flatMap((x) => x.steps);
-    const docs = CLUB_DOC_IDS.map((id) => DOC_MAP[id]);
-    return [header("전체", tool, true), clubMarkdown(), ...steps.map((x) => stepMarkdown(tailor(x, tool), os)), ...docs.map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n";
+    const docs = CLUB_DOCS;
+    return [header("전체", tool, true), clubMarkdown(), ...steps.map((x) => tl(stepMarkdown(tailor(x, tool), os), tool)), ...docs.map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n";
   }
   return (
-    [header("전체", tool), ...STEPS.map((x) => stepMarkdown(tailor(x, tool), os)), guideMarkdown(tool), refsMarkdown(os), ...DOCS.filter((d) => !CLUB_DOC_IDS.includes(d.id)).map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n"
+    [header("전체", tool), ...STEPS.map((x) => tl(stepMarkdown(tailor(x, tool), os), tool)), guideMarkdown(tool), refsMarkdown(os), ...LIBRARY_DOCS.map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n"
   );
 }

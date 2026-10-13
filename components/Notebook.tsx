@@ -4,7 +4,7 @@ import { AnimatePresence, LayoutGroup, motion } from "motion/react";
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { TOOL_LABEL, tailor, type AgentTool, type OS } from "@/lib/content";
-import { DOCS, DOC_MAP } from "@/lib/docs";
+import { DOCS, DOC_MAP, LIBRARY } from "@/lib/docs";
 import { CLUB_SESSIONS, CURRENT, SESSIONS, sessionOf, type Session } from "@/lib/sessions";
 import { CheckPath, ToastProvider, ease, useToast } from "./ui";
 import StepView from "./StepView";
@@ -18,7 +18,7 @@ import AuthGate from "./AuthGate";
 import { supa } from "./supa";
 import { boardPayload, postBoard, useBoardLive } from "./board";
 import { fetchNotebook, mergeOnLogin, saveNotebook, setSynced, syncedPart } from "./notebookSync";
-import { BoardButton, EXTRA_PAGES, MenuSheet } from "./TopExtras";
+import { BoardButton, CLUB_PAGES, MenuSheet } from "./TopExtras";
 import { EMPTY, loadStore, saveStore, type Patch, type Store } from "./store";
 import { sessionDone, stepProgress, stepState } from "./summary";
 
@@ -200,6 +200,7 @@ function App() {
     );
   };
 
+  const inClub = CLUB_PAGES.some(([id]) => id === s.cur);
   const navItem = (id: string, label: string, extra?: ReactNode, cls = "") => {
     const active = s.cur === id;
     return (
@@ -344,11 +345,18 @@ function App() {
                     <ul className="navlist">
                       {navItem("club", "NE:부자들")}
                       {CLUB_SESSIONS.slice().reverse().map((x) => navItem(x.page, `${x.no}회차`, sesDot(x)))}
+                      {/* 소모임 자료는 소모임 화면에 있을 때만 펼친다 (자료실과 섞지 않음) */}
+                      {inClub && CLUB_PAGES.slice(1).map(([id, label]) => navItem(id, label))}
                     </ul>
                   </div>
+                  {LIBRARY.map((g) => (
+                    <div key={g.title} className="navgroup">
+                      <h4>{g.title}</h4>
+                      <ul className="navlist">{g.items.map((it) => navItem(it.id, it.label))}</ul>
+                    </div>
+                  ))}
                   <div className="navgroup">
-                    <h4>자료</h4>
-                    <ul className="navlist">{EXTRA_PAGES.map(([id, label]) => navItem(id, label))}</ul>
+                    <ul className="navlist">{navItem("library", "자료실 전체")}</ul>
                   </div>
                 </div>
               )}

@@ -80,7 +80,7 @@ export default function BoardView({ s, ses, go }: { s: Store; ses: Session; go: 
       <Hero
         chip={ses.label}
         meta={ses.kind === "club" ? "현황 · 실시간으로 바뀌어요" : "제출 현황 · 실시간으로 바뀌어요"}
-        title={ses.kind === "club" ? "팀마다 무엇을 고른나" : "다 같이 어디까지 왔나"}
+        title={ses.kind === "club" ? "누가 무엇을 만드나" : "다 같이 어디까지 왔나"}
         lead={ses.submit.boardLead}
       />
 
