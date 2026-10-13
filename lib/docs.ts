@@ -1,4 +1,5 @@
 import { compete, firstSteps, moneyPrd } from "./clubDocs";
+import { direct, install } from "./devDocs";
 import type { AgentTool, OS } from "./content";
 
 // 자료실 페이지들. 화면(DocView)과 "페이지 복사"(pageMarkdown)가 같은 데이터를 읽는다.
@@ -432,6 +433,7 @@ codex --version`,
 {{claude|codex}}    # 처음이면 브라우저가 열려요. 로그인하기
 # 켜진 다음 /init 을 치면 프로젝트 설명서({{CLAUDE.md|AGENTS.md}})를 만들어 줘요`,
         },
+        { k: "go", to: "install", t: "채팅 앱과 뭐가 다른지, 다른 설치 방법과 막힐 때: Claude Code·Codex 설치" },
       ],
     },
     {
@@ -979,7 +981,7 @@ h1, h2 { line-height: 1.25; letter-spacing: -0.02em; }`,
   ],
 };
 
-export const DOCS: Doc[] = [ai, arch, env, mcp, deploy, design, moneyPrd, compete, firstSteps];
+export const DOCS: Doc[] = [ai, arch, env, install, mcp, deploy, design, direct, moneyPrd, compete, firstSteps];
 export const DOC_MAP: Record<string, Doc> = Object.fromEntries(DOCS.map((d) => [d.id, d]));
 
 // 자료실 첫 화면 묶음. guide·refs 는 따로 만든 페이지라 설명만 여기 둔다
@@ -995,6 +997,7 @@ export const LIBRARY: { title: string; items: { id: string; label: string; desc:
     title: "세팅하기",
     items: [
       { id: "env", label: env.label, desc: env.desc },
+      { id: install.id, label: install.label, desc: install.desc },
       { id: "mcp", label: mcp.label, desc: mcp.desc },
       { id: "deploy", label: deploy.label, desc: deploy.desc },
     ],
@@ -1002,6 +1005,7 @@ export const LIBRARY: { title: string; items: { id: string; label: string; desc:
   {
     title: "잘 만들기",
     items: [
+      { id: direct.id, label: direct.label, desc: direct.desc },
       { id: "guide", label: "바이브 코딩 가이드", desc: "AI와 일 나누기, 개입할 때, 프롬프트, PRD, 해커톤 체크리스트" },
       { id: "refs", label: "디자인 레퍼런스", desc: "DESIGN.md, 컴포넌트, 레퍼런스 갤러리 링크와 실제 화면" },
       { id: "design", label: design.label, desc: design.desc },

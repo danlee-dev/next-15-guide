@@ -125,7 +125,7 @@ export function ClubView({ s, go }: { s: Store; go: (id: string) => void }) {
     <article>
       <Hero chip="소모임" meta={CLUB.tagline} title={CLUB.name} lead={CLUB.lead} />
 
-      <Section i={n++} title="세 가지 원칙">
+      <Section i={n++} title="원칙">
         <ol className="club-rules">
           {CLUB.principles.map((p, i) => (
             <motion.li key={p.t} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, ease, delay: 0.15 + i * 0.06 }}>
@@ -149,20 +149,28 @@ export function ClubView({ s, go }: { s: Store; go: (id: string) => void }) {
 
       <Section i={n++} title="처음이라면 이 순서로">
         <ol className="numlist">
-          <li><span><b>성공 숫자부터.</b> 언제까지 무엇을 몇 건. 중단 기준도 같이 정해요.</span></li>
+          <li><span><b>도구부터 제대로.</b> 채팅 앱 말고 코딩 에이전트(Claude Code나 Codex)가 깔려 있는지 확인해요.</span></li>
+          <li><span><b>성공 숫자.</b> 언제까지 무엇을 몇 건. 중단 기준도 같이 정해요.</span></li>
           <li><span><b>돈 낼 사람이 보이는 아이템 하나.</b> 이미 그 문제에 돈이나 시간을 쓰는 사람이 있는지 봐요.</span></li>
           <li><span><b>레포와 팀 규칙.</b> AGENTS.md에 &quot;PRD에 없는 기능은 만들지 않는다&quot;를 적어요.</span></li>
           <li><span><b>분석 기준부터.</b> 경쟁사를 보기 전에 이 분석으로 바꿀 결정과 &quot;이런 결과면 이렇게 바꾼다&quot;를 적어요.</span></li>
           <li><span><b>근거 칸이 있는 PRD.</b> 출처가 없는 기능은 보류함으로. P0는 3개까지.</span></li>
           <li><span><b>아키텍처는 한 장.</b> 바꾸기 비싼 결정만 오늘, 나머지는 만들면서.</span></li>
+          <li><span><b>지시는 구조를 알고.</b> 고치기 전에 왜 이렇게 돼 있는지 묻고, 조건과 엣지 케이스를 넣어 시켜요.</span></li>
           <li><span><b>첫 결제는 손으로.</b> 송금으로 먼저 받고, 결제 연동은 돈이 들어온 다음에.</span></li>
         </ol>
         <div className="club-go">
+          <button type="button" className="btn btn-soft" onClick={() => go("direct")}>
+            방향을 주는 지시
+          </button>
           <button type="button" className="btn btn-soft" onClick={() => go("compete")}>
             경쟁 분석하는 법
           </button>
           <button type="button" className="btn btn-soft" onClick={() => go("money-prd")}>
             돈 버는 PRD 쓰는 법
+          </button>
+          <button type="button" className="btn btn-soft" onClick={() => go("install")}>
+            Claude Code·Codex 설치
           </button>
           <button type="button" className="btn btn-soft" onClick={() => go("first-steps")}>
             처음 시작하는 순서와 아키텍처
