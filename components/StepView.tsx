@@ -228,7 +228,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
       )}
 
       {step.summary && (
-        <Section i={n++} title={ses?.kind === "club" ? "현황판에 올리기" : "제출"} note={ses?.kind === "club" ? "아이템 한 줄과 링크만. 다른 사람도 봐요" : "현황판에 바로 떠요"}>
+        <Section i={n++} title={ses?.kind === "club" ? "현황판에 한 줄 더 (선택)" : "제출"} note={ses?.kind === "club" ? "기획서는 위에서 올리면 끝. 여기는 아이템 한 줄과 링크를 걸고 싶을 때만" : "현황판에 바로 떠요"}>
           {ses && <SubmitBox s={s} patch={patch} go={go} ses={ses} />}
         </Section>
       )}

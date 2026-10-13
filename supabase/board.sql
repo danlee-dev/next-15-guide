@@ -37,3 +37,7 @@ grant select, insert, update, delete on public.board to service_role;
 
 -- 이 프로젝트는 새 테이블에 anon/authenticated 권한이 자동으로 붙는다. RLS로 막히지만 이중으로 회수해 둔다.
 revoke all on public.board from anon, authenticated;
+
+-- 소모임 기획서 업로드 표시 (2026-10-13 추가). PRD.md 를 올리면 서버가 같은 줄에 적는다
+alter table public.board add column if not exists prd_id uuid;
+alter table public.board add column if not exists prd_version int;

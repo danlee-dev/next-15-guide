@@ -24,6 +24,33 @@ export const removeComment = (id: string) => call<{ ok: true }>(`/api/prd/commen
 
 export const PRD_MAX = 200_000;
 
+// 현황판이나 알림에서 누른 기획서를 기획서 페이지가 바로 열게 한다
+let pending: string | null = null;
+export const PRD_FOCUS = "prd-focus";
+export function focusPrd(id: string) {
+  pending = id;
+  window.dispatchEvent(new CustomEvent<string>(PRD_FOCUS, { detail: id }));
+}
+export const pendingPrd = () => pending;
+export const clearPendingPrd = () => {
+  pending = null;
+};
+
+// 운영진이 이미 읽은 기획서 버전 (이 브라우저에만). 새로 올라온 것에 표시를 붙이는 용도
+const SEEN_KEY = "next-prd-seen";
+export function readSeen(): Record<string, number> {
+  try {
+    return JSON.parse(localStorage.getItem(SEEN_KEY) || "{}");
+  } catch {
+    return {};
+  }
+}
+export function writeSeen(map: Record<string, number>) {
+  try {
+    localStorage.setItem(SEEN_KEY, JSON.stringify(map));
+  } catch {}
+}
+
 // 마크다운을 "## 제목" 단위 칸으로 나눈다. 칸 제목이 피드백을 다는 자리의 이름이 된다.
 // 첫 ## 앞(# 제목 등)은 key "" 칸. 코드 블록 안의 ## 는 제목으로 보지 않는다
 export function splitSections(md: string): { key: string; text: string }[] {

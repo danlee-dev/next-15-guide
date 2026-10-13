@@ -4,7 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import type { Session } from "@/lib/sessions";
 import Markdown from "./Markdown";
 import PrdUpload from "./PrdUpload";
-import { ago, fetchMine, fetchPrd, postComment, removeComment, splitSections, type Prd, type PrdComment, type PrdSummary } from "./prd";
+import { BOARD_EVENT, type BoardEvent } from "./board";
+import { PRD_FOCUS, ago, clearPendingPrd, fetchMine, fetchPrd, pendingPrd, postComment, readSeen, removeComment, splitSections, writeSeen, type Prd, type PrdComment, type PrdSummary } from "./prd";
 import type { Store } from "./store";
 import { CopyIcon, Hero, Section, useCopy, useToast } from "./ui";
 
@@ -15,7 +16,10 @@ export default function PrdView({ ses, s, go }: { ses: Session; s: Store; go: (i
   const [admin, setAdmin] = useState(false);
   const [list, setList] = useState<PrdSummary[] | null>(null);
   const [doc, setDoc] = useState<{ prd: Prd; comments: PrdComment[] } | null>(null);
-  const [sel, setSel] = useState<string | null>(null);
+  // 현황판이나 알림에서 누르고 들어왔으면 그 기획서를 바로 연다
+  const [sel, setSel] = useState<string | null>(() => pendingPrd());
+  const [selTick, setSelTick] = useState(0);
+  const [seen, setSeen] = useState<Record<string, number>>(() => (typeof window === "undefined" ? {} : readSeen()));
   const [state, setState] = useState<"loading" | "ok" | "error">("loading");
   const [err, setErr] = useState("");
 
@@ -42,17 +46,46 @@ export default function PrdView({ ses, s, go }: { ses: Session; s: Store; go: (i
     };
   }, [ses.id, tick]);
 
-  // 운영진이 목록에서 고르면 그 PRD를 불러온다
+  // 운영진이 목록에서 고르면 그 PRD를 불러오고, 읽은 버전을 기억한다
   useEffect(() => {
     if (!admin || !sel) return;
     let alive = true;
     fetchPrd(sel)
-      .then((r) => alive && setDoc({ prd: r.prd, comments: r.comments }))
+      .then((r) => {
+        if (!alive) return;
+        setDoc({ prd: r.prd, comments: r.comments });
+        setSeen((m) => {
+          const next = { ...m, [r.prd.id]: r.prd.version };
+          writeSeen(next);
+          return next;
+        });
+      })
       .catch((e) => alive && setErr((e as Error).message));
     return () => {
       alive = false;
     };
-  }, [admin, sel]);
+  }, [admin, sel, selTick]);
+
+  // 새로 올라오면 바로 반영: 목록을 다시 받고, 보고 있던 기획서가 새 버전이면 그것도 다시 받는다
+  useEffect(() => {
+    clearPendingPrd();
+    const onLive = (e: Event) => {
+      const ev = (e as CustomEvent<BoardEvent>).detail;
+      if (ev.session !== ses.id || !ev.prd) return;
+      setTick((t) => t + 1);
+      if (ev.prd === sel) setSelTick((t) => t + 1);
+    };
+    const onFocus = (e: Event) => {
+      setSel((e as CustomEvent<string>).detail);
+      clearPendingPrd();
+    };
+    window.addEventListener(BOARD_EVENT, onLive);
+    window.addEventListener(PRD_FOCUS, onFocus);
+    return () => {
+      window.removeEventListener(BOARD_EVENT, onLive);
+      window.removeEventListener(PRD_FOCUS, onFocus);
+    };
+  }, [ses.id, sel]);
 
   // 운영진은 고른 PRD가 다 불러와졌을 때만 보여 준다
   const shown = doc && (!admin || doc.prd.id === sel) ? doc : null;
@@ -85,7 +118,9 @@ export default function PrdView({ ses, s, go }: { ses: Session; s: Store; go: (i
             {(list || []).map((x) => (
               <li key={x.id}>
                 <button type="button" aria-current={sel === x.id ? "true" : undefined} onClick={() => setSel(x.id)}>
-                  <b>{x.name}</b>
+                  <b>
+                    {x.name} {(seen[x.id] || 0) < x.version && <em className="prd-new">{seen[x.id] ? "새 버전" : "새로 올라옴"}</em>}
+                  </b>
                   <span>
                     v{x.version} · {ago(x.updated_at)}
                     {x.comments ? ` · 피드백 ${x.comments}` : " · 피드백 없음"}

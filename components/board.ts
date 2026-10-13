@@ -21,6 +21,8 @@ export type BoardItem = {
   repo_url: string | null;
   deploy_url: string | null;
   submitted_at: string | null;
+  prd_id?: string | null;
+  prd_version?: number | null;
   updated_at: string;
 };
 
@@ -111,7 +113,11 @@ export function useBoard(sid: string) {
 }
 
 // 실시간: 누가 저장하면 그 세션 현황을 다시 받고, 누가 제출하면 onSubmit 으로 이름과 세션을 알려 준다 (웹소켓)
-export function useBoardLive(onSubmit: (name: string, ses: Session | null) => void) {
+// 현황판 알림을 다른 화면(기획서 페이지 등)도 받을 수 있게 창 이벤트로 한 번 더 흘린다
+export type BoardEvent = { kind?: string; name?: string; session?: string; prd?: string; version?: number };
+export const BOARD_EVENT = "board-live";
+
+export function useBoardLive(onSubmit: (name: string, ses: Session | null, ev: BoardEvent) => void) {
   const cb = useRef(onSubmit);
   useEffect(() => {
     cb.current = onSubmit;
@@ -125,7 +131,8 @@ export function useBoardLive(onSubmit: (name: string, ses: Session | null) => vo
         // 여러 명이 한꺼번에 저장해도 한 번만 다시 받는다
         clearTimeout(timers.get(sid));
         timers.set(sid, setTimeout(() => refreshBoard(sid).catch(() => {}), 300));
-        if (payload?.kind === "submit" && typeof payload.name === "string") cb.current(payload.name, SESSIONS.find((x) => x.id === sid) || null);
+        window.dispatchEvent(new CustomEvent<BoardEvent>(BOARD_EVENT, { detail: payload || {} }));
+        if (payload?.kind === "submit" && typeof payload.name === "string") cb.current(payload.name, SESSIONS.find((x) => x.id === sid) || null, payload);
       })
       .subscribe();
     const onVis = () => {
@@ -150,7 +157,8 @@ export async function fetchBoard(sid: string): Promise<BoardItem[]> {
 export const PAGE_LABEL: Record<string, string> = {
   ...Object.fromEntries(SESSIONS.flatMap((x) => x.steps.map((st) => [st.id, st.label]))),
   ...Object.fromEntries(SESSIONS.map((x) => [x.page, `${x.label} 개요`])),
-  ...Object.fromEntries(SESSIONS.filter((x) => x.prdPage).map((x) => [x.prdPage!, `${x.label} PRD`])),
+  ...Object.fromEntries(SESSIONS.filter((x) => x.prdPage).map((x) => [x.prdPage!, `${x.label} 기획서`])),
+  ...Object.fromEntries(SESSIONS.map((x) => [x.boardPage, x.kind === "club" ? `${x.label} 현황` : "현황판"])),
   club: "NE:부자들",
   home: "홈",
   guide: "가이드",
@@ -161,10 +169,10 @@ export const PAGE_LABEL: Record<string, string> = {
 };
 
 // 로그인한 사람의 저장된 이름과 도구 (이름이 없으면 구글 계정 이름을 제안값으로)
-export async function fetchMe(): Promise<{ name: string | null; tool: AgentTool | null; suggested: string | null }> {
+export async function fetchMe(): Promise<{ name: string | null; tool: AgentTool | null; suggested: string | null; admin: boolean }> {
   const res = await fetch("/api/me", { headers: await authHeader(), cache: "no-store" });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.error || "정보를 불러오지 못했어요");
   const tool = json.tool === "claude" || json.tool === "codex" ? json.tool : null;
-  return { name: json.name ?? null, tool, suggested: json.suggested ?? null };
+  return { name: json.name ?? null, tool, suggested: json.suggested ?? null, admin: json.admin === true };
 }

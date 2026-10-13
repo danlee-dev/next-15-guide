@@ -16,6 +16,8 @@ export type BoardItem = {
   repo_url: string | null;
   deploy_url: string | null;
   submitted_at: string | null;
+  prd_id: string | null; // 소모임 기획서를 올렸으면 그 PRD id (본인과 운영진만 열 수 있다)
+  prd_version: number | null;
   updated_at: string;
 };
 
@@ -35,7 +37,7 @@ export async function rest(path: string, init: RequestInit = {}) {
   });
 }
 
-const COLS = "client_id,session,name,cur,done,total,stuck,tool,feature,repo_url,deploy_url,submitted_at,updated_at";
+const COLS = "client_id,session,name,cur,done,total,stuck,tool,feature,repo_url,deploy_url,submitted_at,prd_id,prd_version,updated_at";
 
 // client_id 는 절대 그대로 내보내지 않는다. 그걸 알면 남의 줄을 덮어쓸 수 있어서 해시로 바꾼다.
 export async function listBoard(session: string): Promise<BoardItem[]> {
@@ -57,7 +59,7 @@ export async function upsertBoard(row: Record<string, unknown>) {
 // 현황판이 바뀌었다고 열려 있는 화면들에 알린다 (Supabase Realtime Broadcast, 공개 채널 "board").
 // 테이블은 서버만 읽을 수 있어서 DB 변경을 직접 구독하게 할 수 없다. 그래서 이름과 종류만 실어 보내고,
 // 받은 화면이 /api/board 로 다시 읽어 간다. 실패해도 저장에는 영향 없음
-export async function broadcastBoard(payload: { kind: "update" | "submit"; name: string; session: string }) {
+export async function broadcastBoard(payload: { kind: "update" | "submit"; name: string; session: string; prd?: string; version?: number }) {
   try {
     const { url, key } = conf();
     await fetch(`${url}/realtime/v1/api/broadcast`, {

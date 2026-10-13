@@ -17,7 +17,8 @@ import { ClubView, HomeView, SessionView } from "./SessionViews";
 import SideScroll from "./SideScroll";
 import AuthGate from "./AuthGate";
 import { supa } from "./supa";
-import { boardPayload, postBoard, useBoardLive } from "./board";
+import { boardPayload, fetchMe, postBoard, useBoardLive } from "./board";
+import { focusPrd } from "./prd";
 import { fetchNotebook, mergeOnLogin, saveNotebook, setSynced, syncedPart } from "./notebookSync";
 import { BoardButton, CLUB_PAGES, MenuSheet } from "./TopExtras";
 import { EMPTY, loadStore, saveStore, type Patch, type Store } from "./store";
@@ -151,14 +152,28 @@ function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
-  // 다른 사람이 제출하면 위쪽에 잠깐 알림 (내 제출은 빼고)
-  const [notice, setNotice] = useState<{ name: string; ses: Session | null; at: number } | null>(null);
-  useBoardLive((name, ses) => {
-    if (name.trim() && name.trim() !== s.name.trim()) setNotice({ name, ses, at: Date.now() });
+  // 운영진(ADMIN_EMAILS)이면 올라온 기획서를 바로 열 수 있다. 판단은 서버가 하고, 여기선 보여 주기만 바꾼다
+  const [adminFlag, setAdminFlag] = useState(false);
+  useEffect(() => {
+    if (!authed) return;
+    let alive = true;
+    fetchMe()
+      .then((m) => alive && setAdminFlag(m.admin))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [authed]);
+  const admin = authed && adminFlag;
+
+  // 다른 사람이 제출하면 위쪽에 잠깐 알림 (내 제출은 빼고). 기획서를 올린 거면 운영진은 눌러서 바로 연다
+  const [notice, setNotice] = useState<{ name: string; ses: Session | null; at: number; prd?: string; version?: number } | null>(null);
+  useBoardLive((name, ses, ev) => {
+    if (name.trim() && name.trim() !== s.name.trim()) setNotice({ name, ses, at: Date.now(), prd: ev.prd, version: ev.version });
   });
   useEffect(() => {
     if (!notice) return;
-    const t = setTimeout(() => setNotice(null), 5000);
+    const t = setTimeout(() => setNotice(null), notice.prd ? 9000 : 5000);
     return () => clearTimeout(t);
   }, [notice]);
 
@@ -264,14 +279,19 @@ function App() {
             transition={{ duration: 0.4, ease }}
             onClick={() => {
               setNotice(null);
-              go((notice.ses || CURRENT).boardPage);
+              const target = notice.ses || CURRENT;
+              if (notice.prd && admin && target.prdPage) {
+                focusPrd(notice.prd);
+                go(target.prdPage);
+              } else go(target.boardPage);
             }}
           >
             <i className="live-face" aria-hidden="true">
               {notice.name.trim().slice(0, 1)}
             </i>
             <span>
-              <b>{notice.name}</b>님이 {notice.ses && notice.ses !== ses ? `${notice.ses.label}에 ` : ""}제출했어요
+              <b>{notice.name}</b>님이 {notice.ses && notice.ses !== ses ? `${notice.ses.label}에 ` : ""}
+              {notice.prd ? `기획서를 올렸어요${notice.version && notice.version > 1 ? ` (v${notice.version})` : ""}` : "제출했어요"}
             </span>
             <span className="live-go">보기</span>
           </motion.button>
@@ -385,7 +405,7 @@ function App() {
                 {step ? (
                   <StepView step={step} s={s} patch={patch} go={go} />
                 ) : boardOf ? (
-                  <BoardView s={s} ses={boardOf} go={go} />
+                  <BoardView s={s} ses={boardOf} go={go} admin={admin} />
                 ) : overviewOf ? (
                   <SessionView ses={overviewOf} s={s} go={go} />
                 ) : prdOf ? (

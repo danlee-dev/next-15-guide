@@ -1,6 +1,7 @@
 import { getUser } from "@/lib/auth";
 import { clip, rateLimited } from "@/lib/limit";
 import { PRD_MAX, getMyPrd, getPrd, isAdmin, listComments, listPrds, savePrd, type PrdComment, type PrdRow } from "@/lib/prd";
+import { broadcastBoard, upsertBoard } from "@/lib/board";
 import { sessionById } from "@/lib/sessions";
 
 // 화면으로 내보낼 때는 계정 id 를 빼고 "내 것인지"만 알려 준다
@@ -49,7 +50,8 @@ export async function POST(req: Request) {
     return Response.json({ error: "요청 형식이 잘못됐어요" }, { status: 400 });
   }
   const session = clip(body.session, 20);
-  if (sessionById(session)?.kind !== "club") return Response.json({ error: "없는 회차예요" }, { status: 400 });
+  const ses = sessionById(session);
+  if (ses?.kind !== "club") return Response.json({ error: "없는 회차예요" }, { status: 400 });
   const filename = clip(body.filename, 120).replace(/[^\w.\-가-힣 ]/g, "_");
   if (!/\.(md|markdown|txt)$/i.test(filename)) return Response.json({ error: ".md 파일만 올릴 수 있어요" }, { status: 400 });
   const content = typeof body.content === "string" ? body.content.replace(/\r\n/g, "\n") : "";
@@ -58,6 +60,12 @@ export async function POST(req: Request) {
   const name = clip(body.name, 40).trim() || user.name || "이름 없음";
   try {
     const prd = await savePrd(user.id, session, name, filename, content);
+    // 올리면 곧 제출이다: 현황판 같은 줄에 기획서 버전을 적고, 열려 있는 화면들에 바로 알린다
+    const now = new Date().toISOString();
+    await upsertBoard({ client_id: user.id, session, name, total: ses.steps.length, prd_id: prd.id, prd_version: prd.version, submitted_at: now, updated_at: now }).catch((e) =>
+      console.error("[prd board]", e),
+    );
+    await broadcastBoard({ kind: "submit", name, session, prd: prd.id, version: prd.version });
     return Response.json({ prd: outPrd(prd, user.id) });
   } catch (e) {
     console.error("[prd POST]", e);

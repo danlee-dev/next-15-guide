@@ -1059,3 +1059,11 @@ button.brand { padding: 0; border: 0; background: transparent; color: inherit; f
   .md h1 { font-size: 22px; }
   .md h2 { font-size: 18.5px; }
 }
+
+/* 현황판의 기획서 표시: 본인·운영진은 눌러서 열고, 다른 사람에겐 표시만 */
+.b-prd { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px; border: 0; border-radius: 999px; background: var(--ok-bg); color: var(--ok); font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s, color 0.2s; }
+.b-prd:hover { background: var(--ok); color: #ffffff; }
+.b-prd[data-static="1"] { cursor: default; }
+.b-prd[data-static="1"]:hover { background: var(--ok-bg); color: var(--ok); }
+.prd-list .prd-new { font-style: normal; font-size: 11.5px; font-weight: 700; color: var(--err); }
+.prd-list button[aria-current="true"] .prd-new { color: #ffb4b4; }

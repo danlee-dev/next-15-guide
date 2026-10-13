@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { TOOL_LABEL } from "@/lib/content";
 import { PAGE_LABEL, useBoard, type BoardItem } from "./board";
+import { focusPrd } from "./prd";
 import { Hero, Section, ease } from "./ui";
 import type { Session } from "@/lib/sessions";
 import type { Store } from "./store";
@@ -36,7 +37,7 @@ const DocMark = () => (
   </svg>
 );
 
-export default function BoardView({ s, ses, go }: { s: Store; ses: Session; go: (id: string) => void }) {
+export default function BoardView({ s, ses, go, admin = false }: { s: Store; ses: Session; go: (id: string) => void; admin?: boolean }) {
   const { items, err } = useBoard(ses.id);
   // "3분 전" 같은 글자만 다시 그린다. 데이터는 실시간으로 들어온다
   const [, setTick] = useState(0);
@@ -61,6 +62,8 @@ export default function BoardView({ s, ses, go }: { s: Store; ses: Session; go: 
       repo_url: lead.repo_url || other.repo_url,
       deploy_url: lead.deploy_url || other.deploy_url,
       submitted_at: lead.submitted_at || other.submitted_at,
+      prd_id: lead.prd_id || other.prd_id,
+      prd_version: lead.prd_version || other.prd_version,
     });
   }
 
@@ -70,7 +73,7 @@ export default function BoardView({ s, ses, go }: { s: Store; ses: Session; go: 
   const stats: [string, number][] = [
     ["참여", list.length],
     [ses.submit.stats[0], list.filter((x) => x.repo_url).length],
-    [ses.submit.stats[1], list.filter((x) => x.deploy_url).length],
+    [ses.submit.stats[1], list.filter((x) => x.deploy_url || x.prd_version).length],
     ["막힘", list.filter((x) => x.stuck).length],
   ];
   const me = s.name.trim();
@@ -131,6 +134,27 @@ export default function BoardView({ s, ses, go }: { s: Store; ses: Session; go: 
                   </span>
                 </div>
                 <div className="b-links">
+                  {x.prd_version ? (
+                    // 기획서는 본인과 운영진만 열 수 있다. 다른 사람에겐 올렸다는 표시만
+                    admin || x.name === me ? (
+                      <button
+                        type="button"
+                        className="b-prd"
+                        onClick={() => {
+                          if (admin && x.prd_id) focusPrd(x.prd_id);
+                          if (ses.prdPage) go(ses.prdPage);
+                        }}
+                      >
+                        <DocMark />
+                        기획서 v{x.prd_version}
+                      </button>
+                    ) : (
+                      <span className="b-prd" data-static="1">
+                        <DocMark />
+                        기획서 v{x.prd_version}
+                      </span>
+                    )
+                  ) : null}
                   {x.repo_url ? (
                     <a href={x.repo_url} target="_blank" rel="noopener noreferrer" title={x.repo_url}>
                       <GitHubMark />
