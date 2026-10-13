@@ -151,13 +151,16 @@ export function ClubView({ s, go }: { s: Store; go: (id: string) => void }) {
         <ol className="numlist">
           <li><span><b>성공 숫자부터.</b> 언제까지 무엇을 몇 건. 중단 기준도 같이 정해요.</span></li>
           <li><span><b>돈 낼 사람이 보이는 아이템 하나.</b> 이미 그 문제에 돈이나 시간을 쓰는 사람이 있는지 봐요.</span></li>
-          <li><span><b>만날 사람 5명.</b> 만들기 전에 인터뷰할 사람부터 정해요.</span></li>
           <li><span><b>레포와 팀 규칙.</b> AGENTS.md에 &quot;PRD에 없는 기능은 만들지 않는다&quot;를 적어요.</span></li>
-          <li><span><b>근거 칸이 있는 PRD.</b> 근거가 빈 기능은 보류함으로. P0는 3개까지.</span></li>
+          <li><span><b>분석 기준부터.</b> 경쟁사를 보기 전에 이 분석으로 바꿀 결정과 &quot;이런 결과면 이렇게 바꾼다&quot;를 적어요.</span></li>
+          <li><span><b>근거 칸이 있는 PRD.</b> 출처가 없는 기능은 보류함으로. P0는 3개까지.</span></li>
           <li><span><b>아키텍처는 한 장.</b> 바꾸기 비싼 결정만 오늘, 나머지는 만들면서.</span></li>
-          <li><span><b>첫 결제는 손으로.</b> 선결제나 송금으로 먼저 받고, 결제 연동은 돈이 들어온 다음에.</span></li>
+          <li><span><b>첫 결제는 손으로.</b> 송금으로 먼저 받고, 결제 연동은 돈이 들어온 다음에.</span></li>
         </ol>
         <div className="club-go">
+          <button type="button" className="btn btn-soft" onClick={() => go("compete")}>
+            경쟁 분석하는 법
+          </button>
           <button type="button" className="btn btn-soft" onClick={() => go("money-prd")}>
             돈 버는 PRD 쓰는 법
           </button>

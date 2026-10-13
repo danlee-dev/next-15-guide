@@ -1,4 +1,4 @@
-import { firstSteps, moneyPrd } from "./clubDocs";
+import { compete, firstSteps, moneyPrd } from "./clubDocs";
 import type { AgentTool, OS } from "./content";
 
 // 자료실 페이지들. 화면(DocView)과 "페이지 복사"(pageMarkdown)가 같은 데이터를 읽는다.
@@ -979,7 +979,7 @@ h1, h2 { line-height: 1.25; letter-spacing: -0.02em; }`,
   ],
 };
 
-export const DOCS: Doc[] = [ai, arch, env, mcp, deploy, design, moneyPrd, firstSteps];
+export const DOCS: Doc[] = [ai, arch, env, mcp, deploy, design, moneyPrd, compete, firstSteps];
 export const DOC_MAP: Record<string, Doc> = Object.fromEntries(DOCS.map((d) => [d.id, d]));
 
 // 자료실 첫 화면 묶음. guide·refs 는 따로 만든 페이지라 설명만 여기 둔다
@@ -1011,6 +1011,7 @@ export const LIBRARY: { title: string; items: { id: string; label: string; desc:
     title: "만들어서 팔기",
     items: [
       { id: moneyPrd.id, label: moneyPrd.label, desc: moneyPrd.desc },
+      { id: compete.id, label: compete.label, desc: compete.desc },
       { id: firstSteps.id, label: firstSteps.label, desc: firstSteps.desc },
     ],
   },

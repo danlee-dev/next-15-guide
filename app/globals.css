@@ -963,3 +963,10 @@ button.brand { padding: 0; border: 0; background: transparent; color: inherit; f
   .club-rules em { font-size: 28px; }
   .club-rules b { font-size: 17.5px; }
 }
+
+/* 이전·다음 버튼: 좁은 화면에서는 글자가 길면 넘쳐서 위아래로 쌓는다 (다음이 위) */
+@media (max-width: 520px) {
+  .pager { flex-direction: column-reverse; align-items: stretch; }
+  .pager > span:empty { display: none; }
+  .pager .btn { width: 100%; padding: 0 20px; }
+}

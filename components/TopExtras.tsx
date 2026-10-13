@@ -21,6 +21,7 @@ export const EXTRA_PAGES: [string, string][] = [
   ["refs", "디자인 레퍼런스"],
   ["design", "디자인 디테일"],
   ["money-prd", "돈 버는 PRD 쓰는 법"],
+  ["compete", "경쟁 분석하는 법"],
   ["first-steps", "처음 시작하는 순서"],
 ];
 

@@ -193,7 +193,7 @@ function header(what: string, tool: AgentTool | "", club = false) {
   return `# NEXT 15기 개발 세션: ${what}\n\n출처: ${SITE}\n오늘 실습: 빈 폴더에서 ${who}로 "PRD 메이커"(Next.js + OpenAI + Supabase)를 만든다. 아래 내용을 기준으로 내 질문에 답해 줘. 코드를 대신 다 써 주기보다, 내가 이해하고 직접 확인할 수 있게 설명해 줘.`;
 }
 
-const CLUB_DOC_IDS = ["money-prd", "first-steps"];
+const CLUB_DOC_IDS = ["money-prd", "compete", "first-steps"];
 
 // 소모임 홈: 원칙, 회차, 자료
 function clubMarkdown() {
