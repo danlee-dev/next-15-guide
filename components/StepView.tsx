@@ -9,6 +9,7 @@ import { FeedbackPanel, TutorChat } from "./Tutor";
 import type { Patch, Store } from "./store";
 import { summaryText } from "./summary";
 import SubmitBox from "./SubmitBox";
+import PrdUpload from "./PrdUpload";
 import { commitPrompt, startLabel } from "./pageMarkdown";
 
 function AutoText({ id, value, onChange }: { id: string; value: string; onChange: (v: string) => void }) {
@@ -159,6 +160,12 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
         </Section>
       )}
 
+      {step.upload === "prd" && ses && (
+        <Section i={n++} title="기획서 제출" note="docs/PRD.md 파일 그대로. 나와 운영진만 봐요">
+          <PrdUpload ses={ses} s={s} go={go} />
+        </Section>
+      )}
+
       <Section i={n++} title="내 말로 답하기" note="AI 답을 붙여넣지 말고, 내 코드를 보면서">
         {step.questions.map((q) => {
           const id = `q-${step.id}-${q.id}`;
@@ -221,7 +228,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
       )}
 
       {step.summary && (
-        <Section i={n++} title="제출" note="현황판에 바로 떠요">
+        <Section i={n++} title={ses?.kind === "club" ? "현황판에 올리기" : "제출"} note={ses?.kind === "club" ? "아이템 한 줄과 링크만. 다른 사람도 봐요" : "현황판에 바로 떠요"}>
           {ses && <SubmitBox s={s} patch={patch} go={go} ses={ses} />}
         </Section>
       )}

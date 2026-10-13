@@ -150,6 +150,7 @@ export async function fetchBoard(sid: string): Promise<BoardItem[]> {
 export const PAGE_LABEL: Record<string, string> = {
   ...Object.fromEntries(SESSIONS.flatMap((x) => x.steps.map((st) => [st.id, st.label]))),
   ...Object.fromEntries(SESSIONS.map((x) => [x.page, `${x.label} 개요`])),
+  ...Object.fromEntries(SESSIONS.filter((x) => x.prdPage).map((x) => [x.prdPage!, `${x.label} PRD`])),
   club: "NE:부자들",
   home: "홈",
   guide: "가이드",

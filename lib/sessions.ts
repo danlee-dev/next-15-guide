@@ -1,4 +1,4 @@
-import { CLUB_ASSIGNMENT, CLUB_STEPS } from "./club";
+import { CLUB2_ASSIGNMENT, CLUB2_STEPS, CLUB_ASSIGNMENT, CLUB_STEPS } from "./club";
 import { ASSIGNMENT, STEPS, type Step } from "./content";
 
 // 개발 세션과 소모임 회차 목록. 새로 열 때는 여기에 하나 추가한다.
@@ -26,6 +26,7 @@ export type Session = {
   lead: string;
   page: string; // 개요 페이지 id
   boardPage: string; // 제출 현황 페이지 id
+  prdPage?: string; // PRD 올리기·피드백 페이지 id (소모임 회차)
   steps: Step[];
   assignment?: typeof ASSIGNMENT;
   submit: SubmitConfig;
@@ -71,19 +72,20 @@ export const SESSIONS: Session[] = [
     kind: "club",
     no: 1,
     label: "NE:부자들 1회차",
-    title: "아이템 고르고, 첫 기능까지",
+    title: "아이템 고르고, 기획서 제출까지",
     date: "2026-10-13",
     dateLabel: "10/13(화)",
-    lead: "만들 것을 하나 고르고, 레포와 규칙을 세팅하고, PRD와 사용자 흐름을 짠 다음 Figma MCP로 화면 초안을 그려 보고, P0 하나를 여섯 칸 지시로 만들어 봐요. 오늘의 목표는 AI가 만든 코드를 내가 설명할 수 있게 되는 거예요. 대부분 혼자, 원하면 팀으로 해요.",
+    lead: "만들 것을 하나 고르고, 레포와 규칙을 세팅하고, PRD와 사용자 흐름을 짠 다음 Figma MCP로 화면 초안을 그려 보고, 기획서(PRD.md)를 올려요. 오늘의 목표는 기획서 제출이에요. 운영진이 칸마다 피드백을 달아요. 대부분 혼자, 원하면 팀으로 해요.",
     page: "club1",
     boardPage: "club1-board",
+    prdPage: "club1-prd",
     steps: CLUB_STEPS,
     assignment: CLUB_ASSIGNMENT,
     submit: {
       repo: { label: "레포 주소", hint: "오늘 만든 레포. Private이면 초대받은 사람만 열 수 있어요", required: false, placeholder: "https://github.com/아이디/프로젝트" },
-      link: { label: "PRD 링크", hint: "GitHub의 docs/PRD.md 주소나 노션 링크. 경쟁사 분석은 같은 레포 docs/COMPETITION.md 에 둬요", placeholder: "https://github.com/아이디/프로젝트/blob/main/docs/PRD.md", board: "PRD" },
+      link: { label: "PRD 링크 (선택)", hint: "PRD 파일은 PRD 단계에서 올려요. 여기는 GitHub의 docs/PRD.md 주소나 노션 링크를 따로 걸고 싶을 때만", placeholder: "https://github.com/아이디/프로젝트/blob/main/docs/PRD.md", board: "PRD" },
       note: {
-        label: "우리 아이템 한 줄 (필수)",
+        label: "아이템 한 줄 (필수)",
         hint: "누가, 어떤 문제에, 얼마를 내나",
         placeholder: "예: 학생회 총무가 회비 정산 시간을 줄이려고 월 9,900원",
         required: true,
@@ -98,6 +100,34 @@ export const SESSIONS: Session[] = [
       stats: ["레포", "PRD"],
     },
   },
+  {
+    id: "nb2",
+    kind: "club",
+    no: 2,
+    label: "NE:부자들 2회차",
+    title: "구조를 설명하고, 첫 기능까지",
+    date: "",
+    dateLabel: "다음 모임",
+    lead: "기획서의 P0 하나가 버튼부터 DB까지 어떤 파일을 지나는지 내 말로 설명하고, 그 기능의 첫 조각을 여섯 칸 지시로 만들어요. AI가 만든 코드를 설명할 수 있게 되는 게 목표예요.",
+    page: "club2",
+    boardPage: "club2-board",
+    steps: CLUB2_STEPS,
+    assignment: CLUB2_ASSIGNMENT,
+    submit: {
+      repo: { label: "레포 주소", hint: "오늘 커밋한 레포. Private이면 초대받은 사람만 열 수 있어요", required: false, placeholder: "https://github.com/아이디/프로젝트" },
+      link: { label: "배포 주소 (선택)", hint: "Vercel에 올렸으면", placeholder: "https://프로젝트.vercel.app", board: "배포" },
+      note: {
+        label: "오늘 만든 기능 한 줄 (필수)",
+        hint: "무엇을 만들었고, 쓰는 사람이 무엇을 할 수 있게 됐나",
+        placeholder: "예: 총무가 회원 목록을 올리면 미납자만 따로 보인다",
+        required: true,
+        examples: ["총무가 엑셀을 올리면 미납자만 골라 보여 주는 첫 화면", "예약 폼을 내면 Supabase에 저장되고 목록에 바로 뜨는 것까지"],
+      },
+      repoAnswer: { step: "nb-setup", q: "repo" },
+      boardLead: "각자 만든 첫 기능이 여기 모여요. 다음 모임에서는 기능 수가 아니라 그 기능의 흐름을 설명할 수 있는지부터 봐요.",
+      stats: ["레포", "배포"],
+    },
+  },
 ];
 
 export const SESSION_IDS = SESSIONS.map((x) => x.id);
@@ -108,7 +138,7 @@ export const CLUB_SESSIONS = SESSIONS.filter((x) => x.kind === "club");
 
 // 이 페이지가 어느 세션(회차) 안에 있나 (개요, 단계, 제출 현황). 자료·홈이면 null
 export function sessionOf(page: string): Session | null {
-  return SESSIONS.find((x) => x.page === page || x.boardPage === page || x.steps.some((st) => st.id === page)) || null;
+  return SESSIONS.find((x) => x.page === page || x.boardPage === page || x.prdPage === page || x.steps.some((st) => st.id === page)) || null;
 }
 
 export const sessionById = (id: string) => SESSIONS.find((x) => x.id === id) || null;

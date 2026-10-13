@@ -139,9 +139,7 @@ export function ClubView({ s, go }: { s: Store; go: (id: string) => void }) {
 
       <Section i={n++} title="회차">
         <ul className="ses-list">
-          {CLUB_SESSIONS.slice()
-            .reverse()
-            .map((x, i) => (
+          {CLUB_SESSIONS.map((x, i) => (
               <SessionCard key={x.id} x={x} s={s} go={go} i={i} />
             ))}
         </ul>

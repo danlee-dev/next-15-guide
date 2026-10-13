@@ -11,6 +11,7 @@ import StepView from "./StepView";
 import GuideView from "./GuideView";
 import RefsView from "./RefsView";
 import BoardView from "./BoardView";
+import PrdView from "./PrdView";
 import DocView, { LibraryView } from "./DocView";
 import { ClubView, HomeView, SessionView } from "./SessionViews";
 import SideScroll from "./SideScroll";
@@ -27,7 +28,7 @@ import { sessionDone, stepProgress, stepState } from "./summary";
 const ALL_STEPS = SESSIONS.flatMap((x) => x.steps);
 const PAGES = new Set([
   "home",
-  ...SESSIONS.flatMap((x) => [x.page, x.boardPage, ...x.steps.map((st) => st.id)]),
+  ...SESSIONS.flatMap((x) => [x.page, x.boardPage, ...(x.prdPage ? [x.prdPage] : []), ...x.steps.map((st) => st.id)]),
   "guide",
   "refs",
   "library",
@@ -189,6 +190,7 @@ function App() {
   const doc = DOC_MAP[s.cur];
   const boardOf = SESSIONS.find((x) => x.boardPage === s.cur);
   const overviewOf = SESSIONS.find((x) => x.page === s.cur);
+  const prdOf = SESSIONS.find((x) => x.prdPage === s.cur);
 
   // 세션 목록 옆 진행 링 (그 세션에서 끝낸 단계 비율)
   const sesDot = (x: Session) => {
@@ -326,6 +328,7 @@ function App() {
                             </li>
                           );
                         })}
+                        {ses.prdPage && navItem(ses.prdPage, "PRD 피드백")}
                         {navItem(ses.boardPage, ses.kind === "club" ? "현황" : "제출 현황")}
                       </ul>
                     </div>
@@ -344,7 +347,7 @@ function App() {
                     <h4>소모임</h4>
                     <ul className="navlist">
                       {navItem("club", "NE:부자들")}
-                      {CLUB_SESSIONS.slice().reverse().map((x) => navItem(x.page, `${x.no}회차`, sesDot(x)))}
+                      {CLUB_SESSIONS.map((x) => navItem(x.page, `${x.no}회차`, sesDot(x)))}
                       {/* 소모임 자료는 소모임 화면에 있을 때만 펼친다 (자료실과 섞지 않음) */}
                       {inClub && CLUB_PAGES.slice(1).map(([id, label]) => navItem(id, label))}
                     </ul>
@@ -385,6 +388,8 @@ function App() {
                   <BoardView s={s} ses={boardOf} go={go} />
                 ) : overviewOf ? (
                   <SessionView ses={overviewOf} s={s} go={go} />
+                ) : prdOf ? (
+                  <PrdView ses={prdOf} s={s} go={go} />
                 ) : s.cur === "guide" ? (
                   <GuideView s={s} patch={patch} go={go} />
                 ) : s.cur === "refs" ? (

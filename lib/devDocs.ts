@@ -413,7 +413,7 @@ export const figma: Doc = {
           k: "table",
           cols: ["하고 싶은 것", "AI가 쓰는 Figma 도구", "이렇게 시켜요"],
           rows: [
-            ["사용자 흐름을 흐름도로", "generate_diagram (FigJam)", "docs/FLOW.md 의 흐름을 FigJam 흐름도로 그려 줘"],
+            ["사용자 흐름을 흐름도로", "generate_diagram (FigJam)", "docs/PRD.md 9번 사용자 흐름을 FigJam 흐름도로 그려 줘"],
             ["화면 초안을 Figma에", "use_figma (Full 좌석 필요)", "새 Figma 파일에 화면 목록대로 모바일 와이어프레임을 그려 줘"],
             ["Figma 화면을 코드로", "get_design_context, get_screenshot", "이 프레임 링크를 Next.js + Tailwind 로 만들어 줘"],
             ["색, 간격 같은 디자인 값 가져오기", "get_variable_defs", "이 프레임에 쓰인 색과 간격 변수를 정리해 줘"],

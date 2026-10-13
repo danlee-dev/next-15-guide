@@ -34,6 +34,7 @@ export type Step = {
   chips: string[];
   summary?: boolean;
   more?: { title: string; items: string[]; note?: string };
+  upload?: "prd"; // 이 단계에 PRD 파일 올리기 칸을 둔다 (소모임)
 };
 
 export const COMMANDS = {
@@ -56,31 +57,6 @@ mkdir docs`,
   clubPush: {
     both: `git add . && git commit -m "chore: project rules and docs folder"
 gh repo create <프로젝트> --private --source=. --push`,
-  },
-  clubFlow: {
-    where: "docs/FLOW.md 에 붙여넣기",
-    plain: true,
-    both: `# 사용자 흐름: P0 1번 (기능 이름)
-
-누가:
-시작: (어디서 들어오나. 링크, 첫 화면)
-끝: (무엇을 이루면 끝인가)
-
-## 기본 흐름 (한 줄에 하나: 화면, 행동, 결과)
-1. [화면]
-2. [행동]
-3. [결과]
-
-## 갈림길
-- 데이터가 없을 때:
-- 실패했을 때:
-- 로그인 안 했을 때: (P0에 로그인이 없으면 "해당 없음")
-- 두 번째로 왔을 때:
-
-## 화면 목록 (3개 이하)
-| 경로 | 화면 | 나오는 단계 |
-| --- | --- | --- |
-| / |  |  |`,
   },
   clubFigma: {
     where: "{{터미널에서 (Claude Code)|터미널에서 (Codex CLI)}}",
@@ -161,7 +137,32 @@ codex mcp list}}`,
 
 ## 8. 보류함
 근거가 생기기 전까지 여기 둔다. 근거가 생기면 5번으로 옮긴다.
--`,
+-
+
+## 9. 사용자 흐름 (P0 1번)
+- 누가:
+- 시작: (어디서 들어오나. 링크, 첫 화면)
+- 끝: (무엇을 이루면 끝인가)
+
+기본 흐름 (한 줄에 하나: 화면, 행동, 결과)
+1.
+2.
+3.
+
+갈림길
+- 데이터가 없을 때:
+- 실패했을 때:
+- 두 번째로 왔을 때:
+
+화면 목록 (3개 이하)
+| 경로 | 화면 | 나오는 단계 |
+| --- | --- | --- |
+| / |  |  |
+
+## 10. 화면 (Figma)
+- 흐름도 링크:
+- 화면 초안 링크:
+- 그림을 보고 고친 것:`,
   },
   create: {
     both: `npx create-next-app@latest prd-maker --yes
