@@ -20,10 +20,12 @@ export const EXTRA_PAGES: [string, string][] = [
   ["guide", "바이브 코딩 가이드"],
   ["refs", "디자인 레퍼런스"],
   ["design", "디자인 디테일"],
+  ["money-prd", "돈 버는 PRD 쓰는 법"],
+  ["first-steps", "처음 시작하는 순서"],
 ];
 
 // 깜빡이는 "live" 점 대신, 들어온 사람들 이름 첫 글자를 겹쳐 보여 준다 (최근에 움직인 사람부터 3명)
-export function BoardButton({ sid, active, onClick }: { sid: string; active: boolean; onClick: () => void }) {
+export function BoardButton({ sid, active, onClick, club = false }: { sid: string; active: boolean; onClick: () => void; club?: boolean }) {
   const { items } = useBoard(sid);
   const seen = new Set<string>();
   const names = items
@@ -34,7 +36,7 @@ export function BoardButton({ sid, active, onClick }: { sid: string; active: boo
         .filter((nm) => (seen.has(nm) ? false : (seen.add(nm), true)))
     : null;
   return (
-    <button type="button" className="board-btn" aria-current={active ? "page" : undefined} onClick={onClick} aria-label={`제출 현황${names ? `, ${names.length}명` : ""}`}>
+    <button type="button" className="board-btn" aria-current={active ? "page" : undefined} onClick={onClick} aria-label={`${club ? "" : "제출 "}현황${names ? `, ${names.length}명` : ""}`}>
       {names && names.length > 0 && (
         <span className="faces" aria-hidden="true">
           {names.slice(0, 3).map((nm, i) => (
@@ -45,7 +47,7 @@ export function BoardButton({ sid, active, onClick }: { sid: string; active: boo
         </span>
       )}
       <span>
-        <span className="lg">제출 </span>현황
+        {!club && <span className="lg">제출 </span>}현황
       </span>
       {names && <b>{names.length}</b>}
     </button>
@@ -167,6 +169,11 @@ export function MenuSheet({
                     <li>
                       <button type="button" aria-current={cur === "home" ? "page" : undefined} onClick={() => pick("home")}>
                         전체 세션
+                      </button>
+                    </li>
+                    <li>
+                      <button type="button" aria-current={cur === "club" ? "page" : undefined} onClick={() => pick("club")}>
+                        소모임 NE:부자들
                       </button>
                     </li>
                   </ul>

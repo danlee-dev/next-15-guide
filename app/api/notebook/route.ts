@@ -3,7 +3,7 @@ import { rateLimited } from "@/lib/limit";
 import { getNotebook, putNotebook } from "@/lib/notebook";
 
 // 저장하는 칸만 골라 받는다 (OS 같은 기기별 설정은 브라우저에만 둔다)
-const KEYS = ["name", "tool", "last", "ans", "checks", "fb", "chat", "stuck", "links", "submittedAt"] as const;
+const KEYS = ["name", "tool", "last", "ans", "checks", "fb", "chat", "stuck", "links", "linksBy", "submittedAt"] as const;
 const MAX = 400_000; // 글자 수. 튜터 대화가 길어져도 넉넉한 크기
 
 // GET /api/notebook : 내 노트 불러오기

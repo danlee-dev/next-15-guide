@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { type AgentTool } from "@/lib/content";
 import { DOCS } from "@/lib/docs";
 import { CURRENT, SESSIONS, type Session } from "@/lib/sessions";
-import { repoOf, type Store } from "./store";
+import { linksOf, repoOf, type Store } from "./store";
 import { authHeader, supa } from "./supa";
 import { stepState } from "./summary";
 
@@ -25,7 +25,7 @@ export type BoardItem = {
 };
 
 // 현황판에 올라가는 내 줄 (세션 하나). 학회원이 쓴 답 내용은 보내지 않는다 (이름, 진행, 막힘, 링크만)
-// 제출 링크(s.links)는 지금은 Session 8 것 하나뿐이다. 다음 세션에 제출 칸이 생기면 세션별로 나눈다
+// 제출 칸은 세션마다 따로다 (linksOf). 자동 저장 때도 보내지만 서버는 제출 버튼일 때만 링크를 바꾼다
 export function boardPayload(s: Store, submit = false, ses: Session = CURRENT) {
   return {
     session: ses.id,
@@ -35,8 +35,8 @@ export function boardPayload(s: Store, submit = false, ses: Session = CURRENT) {
     total: ses.steps.length,
     stuck: ses.steps.filter((x) => s.stuck[x.id]).map((x) => `${x.label}: ${s.stuck[x.id]}`).join(" / "),
     tool: s.tool || undefined,
-    links: { repo: repoOf(s), deploy: s.links.deploy },
-    feature: (s.links.feature || "").trim(),
+    links: { repo: repoOf(s, ses.id, ses.submit.repoAnswer), deploy: linksOf(s, ses.id).deploy },
+    feature: (linksOf(s, ses.id).feature || "").trim(),
     submit,
   };
 }
@@ -149,7 +149,8 @@ export async function fetchBoard(sid: string): Promise<BoardItem[]> {
 
 export const PAGE_LABEL: Record<string, string> = {
   ...Object.fromEntries(SESSIONS.flatMap((x) => x.steps.map((st) => [st.id, st.label]))),
-  ...Object.fromEntries(SESSIONS.map((x) => [x.page, `Session ${x.no} 개요`])),
+  ...Object.fromEntries(SESSIONS.map((x) => [x.page, `${x.label} 개요`])),
+  club: "NE:부자들",
   home: "홈",
   guide: "가이드",
   refs: "레퍼런스",

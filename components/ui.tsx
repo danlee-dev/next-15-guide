@@ -111,8 +111,9 @@ export function Dots() {
 const FILLS: Record<string, { key: string; hint: string; desc: string }> = {
   "<내 아이디>": { key: "gh-id", hint: "GitHub 아이디", desc: "내 프로필 주소 github.com/ 바로 뒤 부분 (예: github.com/next-kim 이면 next-kim)" },
   "<ref>": { key: "sb-ref", hint: "프로젝트 ref", desc: "Supabase 대시보드 주소 supabase.com/dashboard/project/ 뒤의 영문 20자" },
+  "<프로젝트>": { key: "proj", hint: "프로젝트 이름", desc: "영어 소문자와 - 만 써요 (예: dues-helper). 폴더 이름과 레포 이름이 돼요" },
 };
-const FILL_RE = /(<내 아이디>|<ref>)/;
+const FILL_RE = /(<내 아이디>|<ref>|<프로젝트>)/;
 const fillSubs = new Set<() => void>();
 const readFill = (tok: string) => {
   try {
@@ -148,8 +149,8 @@ function Blank({ value, hint, onChange, label }: { value: string; hint: string; 
   );
 }
 
-function renderLine(line: string, i: number) {
-  if (line.trim().startsWith("#")) return <span key={i} className="cm">{line}</span>;
+function renderLine(line: string, i: number, plain = false) {
+  if (!plain && line.trim().startsWith("#")) return <span key={i} className="cm">{line}</span>;
   return (
     <span key={i}>
       {line.split(FILL_RE).map((p, j) =>
@@ -159,7 +160,8 @@ function renderLine(line: string, i: number) {
   );
 }
 
-export function CodeBlock({ text, where }: { text: string; where: string }) {
+// plain: 마크다운 템플릿처럼 # 이 주석이 아닌 글일 때 흐리게 그리지 않는다
+export function CodeBlock({ text, where, plain }: { text: string; where: string; plain?: boolean }) {
   const { copy, Fallback } = useCopy();
   useFillsVersion();
   const lines = text.split("\n");
@@ -177,7 +179,7 @@ export function CodeBlock({ text, where }: { text: string; where: string }) {
           {lines.map((l, i) => (
             <span key={i}>
               {i > 0 && "\n"}
-              {renderLine(l, i)}
+              {renderLine(l, i, plain)}
             </span>
           ))}
         </pre>
@@ -200,8 +202,8 @@ export function CodeBlock({ text, where }: { text: string; where: string }) {
 }
 
 export function Command({ k, os }: { k: CommandKey; os: OS }) {
-  const c = COMMANDS[k] as { both?: string; mac?: string; win?: string };
-  if (c.both) return <CodeBlock text={c.both} where="macOS · Windows 동일" />;
+  const c = COMMANDS[k] as { both?: string; mac?: string; win?: string; where?: string; plain?: boolean };
+  if (c.both) return <CodeBlock text={c.both} where={c.where || "macOS · Windows 동일"} plain={c.plain} />;
   const t = c[os];
   if (!t) return null;
   return <CodeBlock text={t} where={os === "win" ? "Windows PowerShell" : "macOS 터미널"} />;
@@ -388,7 +390,7 @@ export function CopyMenu({ page, os, tool }: { page: string; os: OS; tool: Agent
               <b>이 페이지</b>
               <span>AI에게 붙여넣고 질문하기 좋게</span>
             </button>
-            <button type="button" role="menuitem" onClick={() => pick(allMarkdown(os, tool), "노트 전체를 복사했어요")}>
+            <button type="button" role="menuitem" onClick={() => pick(allMarkdown(os, tool, page), "노트 전체를 복사했어요")}>
               <b>노트 전체</b>
               <span>모든 단계와 자료를 한 번에</span>
             </button>

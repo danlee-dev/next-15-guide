@@ -1,6 +1,6 @@
 "use client";
 
-import type { ChatMsg, Feedback, Store } from "./store";
+import type { ChatMsg, Feedback, Links, Store } from "./store";
 import { authHeader } from "./supa";
 
 // 실습 노트를 계정별로 Supabase 에 저장·불러오기.
@@ -11,15 +11,26 @@ import { authHeader } from "./supa";
 const SYNCED_KEY = "next-nb-synced"; // 이 브라우저가 마지막으로 불러오거나 저장한 서버 버전(updated_at)
 const OWNER_KEY = "next-nb-owner"; // 이 브라우저 노트의 주인 계정 (공용 컴퓨터에서 남의 노트가 섞이지 않게)
 
-export type Synced = Pick<Store, "name" | "tool" | "last" | "ans" | "checks" | "fb" | "chat" | "stuck" | "links" | "submittedAt">;
+export type Synced = Pick<Store, "name" | "tool" | "last" | "ans" | "checks" | "fb" | "chat" | "stuck" | "links" | "submittedAt"> & { linksBy?: Record<string, Links> };
 
 // 서버에 올리는 칸. OS 같은 기기별 설정과 지금 보는 페이지(cur)는 뺀다
 export function syncedPart(s: Store): Synced {
   const chat = Object.fromEntries(Object.entries(s.chat).map(([k, v]) => [k, v.slice(-30)]));
-  return { name: s.name, tool: s.tool, last: s.last, ans: s.ans, checks: s.checks, fb: s.fb, chat, stuck: s.stuck, links: s.links, submittedAt: s.submittedAt };
+  return { name: s.name, tool: s.tool, last: s.last, ans: s.ans, checks: s.checks, fb: s.fb, chat, stuck: s.stuck, links: s.links, linksBy: s.linksBy || {}, submittedAt: s.submittedAt };
 }
 
 const filled = (v: unknown) => typeof v === "string" && v.trim() !== "";
+
+// 제출 칸 하나 합치기: 최신 쪽이 비어 있으면 다른 쪽 것을 살린다
+function mergeLinks(p: Partial<Links> = {}, o: Partial<Links> = {}): Links {
+  return {
+    repo: filled(p.repo) ? p.repo! : o.repo || p.repo || "",
+    deploy: filled(p.deploy) ? p.deploy! : o.deploy || p.deploy || "",
+    feature: filled(p.feature) ? p.feature : o.feature || p.feature || "",
+    repoEdited: !!(p.repoEdited || o.repoEdited),
+    submittedAt: Math.max(p.submittedAt || 0, o.submittedAt || 0) || null,
+  };
+}
 
 // 두 노트를 칸별로 합친다. prefer 는 더 최신이라고 보는 쪽, other 는 나머지.
 // 답·링크는 최신 쪽이 비어 있으면 다른 쪽 것을 살리고, 체크는 어느 쪽이든 된 건 된 걸로, 튜터 대화는 긴 쪽을 남긴다.
@@ -53,14 +64,9 @@ export function mergeNotes(prefer: Partial<Synced>, other: Partial<Synced>): Syn
     chat[step] = o.length > p.length ? o : p;
   }
 
-  const pl: Partial<Store["links"]> = prefer.links || {};
-  const ol: Partial<Store["links"]> = other.links || {};
-  const links: Store["links"] = {
-    repo: filled(pl.repo) ? pl.repo! : ol.repo || pl.repo || "",
-    deploy: filled(pl.deploy) ? pl.deploy! : ol.deploy || pl.deploy || "",
-    feature: filled(pl.feature) ? pl.feature : ol.feature || pl.feature || "",
-    repoEdited: !!(pl.repoEdited || ol.repoEdited),
-  };
+  const links = mergeLinks(prefer.links, other.links);
+  const linksBy: Record<string, Links> = {};
+  for (const sid of new Set([...Object.keys(prefer.linksBy || {}), ...Object.keys(other.linksBy || {})])) linksBy[sid] = mergeLinks(prefer.linksBy?.[sid], other.linksBy?.[sid]);
 
   return {
     name: filled(prefer.name) ? prefer.name! : other.name || "",
@@ -73,6 +79,7 @@ export function mergeNotes(prefer: Partial<Synced>, other: Partial<Synced>): Syn
     // 막힘 표시는 지금 상태라서 최신 쪽을 그대로 쓴다 (예전 막힘이 되살아나지 않게)
     stuck: prefer.stuck || other.stuck || {},
     links,
+    linksBy,
     submittedAt: Math.max(prefer.submittedAt || 0, other.submittedAt || 0) || null,
   };
 }

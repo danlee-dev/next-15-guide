@@ -950,3 +950,16 @@ button.brand { padding: 0; border: 0; background: transparent; color: inherit; f
 .dot[data-s="part"]::after, .navitem .dot[data-s="part"]::after, .navitem[aria-current="page"] .dot[data-s="part"]::after { content: none; }
 .dot[data-s="part"] { -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px)); mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px)); }
 .lib-fallback { margin-top: 16px; }
+
+/* 소모임 홈: 원칙 세 줄, 문서로 가는 버튼 */
+.club-rules { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 26px; }
+.club-rules li { display: grid; grid-template-columns: 52px minmax(0, 1fr); grid-template-areas: "n t" "n d"; column-gap: 8px; row-gap: 4px; align-items: baseline; }
+.club-rules em { grid-area: n; font-style: normal; font-size: 34px; font-weight: 300; line-height: 1; letter-spacing: -0.04em; color: var(--faint); font-variant-numeric: tabular-nums; }
+.club-rules b { grid-area: t; font-size: 19px; font-weight: 650; letter-spacing: -0.03em; color: var(--ink); text-wrap: balance; }
+.club-rules span { grid-area: d; font-size: 15.5px; line-height: 1.65; color: var(--text); text-wrap: pretty; }
+.club-go { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+@media (max-width: 640px) {
+  .club-rules li { grid-template-columns: 38px minmax(0, 1fr); }
+  .club-rules em { font-size: 28px; }
+  .club-rules b { font-size: 17.5px; }
+}

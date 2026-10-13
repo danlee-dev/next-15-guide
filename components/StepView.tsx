@@ -9,7 +9,7 @@ import { FeedbackPanel, TutorChat } from "./Tutor";
 import type { Patch, Store } from "./store";
 import { summaryText } from "./summary";
 import SubmitBox from "./SubmitBox";
-import { commitPrompt } from "./pageMarkdown";
+import { commitPrompt, startLabel } from "./pageMarkdown";
 
 function AutoText({ id, value, onChange }: { id: string; value: string; onChange: (v: string) => void }) {
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -43,7 +43,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
 
   return (
     <article>
-      <Hero chip={step.label} meta={step.start.includes(":") ? `${step.start} 시작` : "시간 남으면, 아니면 과제로"} title={step.title} lead={step.lead} aside={<CopyMenu page={step.id} os={s.os} tool={s.tool} />} />
+      <Hero chip={step.label} meta={startLabel(step.start)} title={step.title} lead={step.lead} aside={<CopyMenu page={step.id} os={s.os} tool={s.tool} />} />
 
       {visibleTodo.length > 0 && (
         <Section i={n++} title="먼저 할 일">
@@ -206,9 +206,9 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
 
 
       {step.summary && (
-        <Section i={n++} title="과제" note={ASSIGNMENT.due}>
+        <Section i={n++} title={ses?.kind === "club" ? "다음 모임까지" : "과제"} note={ses?.kind === "club" ? undefined : (ses?.assignment || ASSIGNMENT).due}>
           <ol className="numlist">
-            {ASSIGNMENT.items.map((a) => (
+            {(ses?.assignment || ASSIGNMENT).items.map((a) => (
               <li key={a.t}>
                 <span>
                   <b>{a.t}</b> {a.d}
@@ -216,13 +216,13 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
               </li>
             ))}
           </ol>
-          <p className="blk-tip">제출: {ASSIGNMENT.submit}</p>
+          <p className="blk-tip">제출: {(ses?.assignment || ASSIGNMENT).submit}</p>
         </Section>
       )}
 
       {step.summary && (
-        <Section i={n++} title="링크 제출" note="제출 현황판에 바로 떠요">
-          <SubmitBox s={s} patch={patch} go={go} />
+        <Section i={n++} title="제출" note="현황판에 바로 떠요">
+          {ses && <SubmitBox s={s} patch={patch} go={go} ses={ses} />}
         </Section>
       )}
 
@@ -254,7 +254,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
           </button>
         ) : (
           <button type="button" className="btn btn-soft" onClick={() => go(ses?.boardPage || "board")}>
-            제출 현황 →
+            {ses?.kind === "club" ? "현황 →" : "제출 현황 →"}
           </button>
         )}
       </motion.nav>

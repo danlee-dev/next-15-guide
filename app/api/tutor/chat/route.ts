@@ -1,5 +1,5 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import { MODEL, STEP_FOCUS, clip, fallback, getClient, logUsage, systemBlocks, toolLine, tutorLimited } from "@/lib/tutor";
+import { MODEL, clip, fallback, focusFor, getClient, logUsage, systemBlocks, toolLine, tutorLimited } from "@/lib/tutor";
 import { getUser } from "@/lib/auth";
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
 [지금 보고 있는 화면] ${clip(body.stepTitle, 80)}
 ${toolLine(body.tool)}
-${STEP_FOCUS[stepId] || ""}`),
+${focusFor(stepId)}`),
       messages,
       output_config: { effort: "low" },
     });

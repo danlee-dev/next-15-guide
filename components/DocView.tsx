@@ -81,11 +81,11 @@ function BlockView({ b, s, go }: { b: Block; s: Store; go: (id: string) => void 
     case "code": {
       const text = b.both ?? b[s.os];
       if (!text) return null;
-      const where = b.both ? "macOS · Windows 동일" : s.os === "win" ? "Windows PowerShell" : "macOS 터미널";
+      const where = b.where || (b.both ? "macOS · Windows 동일" : s.os === "win" ? "Windows PowerShell" : "macOS 터미널");
       return (
         <div>
           <div className="blk-label">{b.label}</div>
-          <CodeBlock text={text} where={where} />
+          <CodeBlock text={text} where={where} plain={b.plain} />
           {b.tip && (
             <p className="blk-tip">
               <Rich t={b.tip} />
@@ -168,7 +168,7 @@ function BlockView({ b, s, go }: { b: Block; s: Store; go: (id: string) => void 
             <li key={x.name}>
               <a href={x.url} target="_blank" rel="noopener noreferrer">
                 {b.ordered && <em>{i + 1}</em>}
-                {x.logo ? <Image className="tlogo" src={x.logo} alt="" width={32} height={32} /> : <span className="tlogo" aria-hidden="true" />}
+                {x.logo ? <Image className="tlogo" src={x.logo} alt="" width={32} height={32} /> : b.items.some((y) => y.logo) && <span className="tlogo" aria-hidden="true" />}
                 <span className="tname">
                   <b>{x.name}</b>
                   <span>{x.d}</span>

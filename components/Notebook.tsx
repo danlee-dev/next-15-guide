@@ -5,14 +5,14 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { TOOL_LABEL, tailor, type AgentTool, type OS } from "@/lib/content";
 import { DOCS, DOC_MAP } from "@/lib/docs";
-import { CURRENT, SESSIONS, sessionOf, type Session } from "@/lib/sessions";
+import { CLUB_SESSIONS, CURRENT, SESSIONS, sessionOf, type Session } from "@/lib/sessions";
 import { CheckPath, ToastProvider, ease, useToast } from "./ui";
 import StepView from "./StepView";
 import GuideView from "./GuideView";
 import RefsView from "./RefsView";
 import BoardView from "./BoardView";
 import DocView, { LibraryView } from "./DocView";
-import { HomeView, SessionView } from "./SessionViews";
+import { ClubView, HomeView, SessionView } from "./SessionViews";
 import SideScroll from "./SideScroll";
 import AuthGate from "./AuthGate";
 import { supa } from "./supa";
@@ -31,6 +31,7 @@ const PAGES = new Set([
   "guide",
   "refs",
   "library",
+  "club",
   ...DOCS.map((d) => d.id),
 ]);
 const isStep = (id: string) => ALL_STEPS.some((x) => x.id === id);
@@ -132,7 +133,9 @@ function App() {
   }, []);
 
   // 이름을 적은 뒤부터 내 진행 상황(이름, 단계, 막힘)을 지금 세션 현황판에 자동으로 올린다. 제출 링크는 제출 버튼으로만 바뀐다
-  const syncBody = ready && authed && hydrated && s.name.trim() ? JSON.stringify(boardPayload(s)) : "";
+  // 올리는 현황판은 지금 보고 있는 세션(소모임 회차) 것. 홈·자료에 있을 때는 올리지 않는다
+  const syncSes = sessionOf(s.cur);
+  const syncBody = ready && authed && hydrated && s.name.trim() && syncSes ? JSON.stringify(boardPayload(s, false, syncSes)) : "";
   useEffect(() => {
     if (!syncBody) return;
     const t = setTimeout(() => postBoard(syncBody).catch(() => {}), 1500);
@@ -187,6 +190,16 @@ function App() {
   const boardOf = SESSIONS.find((x) => x.boardPage === s.cur);
   const overviewOf = SESSIONS.find((x) => x.page === s.cur);
 
+  // 세션 목록 옆 진행 링 (그 세션에서 끝낸 단계 비율)
+  const sesDot = (x: Session) => {
+    const d = sessionDone(s, x);
+    return (
+      <span className="dot" data-s={d === x.steps.length ? "done" : d ? "part" : "todo"} style={{ "--p": d / x.steps.length } as CSSProperties}>
+        <CheckPath on={d === x.steps.length} color="#ffffff" />
+      </span>
+    );
+  };
+
   const navItem = (id: string, label: string, extra?: ReactNode, cls = "") => {
     const active = s.cur === id;
     return (
@@ -230,7 +243,7 @@ function App() {
             ))}
           </div>
           {/* 제출 현황은 세션마다 따로라서, 세션 안에 있을 때만 그 세션 것을 보여 준다. 홈에서는 세션 카드에서 들어간다 */}
-          {ses && <BoardButton sid={ses.id} active={s.cur === ses.boardPage} onClick={() => go(ses.boardPage)} />}
+          {ses && <BoardButton sid={ses.id} club={ses.kind === "club"} active={s.cur === ses.boardPage} onClick={() => go(ses.boardPage)} />}
           <MenuSheet onLogout={logout} name={s.name} onName={(v) => patch((st) => ({ ...st, name: v }))} tool={s.tool} onTool={setTool} cur={s.cur} go={go} />
         </div>
       </header>
@@ -255,7 +268,7 @@ function App() {
               {notice.name.trim().slice(0, 1)}
             </i>
             <span>
-              <b>{notice.name}</b>님이 {notice.ses && notice.ses !== ses ? `Session ${notice.ses.no}에 ` : ""}제출했어요
+              <b>{notice.name}</b>님이 {notice.ses && notice.ses !== ses ? `${notice.ses.label}에 ` : ""}제출했어요
             </span>
             <span className="live-go">보기</span>
           </motion.button>
@@ -268,15 +281,15 @@ function App() {
             <LayoutGroup id="nav">
               {ses ? (
                 <>
-                  <button type="button" className="side-back" onClick={() => go("home")}>
+                  <button type="button" className="side-back" onClick={() => go(ses.kind === "club" ? "club" : "home")}>
                     <svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                       <path d="M10 3.5L5.5 8l4.5 4.5" />
                     </svg>
-                    전체 세션
+                    {ses.kind === "club" ? "NE:부자들" : "전체 세션"}
                   </button>
                   <div className="side-ses">
                     <span>
-                      Session {ses.no} · {ses.dateLabel}
+                      {ses.label} · {ses.dateLabel}
                     </span>
                     <b>{ses.title}</b>
                   </div>
@@ -294,7 +307,7 @@ function App() {
                   <div className="navgroups">
                     <div className="navgroup">
                       <ul className="navlist">
-                        {navItem("home", "전체", undefined, "nav-back-m")}
+                        {ses.kind === "club" ? navItem("club", "NE:부자들", undefined, "nav-back-m") : navItem("home", "전체", undefined, "nav-back-m")}
                         {navItem(ses.page, "개요")}
                         {ses.steps.map((x) => {
                           const st = stepState(s, x.id);
@@ -312,7 +325,7 @@ function App() {
                             </li>
                           );
                         })}
-                        {navItem(ses.boardPage, "제출 현황")}
+                        {navItem(ses.boardPage, ses.kind === "club" ? "현황" : "제출 현황")}
                       </ul>
                     </div>
                   </div>
@@ -323,15 +336,14 @@ function App() {
                     <h4>세션</h4>
                     <ul className="navlist">
                       {navItem("home", "전체 세션")}
-                      {[...SESSIONS].reverse().map((x) =>
-                        navItem(
-                          x.page,
-                          `Session ${x.no}`,
-                          <span className="dot" data-s={sessionDone(s, x) === x.steps.length ? "done" : sessionDone(s, x) ? "part" : "todo"} style={{ "--p": sessionDone(s, x) / x.steps.length } as CSSProperties}>
-                            <CheckPath on={sessionDone(s, x) === x.steps.length} color="#ffffff" />
-                          </span>,
-                        ),
-                      )}
+                      {SESSIONS.filter((x) => x.kind === "session").reverse().map((x) => navItem(x.page, x.label, sesDot(x)))}
+                    </ul>
+                  </div>
+                  <div className="navgroup">
+                    <h4>소모임</h4>
+                    <ul className="navlist">
+                      {navItem("club", "NE:부자들")}
+                      {CLUB_SESSIONS.slice().reverse().map((x) => navItem(x.page, `${x.no}회차`, sesDot(x)))}
                     </ul>
                   </div>
                   <div className="navgroup">
@@ -371,6 +383,8 @@ function App() {
                   <RefsView s={s} go={go} />
                 ) : doc ? (
                   <DocView doc={doc} s={s} go={go} />
+                ) : s.cur === "club" ? (
+                  <ClubView s={s} go={go} />
                 ) : s.cur === "library" ? (
                   <LibraryView s={s} go={go} />
                 ) : (

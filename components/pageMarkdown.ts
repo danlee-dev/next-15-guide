@@ -1,6 +1,7 @@
 import { ASSIGNMENT, COMMANDS, ERRORS, GUIDE_SECTIONS, HACKATHON, INTERVENE, PROMPT_PAIRS, REFS, ROLES, STEPS, TOOL_LABEL, tailor, tl, type AgentTool, type CommandKey, type OS, type Step } from "@/lib/content";
 import { DOCS, DOC_MAP, LIBRARY, type Block, type Doc } from "@/lib/docs";
-import { SESSIONS } from "@/lib/sessions";
+import { CLUB } from "@/lib/club";
+import { CLUB_SESSIONS, SESSIONS, sessionOf } from "@/lib/sessions";
 
 // "페이지 복사": 학회원이 Claude Code / ChatGPT 등에 붙여넣고 질문할 수 있게 화면 내용을 마크다운으로 만든다.
 // 내 OS에 맞는 명령어만 넣는다. 학회원이 쓴 답은 넣지 않는다 (AI가 대신 답하게 만들지 않으려고).
@@ -19,17 +20,24 @@ export function commitPrompt(commit: string) {
   return `바뀐 파일 목록을 먼저 보여 주고, 문제 없으면 "${msg}" 메시지로 커밋해 줘.${push}`;
 }
 
+// 단계 시간 표시: "13:20" 은 시작 시각, "20분" 은 걸리는 시간 (소모임), 그 외는 남는 시간용 단계
+export const startLabel = (start: string) => (start.includes(":") ? `${start} 시작` : /분$/.test(start) ? `${start} 동안` : "시간 남으면, 아니면 과제로");
+
 const fence = (text: string, lang = "") => "```" + lang + "\n" + text.trim() + "\n```";
 
 export function stepMarkdown(step: Step, os: OS) {
-  const L: string[] = [`## ${step.label}. ${step.title} (${step.start} 시작)`, "", step.lead];
+  const L: string[] = [`## ${step.label}. ${step.title} (${startLabel(step.start)})`, "", step.lead];
   const todo = (step.todo || []).filter((t) => !t.os || t.os === os);
   if (todo.length) {
     L.push("", "### 먼저 할 일");
     for (const t of todo) {
       L.push("", `- ${t.label}${t.note ? ` (${t.note})` : ""}`);
       if (t.download) L.push("", `받기: ${SITE}${t.download.href}`);
-      if (t.cmd) L.push("", fence(cmd(t.cmd, os), "bash"));
+      if (t.cmd) {
+        const c = COMMANDS[t.cmd] as { where?: string; plain?: boolean };
+        if (c.where) L.push("", `${c.where}:`);
+        L.push("", fence(cmd(t.cmd, os), c.plain ? "markdown" : "bash"));
+      }
       if (t.tip) L.push("", t.tip);
     }
   }
@@ -120,7 +128,7 @@ export function docMarkdown(doc: Doc, os: OS, tool: AgentTool | "") {
           break;
         case "code": {
           const text = b.both ?? b[os];
-          if (text) L.push("", `${b.label}:`, "", fence(text, "bash"));
+          if (text) L.push("", `${b.label}${b.where ? ` (${b.where})` : ""}:`, "", fence(text, b.plain ? "markdown" : "bash"));
           if (text && b.tip) L.push("", b.tip);
           break;
         }
@@ -164,13 +172,13 @@ export function libraryMarkdown() {
 }
 
 // 세션 개요: 순서와 과제
-function sessionsMarkdown(only?: string) {
+function sessionsMarkdown(only?: string, kind: "session" | "club" = "session") {
   const L: string[] = [];
-  for (const x of SESSIONS.filter((v) => !only || v.id === only)) {
-    L.push(`## Session ${x.no}. ${x.title} (${x.dateLabel}, ${x.length})`, "", x.lead, "", "### 순서");
+  for (const x of SESSIONS.filter((v) => (only ? v.id === only : v.kind === kind))) {
+    L.push(`## ${x.label}. ${x.title} (${[x.dateLabel, x.length].filter(Boolean).join(", ")})`, "", x.lead, "", "### 순서");
     for (const st of x.steps) L.push(`- ${st.start} ${st.label}: ${st.title} (${SITE}/#${st.id})`);
     if (x.assignment) {
-      L.push("", `### 과제 (${x.assignment.due})`);
+      L.push("", `### ${x.kind === "club" ? "다음 모임까지" : "과제"} (${x.assignment.due})`);
       for (const a of x.assignment.items) L.push(`- ${a.t}: ${a.d}`);
       L.push(`- 제출: ${x.assignment.submit}`);
     }
@@ -178,23 +186,38 @@ function sessionsMarkdown(only?: string) {
   return L.join("\n");
 }
 
-function header(what: string, tool: AgentTool | "") {
+function header(what: string, tool: AgentTool | "", club = false) {
   const who = tool ? TOOL_LABEL[tool] : "Claude Code / Codex";
+  if (club)
+    return `# ${CLUB.name} (${CLUB.tagline}): ${what}\n\n출처: ${SITE}\n우리 팀 목표: 만든 걸로 실제 수익을 내 보는 것. 근거(고객이 말했거나 행동했거나 돈을 낸 것) 없는 기능은 넣지 않는다. 아래 내용을 기준으로 내 질문에 답해 줘. 새 기능이나 확장 아이디어를 먼저 제안하지 말고, 기능 이야기가 나오면 근거부터 물어봐 줘. 도구는 ${who}.`;
   return `# NEXT 15기 개발 세션: ${what}\n\n출처: ${SITE}\n오늘 실습: 빈 폴더에서 ${who}로 "PRD 메이커"(Next.js + OpenAI + Supabase)를 만든다. 아래 내용을 기준으로 내 질문에 답해 줘. 코드를 대신 다 써 주기보다, 내가 이해하고 직접 확인할 수 있게 설명해 줘.`;
 }
 
+const CLUB_DOC_IDS = ["money-prd", "first-steps"];
+
+// 소모임 홈: 원칙, 회차, 자료
+function clubMarkdown() {
+  const L: string[] = [`## ${CLUB.name}`, "", CLUB.lead, "", "### 원칙"];
+  CLUB.principles.forEach((p, i) => L.push(`${i + 1}. ${p.t}: ${p.d}`));
+  L.push("", sessionsMarkdown(undefined, "club"), "", "### 좋은 자료");
+  for (const r of CLUB.refs) L.push(`- [${r.name}](${r.url}): ${r.d}`);
+  return L.join("\n");
+}
+
 export function pageMarkdown(page: string, os: OS, tool: AgentTool | "" = "") {
-  const step = STEPS.find((x) => x.id === page);
-  if (step) return `${header(step.label, tool)}\n\n${stepMarkdown(tailor(step, tool), os)}\n`;
+  const ses = sessionOf(page);
+  const club = ses?.kind === "club" || page === "club" || CLUB_DOC_IDS.includes(page);
+  const step = ses?.steps.find((x) => x.id === page);
+  if (step) return `${header(`${ses!.label} ${step.label}`, tool, club)}\n\n${stepMarkdown(tailor(step, tool), os)}\n`;
+  if (page === "club") return `${header("홈", tool, true)}\n\n${clubMarkdown()}\n`;
   if (page === "guide") return `${header("바이브 코딩 가이드", tool)}\n\n${guideMarkdown(tool)}\n`;
   if (page === "refs") return `${header("디자인 레퍼런스", tool)}\n\n${refsMarkdown(os)}\n`;
   if (page === "library") return `${header("자료실", tool)}\n\n${libraryMarkdown()}\n`;
   if (page === "home") return `${header("홈", tool)}\n\n${sessionsMarkdown()}\n\n${libraryMarkdown()}\n`;
-  const ses = SESSIONS.find((x) => x.page === page);
-  if (ses) return `${header(`Session ${ses.no} 개요`, tool)}\n\n${sessionsMarkdown(ses.id)}\n`;
+  if (ses && ses.page === page) return `${header(`${ses.label} 개요`, tool, club)}\n\n${sessionsMarkdown(ses.id)}\n`;
   const doc = DOC_MAP[page];
-  if (doc) return `${header(doc.label, tool)}\n\n${docMarkdown(doc, os, tool)}\n`;
-  return allMarkdown(os, tool);
+  if (doc) return `${header(doc.label, tool, club)}\n\n${docMarkdown(doc, os, tool)}\n`;
+  return allMarkdown(os, tool, page);
 }
 
 // 자료실 전체: 목록 + 바이브 코딩 가이드 + 디자인 레퍼런스 + 자료 6개. 고른 OS·도구에 맞는 명령어만 넣는다
@@ -202,8 +225,14 @@ export function libraryAllMarkdown(os: OS, tool: AgentTool | "" = "") {
   return [header("자료 전체", tool), libraryMarkdown(), guideMarkdown(tool), refsMarkdown(os), ...DOCS.map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n";
 }
 
-export function allMarkdown(os: OS, tool: AgentTool | "" = "") {
+// 노트 전체. 소모임 화면에서 누르면 소모임 회차 단계와 소모임 자료만 묶는다
+export function allMarkdown(os: OS, tool: AgentTool | "" = "", page = "") {
+  if (page === "club" || CLUB_DOC_IDS.includes(page) || sessionOf(page)?.kind === "club") {
+    const steps = CLUB_SESSIONS.flatMap((x) => x.steps);
+    const docs = CLUB_DOC_IDS.map((id) => DOC_MAP[id]);
+    return [header("전체", tool, true), clubMarkdown(), ...steps.map((x) => stepMarkdown(tailor(x, tool), os)), ...docs.map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n";
+  }
   return (
-    [header("전체", tool), ...STEPS.map((x) => stepMarkdown(tailor(x, tool), os)), guideMarkdown(tool), refsMarkdown(os), ...DOCS.map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n"
+    [header("전체", tool), ...STEPS.map((x) => stepMarkdown(tailor(x, tool), os)), guideMarkdown(tool), refsMarkdown(os), ...DOCS.filter((d) => !CLUB_DOC_IDS.includes(d.id)).map((d) => docMarkdown(d, os, tool))].join("\n\n") + "\n"
   );
 }

@@ -29,6 +29,13 @@ const VercelMark = () => (
   </svg>
 );
 
+const DocMark = () => (
+  <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round">
+    <path d="M4 1.75h5.5L12.5 4.75v9.5h-8.5z" />
+    <path d="M9.25 1.75v3.25h3.25M6.5 8.5h3.5M6.5 11h3.5" strokeLinecap="round" />
+  </svg>
+);
+
 export default function BoardView({ s, ses, go }: { s: Store; ses: Session; go: (id: string) => void }) {
   const { items, err } = useBoard(ses.id);
   // "3분 전" 같은 글자만 다시 그린다. 데이터는 실시간으로 들어온다
@@ -62,8 +69,8 @@ export default function BoardView({ s, ses, go }: { s: Store; ses: Session; go: 
     .sort((a, b) => Number(!!b.stuck) - Number(!!a.stuck) || b.done - a.done || +new Date(b.updated_at) - +new Date(a.updated_at));
   const stats: [string, number][] = [
     ["참여", list.length],
-    ["레포 제출", list.filter((x) => x.repo_url).length],
-    ["배포 링크", list.filter((x) => x.deploy_url).length],
+    [ses.submit.stats[0], list.filter((x) => x.repo_url).length],
+    [ses.submit.stats[1], list.filter((x) => x.deploy_url).length],
     ["막힘", list.filter((x) => x.stuck).length],
   ];
   const me = s.name.trim();
@@ -71,10 +78,10 @@ export default function BoardView({ s, ses, go }: { s: Store; ses: Session; go: 
   return (
     <article>
       <Hero
-        chip={`Session ${ses.no}`}
-        meta="제출 현황 · 실시간으로 바뀌어요"
-        title="다 같이 어디까지 왔나"
-        lead="이름을 적은 사람은 모두 여기에 떠요. 회고 단계에서 GitHub 레포, 배포 링크, 추가한 기능을 제출하면 바로 여기에 걸려요."
+        chip={ses.label}
+        meta={ses.kind === "club" ? "현황 · 실시간으로 바뀌어요" : "제출 현황 · 실시간으로 바뀌어요"}
+        title={ses.kind === "club" ? "팀마다 무엇을 고른나" : "다 같이 어디까지 왔나"}
+        lead={ses.submit.boardLead}
       />
 
       <Section i={0} title="한눈에">
@@ -134,8 +141,8 @@ export default function BoardView({ s, ses, go }: { s: Store; ses: Session; go: 
                   )}
                   {x.deploy_url && (
                     <a href={x.deploy_url} target="_blank" rel="noopener noreferrer" title={x.deploy_url}>
-                      <VercelMark />
-                      배포
+                      {ses.kind === "club" ? <DocMark /> : <VercelMark />}
+                      {ses.submit.link.board}
                     </a>
                   )}
                 </div>
@@ -150,7 +157,7 @@ export default function BoardView({ s, ses, go }: { s: Store; ses: Session; go: 
 
       <nav className="pager">
         <button type="button" className="btn btn-soft" onClick={() => go(ses.page)}>
-          ← Session {ses.no} 개요
+          ← {ses.label} 개요
         </button>
         <span />
       </nav>

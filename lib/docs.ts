@@ -1,3 +1,4 @@
+import { firstSteps, moneyPrd } from "./clubDocs";
 import type { AgentTool, OS } from "./content";
 
 // 자료실 페이지들. 화면(DocView)과 "페이지 복사"(pageMarkdown)가 같은 데이터를 읽는다.
@@ -13,7 +14,7 @@ export type Block =
   | { k: "points"; items: { t: string; d: string }[] }
   | { k: "steps"; items: string[]; os?: OS }
   | { k: "list"; items: string[] }
-  | { k: "code"; label: string; both?: string; mac?: string; win?: string; tip?: string; tool?: AgentTool }
+  | { k: "code"; label: string; both?: string; mac?: string; win?: string; tip?: string; tool?: AgentTool; where?: string; plain?: boolean }
   | { k: "prompt"; t: string; tool?: AgentTool }
   | { k: "table"; cols: string[]; rows: string[][] }
   | { k: "art"; name: DocArtKind; cap?: string }
@@ -978,7 +979,7 @@ h1, h2 { line-height: 1.25; letter-spacing: -0.02em; }`,
   ],
 };
 
-export const DOCS: Doc[] = [ai, arch, env, mcp, deploy, design];
+export const DOCS: Doc[] = [ai, arch, env, mcp, deploy, design, moneyPrd, firstSteps];
 export const DOC_MAP: Record<string, Doc> = Object.fromEntries(DOCS.map((d) => [d.id, d]));
 
 // 자료실 첫 화면 묶음. guide·refs 는 따로 만든 페이지라 설명만 여기 둔다
@@ -1004,6 +1005,13 @@ export const LIBRARY: { title: string; items: { id: string; label: string; desc:
       { id: "guide", label: "바이브 코딩 가이드", desc: "AI와 일 나누기, 개입할 때, 프롬프트, PRD, 해커톤 체크리스트" },
       { id: "refs", label: "디자인 레퍼런스", desc: "DESIGN.md, 컴포넌트, 레퍼런스 갤러리 링크와 실제 화면" },
       { id: "design", label: design.label, desc: design.desc },
+    ],
+  },
+  {
+    title: "만들어서 팔기",
+    items: [
+      { id: moneyPrd.id, label: moneyPrd.label, desc: moneyPrd.desc },
+      { id: firstSteps.id, label: firstSteps.label, desc: firstSteps.desc },
     ],
   },
 ];

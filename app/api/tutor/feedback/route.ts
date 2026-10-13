@@ -1,4 +1,4 @@
-import { MODEL, STEP_FOCUS, clip, fallback, getClient, logUsage, systemBlocks, toolLine, tutorLimited } from "@/lib/tutor";
+import { MODEL, clip, fallback, focusFor, getClient, logUsage, systemBlocks, toolLine, tutorLimited } from "@/lib/tutor";
 import { getUser } from "@/lib/auth";
 
 type Body = { stepId?: string; stepTitle?: string; answers?: { q?: string; a?: string }[]; log?: string; tool?: string };
@@ -44,7 +44,7 @@ ${answers.join("\n\n")}${body.log ? `\n\n[git log] ${clip(body.log, 200)}` : ""}
       ...fallback(model),
       system: systemBlocks(`[지금 단계] ${clip(body.stepTitle, 80)}
 ${toolLine(body.tool)}
-${STEP_FOCUS[stepId] || ""}
+${focusFor(stepId)}
 
 학회원이 "내 말로 답하기"에 쓴 답을 판정한다.
 verdict는 good(이해했음) / close(방향은 맞는데 빠진 게 있음) / retry(다시 생각해야 함) 중 하나.

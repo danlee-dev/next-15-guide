@@ -18,7 +18,8 @@ export type Store = {
   fb: Record<string, Feedback>;
   chat: Record<string, ChatMsg[]>;
   stuck: Record<string, string>;
-  links: { repo: string; deploy: string; feature?: string; repoEdited?: boolean }; // 제출 현황판에 걸 링크와 과제로 추가한 기능 설명
+  links: Links; // Session 8 제출 칸 (예전부터 쓰던 자리라 그대로 둔다)
+  linksBy?: Record<string, Links>; // 그 밖의 세션·소모임 회차 제출 칸 (세션 id 별)
   submittedAt: number | null;
 };
 
@@ -69,13 +70,22 @@ export function clientId(): string {
 
 export type Patch = (fn: (s: Store) => Store) => void;
 
+// 제출 칸 하나: 레포, 두 번째 링크(배포 주소나 PRD 링크), 한두 줄 설명
+export type Links = { repo: string; deploy: string; feature?: string; repoEdited?: boolean; submittedAt?: number | null };
+const NO_LINKS: Links = { repo: "", deploy: "" };
+
+// 세션마다 제출 칸이 따로다. Session 8 은 예전 자리(links)를 쓴다
+export const linksOf = (s: Store, sid: string): Links => (sid === "s8" ? s.links : s.linksBy?.[sid] || NO_LINKS);
+export const withLinks = (s: Store, sid: string, l: Links): Store => (sid === "s8" ? { ...s, links: l } : { ...s, linksBy: { ...(s.linksBy || {}), [sid]: l } });
+
 // 제출할 레포 주소. 제출 칸을 한 번이라도 고쳤으면 그 값(빈 값 포함)을 쓰고,
 // 아니면 준비 단계에서 적은 답을 가져온다. 단 GitHub 주소처럼 생겼을 때만 (예전엔 "-" 같은 답도 끌려와서 지워도 다시 생겼다)
-export function repoOf(s: Store): string {
-  if (s.links.repoEdited) return s.links.repo;
-  if (s.links.repo) return s.links.repo;
-  const fromSetup = (s.ans.setup?.repo || "").trim();
-  return /github\.com\/[^/\s]+\/[^/\s]+/i.test(fromSetup) ? fromSetup : "";
+export function repoOf(s: Store, sid = "s8", from: { step: string; q: string } = { step: "setup", q: "repo" }): string {
+  const l = linksOf(s, sid);
+  if (l.repoEdited) return l.repo;
+  if (l.repo) return l.repo;
+  const fromStep = (s.ans[from.step]?.[from.q] || "").trim();
+  return /github\.com\/[^/\s]+\/[^/\s]+/i.test(fromStep) ? fromStep : "";
 }
 
 export const VERDICT_LABEL: Record<Verdict, string> = { good: "통과", close: "거의 다 왔어요", retry: "한 번 더 생각해 봐요" };

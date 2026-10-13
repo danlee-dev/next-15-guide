@@ -14,7 +14,7 @@ export function tailor<T>(data: T, tool: AgentTool | ""): T {
   return JSON.parse(JSON.stringify(data), (_k, v) => (typeof v === "string" ? tl(v, tool) : v));
 }
 
-export type Command = { both?: string; mac?: string; win?: string };
+export type Command = { both?: string; mac?: string; win?: string; where?: string; plain?: boolean };
 
 export type Question = { id: string; label: string; hint?: string; input?: boolean; placeholder?: string };
 
@@ -37,6 +37,65 @@ export type Step = {
 };
 
 export const COMMANDS = {
+  /* ---------- NE:부자들 소모임 ---------- */
+  clubCreate: {
+    both: `npx create-next-app@latest <프로젝트> --yes
+cd <프로젝트>
+mkdir docs`,
+  },
+  clubRules: {
+    where: "AGENTS.md 맨 아래에 붙여넣기",
+    plain: true,
+    both: `## 우리 팀 규칙 (NE:부자들)
+- docs/PRD.md 의 P0 기능만 만든다. PRD에 없는 기능, 화면, 패키지는 만들지 말고 docs/backlog.md 에 한 줄로만 적는다.
+- 기능을 더하자고 할 때는 PRD 2번 근거 표의 몇 번째 줄 때문인지 같이 말한다. 근거가 없으면 보류함으로.
+- 결제, 로그인, 개인정보를 다루는 코드는 사람이 한 줄씩 읽고 승인한다.
+- 키는 .env.local 에만 둔다. 커밋 전에 npm run build 로 확인한다.`,
+  },
+  clubPush: {
+    both: `git add . && git commit -m "chore: team rules and docs folder"
+gh repo create <프로젝트> --private --source=. --push`,
+  },
+  clubPrd: {
+    where: "docs/PRD.md 에 붙여넣기",
+    plain: true,
+    both: `# PRD: (아이템 이름)
+
+## 1. 한 줄
+- 누가:
+- 어떤 문제에:
+- 얼마를 내고:
+
+## 2. 근거 (들은 말, 본 행동, 낸 돈)
+| # | 날짜 | 누구 | 들은 말이나 본 행동 |
+| --- | --- | --- | --- |
+| 1 |  |  |  |
+
+## 3. 성공 숫자와 중단 기준
+- 성공: (언제)까지 (숫자)
+- 중단: (언제)까지 (숫자) 아래면 아이템을 바꾼다
+
+## 4. 가격과 첫 결제
+- 가격:
+- 첫 결제 받는 법: (선결제, 예약금, 송금 등. 결제 연동은 돈이 들어온 다음에)
+
+## 5. 기능 (P0는 3개까지)
+| 기능 | 근거 (2번의 #) | 없으면 생기는 일 | 우선순위 |
+| --- | --- | --- | --- |
+|  |  |  | P0 |
+
+## 6. 안 만드는 것
+-
+
+## 7. 가정과 확인 방법
+| 가정 | 확인 방법 | 기한 |
+| --- | --- | --- |
+|  |  |  |
+
+## 8. 보류함
+근거가 생기기 전까지 여기 둔다. 근거가 생기면 5번으로 옮긴다.
+-`,
+  },
   create: {
     both: `npx create-next-app@latest prd-maker --yes
 cd prd-maker
