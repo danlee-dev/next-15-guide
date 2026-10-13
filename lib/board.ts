@@ -41,10 +41,24 @@ const COLS = "client_id,session,name,cur,done,total,stuck,tool,feature,repo_url,
 
 // client_id 는 절대 그대로 내보내지 않는다. 그걸 알면 남의 줄을 덮어쓸 수 있어서 해시로 바꾼다.
 export async function listBoard(session: string): Promise<BoardItem[]> {
-  const r = await rest(`board?select=${COLS}&session=eq.${encodeURIComponent(session)}&order=updated_at.desc&limit=300`);
+  // 기획서 제출 여부는 prd 테이블을 그대로 읽어 붙인다. board 줄에 적어 둔 값만 믿으면, 적기 전에 올린 사람이 빠질 수 있다
+  const [r, pr] = await Promise.all([
+    rest(`board?select=${COLS}&session=eq.${encodeURIComponent(session)}&order=updated_at.desc&limit=300`),
+    rest(`prd?select=id,user_id,version&session=eq.${encodeURIComponent(session)}&limit=500`),
+  ]);
   if (!r.ok) throw new Error(`board list ${r.status} ${await r.text()}`);
   const rows: (Omit<BoardItem, "id"> & { client_id: string })[] = await r.json();
-  return rows.map(({ client_id, ...rest }) => ({ id: createHash("sha256").update(client_id).digest("hex").slice(0, 12), ...rest }));
+  const prds: { id: string; user_id: string; version: number }[] = pr.ok ? await pr.json() : [];
+  const byUser = new Map(prds.map((p) => [p.user_id, p]));
+  return rows.map(({ client_id, ...rest }) => {
+    const p = byUser.get(client_id);
+    return {
+      id: createHash("sha256").update(client_id).digest("hex").slice(0, 12),
+      ...rest,
+      prd_id: p?.id ?? rest.prd_id ?? null,
+      prd_version: p?.version ?? rest.prd_version ?? null,
+    };
+  });
 }
 
 export async function upsertBoard(row: Record<string, unknown>) {

@@ -1067,3 +1067,4 @@ button.brand { padding: 0; border: 0; background: transparent; color: inherit; f
 .b-prd[data-static="1"]:hover { background: var(--ok-bg); color: var(--ok); }
 .prd-list .prd-new { font-style: normal; font-size: 11.5px; font-weight: 700; color: var(--err); }
 .prd-list button[aria-current="true"] .prd-new { color: #ffb4b4; }
+.prd-drop[data-busy="1"] { opacity: 0.6; pointer-events: none; }
