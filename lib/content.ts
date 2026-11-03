@@ -217,6 +217,7 @@ npm run dev`,
 git clone https://github.com/<내 아이디>/next-sugang-lab.git
 cd next-sugang-lab
 npm install
+cp .env.example .env    # AI 붙이기에 쓸 API 키 하나를 넣습니다
 npm run dev`,
   },
   ltPush: {
