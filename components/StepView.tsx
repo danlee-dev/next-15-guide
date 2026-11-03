@@ -166,6 +166,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
         </Section>
       )}
 
+      {!ses?.lean && (<>
       <Section i={n++} title="내 말로 답하기" note="AI 답을 붙여넣지 말고, 내 코드를 보면서">
         {step.questions.map((q) => {
           const id = `q-${step.id}-${q.id}`;
@@ -210,6 +211,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
         <TutorChat stepId={step.id} stepTitle={`${step.label}: ${step.title}`} chips={step.chips} thread={s.chat[step.id] || []} patch={patch} tool={s.tool} />
 
       </Section>
+      </>)}
 
 
       {step.summary && (
@@ -233,7 +235,7 @@ export default function StepView({ step, s, patch, go }: { step: Step; s: Store;
         </Section>
       )}
 
-      {step.summary && (
+      {step.summary && !ses?.lean && (
         <Section i={n++} title="내 답 모아서 복사" note="선택">
           <p className="sec-lead">진행 상황은 현황판에 자동으로 올라가요. 노션 과제에 내 답까지 붙이고 싶을 때만 쓰면 돼요.</p>
           <button type="button" className="btn btn-ink" onClick={() => copy(summaryText(s), "내 답을 복사했어요")}>

@@ -25,11 +25,8 @@ export const LT_STEPS: Step[] = [
       { text: "localhost:4000/console/ 에 NEXT Queue 운영 콘솔이 뜹니다" },
       { text: "AGENTS.md, docs/PROTOCOL.md, docs/MISSIONS.md 를 열어 봤습니다", sub: "에이전트가 지킬 규칙, 메시지 규칙, 레벨별 할 일입니다. 에이전트도 이 파일들을 읽습니다" },
     ],
-    questions: [
-      { id: "repo", label: "내가 Fork 한 레포 주소", input: true, placeholder: "https://github.com/아이디/next-sugang-lab" },
-      { id: "ports", label: "3000과 4000을 따로 띄우는 이유를 내 말로 한 줄", hint: "origin은 프로토콜, 호스트, 포트 세 가지로 정해진다는 슬라이드를 떠올려 봅니다" },
-    ],
-    chips: ["npm run dev 에서 포트가 이미 쓰이고 있다고 나옵니다", "Fork 와 clone 은 무엇이 다릅니까?"],
+    questions: [],
+    chips: [],
   },
   {
     id: "lt-hack",
@@ -53,11 +50,8 @@ export const LT_STEPS: Step[] = [
       { text: "disabled 를 지운 버튼은 눌리지만 403 not_open 이 왔습니다" },
       { text: "document.cookie 에 sid 가 안 보입니다" },
     ],
-    questions: [
-      { id: "screen", label: "버튼을 회색으로 막는 것과 서버가 403 을 주는 것은 무엇이 다릅니까?" },
-      { id: "httponly", label: "HttpOnly 쿠키를 JS 가 못 읽으면 무엇이 안전해집니까?", hint: "페이지에 나쁜 스크립트가 끼어들었다고 생각해 봅니다" },
-    ],
-    chips: ["fetch 했더니 401 이 뜹니다", "Fetch/XHR 필터는 어디 있습니까?", "H3 에서 버튼을 못 찾겠습니다"],
+    questions: [],
+    chips: [],
   },
   {
     id: "lt-l1",
@@ -75,11 +69,8 @@ sdk/queue.js 의 TODO [L1] 만 채우고 다른 파일은 건드리지 마.
       { text: "AI가 바꾼 줄을 직접 읽었습니다", sub: "git diff 로 확인합니다. 설명 못 하는 줄은 그 줄만 AI에게 다시 묻습니다" },
     ],
     commit: `git add . && git commit -m "feat: mount waiting room iframe (L1)"`,
-    questions: [
-      { id: "queue", label: "NextQueue('init') 은 queue.js 보다 먼저 불렸는데, 왜 사라지지 않았습니까?", hint: "site/index.html 의 스니펫과 sdk/queue.js 맨 아래를 같이 열어 봅니다" },
-      { id: "dom", label: "Console 에서 document.querySelector('.nq-frame').contentWindow.document 를 쳐 보면 어떻게 됩니까? 이유는?" },
-    ],
-    chips: ["대기 화면이 안 뜹니다", "iframe 이 하얗게 비어 있습니다", "sandbox 에는 무엇을 넣어야 합니까?"],
+    questions: [],
+    chips: [],
   },
   {
     id: "lt-l2",
@@ -106,11 +97,8 @@ docs/PROTOCOL.md 1번 표의 편지 형식을 그대로 지키고, targetOrigin 
       note: "origin 확인은 다른 사이트를 막을 뿐, 같은 페이지 위에서 도는 코드는 못 막습니다.",
     },
     commit: `git add . && git commit -m "feat: talk to the waiting room with postMessage (L2)"`,
-    questions: [
-      { id: "target", label: "postMessage 두 번째 인자에 '*' 대신 주소를 쓰는 이유", hint: "iframe 이 도중에 다른 페이지로 바뀌면 어떻게 될지 생각해 봅니다" },
-      { id: "ready", label: "로더가 ready 를 기다렸다가 start 를 보내는 이유", hint: "iframe 을 만든 직후, 그 안에는 누가 있을지 생각해 봅니다" },
-    ],
-    chips: ["대기 화면이 뜬 채로 멈춥니다", "콘솔에 target origin 이 안 맞는다는 경고가 뜹니다", "대기 화면 쪽 콘솔은 어떻게 봅니까?"],
+    questions: [],
+    chips: [],
   },
   {
     id: "lt-l3",
@@ -128,11 +116,8 @@ TODO [L3] 만 채우고, docs/PROTOCOL.md 2번 표의 type 을 그대로 지켜.
       { text: "콘솔 화면의 줄에 내 학번이 주황색으로 보입니다" },
     ],
     commit: `git add . && git commit -m "feat: real queue over websocket (L3)"`,
-    questions: [
-      { id: "path", label: "내 순번이 서버에서 대기 화면 숫자까지 오는 길을 파일과 함수 이름으로", hint: "server/queue.js 의 어디에서 보내서, widget/widget.js 의 어디에서 그려지는지 봅니다" },
-      { id: "origin3000", label: "학교 페이지(3000)에서 직접 ws://localhost:4000/ws 를 열면 왜 끊깁니까?", hint: "server/index.js 의 upgrade 부분을 봅니다" },
-    ],
-    chips: ["소켓이 열리자마자 끊깁니다", "숫자가 안 줄어듭니다", "WS 프레임은 어디서 봅니까?"],
+    questions: [],
+    chips: [],
   },
   {
     id: "lt-l4",
@@ -160,11 +145,8 @@ server/token.js, server/queue.js, server/school.js 순서로 TODO [L4] 만 채�
       { text: "비밀키가 .env 에만 있고, 브라우저로 내려가는 파일 어디에도 없습니다" },
     ],
     commit: `git add . && git commit -m "feat: signed pass token blocks queue bypass (L4)"`,
-    questions: [
-      { id: "student", label: "토큰에 학번을 넣은 이유. 넣지 않으면 어떤 장사가 생기겠습니까?" },
-      { id: "readable", label: "토큰 내용은 base64 로 누구나 읽을 수 있는데 왜 괜찮습니까?", hint: "암호화와 서명은 무엇이 다른지 생각해 봅니다" },
-    ],
-    chips: ["정상 신청도 403 이 뜹니다", "RangeError 가 납니다", "token_used 가 계속 뜹니다"],
+    questions: [],
+    chips: [],
   },
   {
     id: "lt-ai",
@@ -197,11 +179,8 @@ docs/PROTOCOL.md 3번 표의 ai_ 로 시작하는 메시지 형식을 그대로 
       { text: "25학점 요청은 모델이 거절하든 넘어가든, 신청할 때 서버의 학점·정원 검사에 걸립니다" },
     ],
     commit: `git add . && git commit -m "feat: ai timetable agent with server-side tools (L5)"`,
-    questions: [
-      { id: "aiTools", label: "모델이 시간표를 짜는 동안 데이터를 보는 길을 파일과 함수 이름으로", hint: "server/ai.js 의 루프에서 도구를 부르면 server/school.js 의 어디가 답하는지 봅니다" },
-      { id: "aiRule", label: "모델의 거절과 서버의 검사는 무엇이 다릅니까? H2·H5 와 이어서 한 줄로" },
-    ],
-    chips: ["AI 가 400 에러를 냅니다", "401 이 뜹니다", "도구 칩이 안 뜨고 글만 나옵니다"],
+    questions: [],
+    chips: [],
   },
   {
     id: "lt-stretch",
@@ -229,23 +208,18 @@ docs/PROTOCOL.md 2번, 3번 표의 resume, ping, pong, time 형식을 그대로 
       { text: "fetch 를 반복문으로 돌리면 보안문자 창이 뜹니다" },
     ],
     commit: `git add . && git commit -m "feat: resume, server time, live seats (L6-L7)"`,
-    questions: [
-      { id: "serverClock", label: "수강신청 날 다들 서버 시간 사이트를 띄워 놓는 이유" },
-    ],
-    chips: ["새로고침하면 순번이 사라집니다", "시계가 안 바뀝니다"],
+    questions: [],
+    chips: [],
   },
   {
     id: "lt-wrap",
     label: "회고",
     start: "마지막",
     title: "다음 주 과제로 가져갈 것",
-    lead: "두 줄만 쓰고, 아래에서 레포 주소와 어디까지 했는지 제출합니다. 다음 주 과제는 채팅이라 오늘 코드를 그대로 쓰지는 않습니다. 오늘 연습한 원리를 가져갑니다.",
+    lead: "아래에서 레포 주소와 어디까지 했는지 제출합니다. 다음 주 과제는 채팅이라 오늘 코드를 그대로 쓰지는 않습니다. 오늘 연습한 원리를 가져갑니다.",
     todo: [{ label: "끝난 데까지 올리기", cmd: "ltPush" }],
     checks: [],
-    questions: [
-      { id: "lesson", label: "화면이 막는 것과 서버가 막는 것의 차이를 오늘 실습의 예로 한 줄" },
-      { id: "task", label: "다음 주 채팅 과제에서 팀이 코드보다 먼저 정해야 할 것 하나", hint: "어드민 파트와 SDK 파트로 나눈다면 둘 사이에 무엇을 먼저 합의해야 할지 생각해 봅니다" },
-    ],
+    questions: [],
     chips: [],
     summary: true,
   },

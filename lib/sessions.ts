@@ -31,6 +31,7 @@ export type Session = {
   steps: Step[];
   assignment?: typeof ASSIGNMENT;
   submit: SubmitConfig;
+  lean?: boolean; // 단계 화면에 체크리스트만 둔다 (내 말로 답하기, 튜터 없음)
 };
 
 export const SESSIONS: Session[] = [
@@ -82,6 +83,7 @@ export const SESSIONS: Session[] = [
     boardPage: "lattice-board",
     steps: LT_STEPS,
     assignment: LT_ASSIGNMENT,
+    lean: true,
     submit: {
       repo: { label: "Fork 한 레포 주소 (필수)", hint: "준비 단계에서 적었다면 채워져 있습니다. 끝난 데까지 push 하고 냅니다", required: true, placeholder: "https://github.com/아이디/next-sugang-lab" },
       link: { label: "동작 화면 링크 (선택)", hint: "수강신청 화면과 운영 콘솔이 나란히 보이는 스크린샷이나 짧은 영상 링크", placeholder: "https://...", board: "화면" },
