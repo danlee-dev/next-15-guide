@@ -21,7 +21,9 @@ export function commitPrompt(commit: string) {
 }
 
 // 단계 시간 표시: "13:20" 은 시작 시각, "20분" 은 걸리는 시간 (소모임), 그 외는 남는 시간용 단계
-export const startLabel = (start: string) => (start.includes(":") ? `${start} 시작` : /분$/.test(start) ? `${start} 동안` : "시간 남으면, 아니면 과제로");
+// "0:06" 은 시작 시각, "20분" 은 걸리는 시간, 도전·선택은 남는 시간용. 그 밖의 말("1부" 등)은 그대로 보여 준다
+export const startLabel = (start: string) =>
+  start.includes(":") ? `${start} 시작` : /분$/.test(start) ? `${start} 동안` : ["도전", "선택", "과제"].includes(start) ? "시간 남으면, 아니면 과제로" : start;
 
 const fence = (text: string, lang = "") => "```" + lang + "\n" + text.trim() + "\n```";
 

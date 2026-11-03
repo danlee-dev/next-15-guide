@@ -214,14 +214,14 @@ npm run dev`,
   /* ---------- 기업 과제 사전 세션 (래티스) ---------- */
   ltClone: {
     both: `# GitHub에서 Fork 한 뒤, 내 레포를 받기
-git clone https://github.com/<내 아이디>/next-chat-sdk-lab.git
-cd next-chat-sdk-lab
+git clone https://github.com/<내 아이디>/next-sugang-lab.git
+cd next-sugang-lab
 npm install
 npm run dev`,
   },
   ltPush: {
     both: `git add .
-git commit -m "feat: finish chat sdk missions"
+git commit -m "feat: finish sugang queue missions"
 git push`,
   },
   getdesign: {
