@@ -1,6 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { PACK, SLIDES } from "./knowledge";
+import { LT_CONTEXT, LT_FOCUS } from "./lattice";
 import { clip, rateLimited } from "./limit";
 
 export { clip };
@@ -72,8 +73,9 @@ PRD 열 칸: 1 한 줄(누가, 어떤 문제에, 얼마), 2 근거 표, 3 성공
 
 const CLUB_PAGES = new Set(["club", "money-prd", "compete", "first-steps"]);
 
-// 단계별 확인 포인트. 소모임 화면이면 소모임 맥락을 앞에 붙인다
+// 단계별 확인 포인트. 소모임 화면이면 소모임 맥락을, 기업 과제 사전 세션이면 그 맥락을 앞에 붙인다
 export function focusFor(stepId: string) {
+  if (stepId.startsWith("lt-") || stepId.startsWith("lattice")) return `${LT_CONTEXT}\n${LT_FOCUS[stepId] || ""}`;
   const f = STEP_FOCUS[stepId] || "";
   return stepId.startsWith("nb-") || CLUB_PAGES.has(stepId) ? `${CLUB_CONTEXT}\n${f}` : f;
 }

@@ -1,5 +1,6 @@
 import { CLUB2_ASSIGNMENT, CLUB2_STEPS, CLUB_ASSIGNMENT, CLUB_STEPS } from "./club";
 import { ASSIGNMENT, STEPS, type Step } from "./content";
+import { LT_ASSIGNMENT, LT_STEPS } from "./lattice";
 
 // 개발 세션과 소모임 회차 목록. 새로 열 때는 여기에 하나 추가한다.
 // 단계 id 는 서로 겹치면 안 된다 (진행 기록이 단계 id 로 저장된다). Session 8 은 예전 주소(#setup, #board)를 그대로 쓴다.
@@ -65,6 +66,35 @@ export const SESSIONS: Session[] = [
       repoAnswer: { step: "setup", q: "repo" },
       boardLead: "이름을 적은 사람은 모두 여기에 떠요. 회고 단계에서 GitHub 레포, 배포 링크, 추가한 기능을 제출하면 바로 여기에 걸려요.",
       stats: ["레포 제출", "배포 링크"],
+    },
+  },
+  {
+    id: "lt1",
+    kind: "session",
+    no: 0,
+    label: "기업 과제 사전 세션",
+    title: "스크립트 한 줄로 심는 채팅 SDK",
+    date: "2026-11-04",
+    dateLabel: "11/4(수)",
+    length: "2시간",
+    lead: "래티스 기업 과제(채널톡 같은 채팅 시스템) 전에, 남의 서비스에 스크립트 한 줄로 심기는 채팅 위젯을 직접 만들어요. iframe, postMessage, WebSocket이 각각 왜 필요한지 내 말로 설명할 수 있게 되는 게 오늘 목표예요.",
+    page: "lattice",
+    boardPage: "lattice-board",
+    steps: LT_STEPS,
+    assignment: LT_ASSIGNMENT,
+    submit: {
+      repo: { label: "Fork 한 레포 주소 (필수)", hint: "준비 단계에서 적었다면 채워져 있어요. 끝난 데까지 push 하고 내요", required: true, placeholder: "https://github.com/아이디/next-chat-sdk-lab" },
+      link: { label: "동작 화면 링크 (선택)", hint: "위젯과 어드민이 나란히 보이는 스크린샷이나 짧은 영상 링크", placeholder: "https://...", board: "화면" },
+      note: {
+        label: "어디까지 했나 (필수)",
+        hint: "L1~L6 중 어디까지 했는지 한 줄",
+        placeholder: "예: L4 까지. L5 재연결은 서버만",
+        required: true,
+        examples: ["L4 까지. 위젯과 어드민이 실시간으로 이어지는 것 확인", "L3 까지. L4 는 서버만 채웠고 위젯 연결은 다음 주 전에", "L5 까지. 서버를 껐다 켜도 알아서 다시 붙고 배지도 떠요", "L6 멤버 해시까지. ?hash=bad 로 들어오면 거절돼요"],
+      },
+      repoAnswer: { step: "lt-setup", q: "repo" },
+      boardLead: "회고 단계에서 레포와 어디까지 했는지를 내면 여기에 떠요. 다음 주 과제 팀을 짤 때 참고해요.",
+      stats: ["레포 제출", "화면 링크"],
     },
   },
   {
