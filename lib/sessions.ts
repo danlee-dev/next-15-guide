@@ -89,10 +89,10 @@ export const SESSIONS: Session[] = [
       link: { label: "동작 화면 링크 (선택)", hint: "수강신청 화면과 운영 콘솔이 나란히 보이는 스크린샷이나 짧은 영상 링크", placeholder: "https://...", board: "화면" },
       note: {
         label: "어디까지 했나 (필수)",
-        hint: "H1~H6, L1~L7 중 어디까지 했는지 한 줄",
+        hint: "H1~H4, L1~L7 중 어디까지 했는지 한 줄",
         placeholder: "예: L4 까지. L5 는 모의 AI 로만",
         required: true,
-        examples: ["L3 까지. 내 앞 인원이 실시간으로 줄어드는 것 확인", "L4 까지. QUEUE.enabled = false 우회가 403 으로 막힙니다", "H6 까지. 조교라고 속여도 남의 신청 내역은 안 나옵니다", "L6 까지. 새로고침해도 순번이 그대로고 시계가 서버 시간입니다"],
+        examples: ["L3 까지. 내 앞 인원이 실시간으로 줄어드는 것 확인", "L4 까지. QUEUE.enabled = false 우회가 403 으로 막힙니다", "H4 까지. 조교라고 속여도 남의 신청 내역은 안 나옵니다", "L6 까지. 새로고침해도 순번이 그대로고 시계가 서버 시간입니다"],
       },
       repoAnswer: { step: "lt-setup", q: "repo" },
       boardLead: "회고 단계에서 레포와 어디까지 했는지를 내면 여기에 뜹니다.",
