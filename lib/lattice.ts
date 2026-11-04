@@ -17,7 +17,7 @@ export const LT_STEPS: Step[] = [
     lead: "실습 저장소를 내 계정으로 Fork 해서 받고, 서버 두 개를 띄웁니다. 3000은 학교 수강신청 사이트, 4000은 우리 대기열 서비스입니다. 포트가 다르면 origin이 달라서, 노트북 하나로도 진짜 남의 사이트에 심는 상황이 그대로 생깁니다. .env 에는 AI 붙이기에서 쓸 API 키 하나를 넣습니다.",
     todo: [
       { label: "저장소 Fork 하기", download: { href: LT_REPO, label: "실습 저장소 열기" }, tip: "열린 GitHub 페이지 오른쪽 위 Fork 버튼으로 내 계정에 복사합니다. main 브랜치가 스타터입니다." },
-      { label: "받아서 띄우기", cmd: "ltClone", tip: "Node.js 20 이상이 필요합니다 (node -v). 서버 코드를 고치면 알아서 다시 켜지고, 브라우저는 새로고침하면 됩니다. 창 두 개를 나란히 둡니다: 왼쪽 localhost:3000, 오른쪽 localhost:4000/console/" },
+      { label: "받아서 띄우기", cmd: "ltClone", tip: "Node.js 22 이상이 필요합니다. Windows 는 WSL 에서 /mnt/c 가 아니라 홈(~) 아래에 받습니다. 서버 코드를 고치면 알아서 다시 켜지고, 브라우저는 새로고침하면 됩니다. 창 두 개를 나란히 둡니다: 왼쪽 localhost:3000, 오른쪽 localhost:4000/console/" },
       { label: "AI 키 하나 넣기", tip: "Claude(console.anthropic.com), OpenAI(platform.openai.com), Gemini(aistudio.google.com, 무료 사용량 있음) 중 아무 회사 하나의 키를 .env 에 넣습니다. 키가 없어도 L5 는 모의 AI 로 할 수 있지만, H6 은 진짜 모델이 있어야 합니다. 키는 .env 에만 두고 커밋하지 않습니다." },
     ],
     checks: [
@@ -129,7 +129,6 @@ server/token.js, server/queue.js, server/school.js 순서로 TODO [L4] 만 채�
       title: "먼저 H3",
       items: [
         "학교 페이지 Console 에 QUEUE.enabled = false 를 치고 신청합니다. 대기 화면 없이 바로 신청됩니다",
-        "H2 의 fetch 도 다시 해 봅니다. 이것도 그냥 됩니다",
         "왜 되는지 한 줄로 적어 봅니다: 줄을 섰다는 확인을 브라우저 변수 하나에 맡겨 두었습니다",
       ],
       note: "이 저장소의 로컬 서버에서만 합니다. 진짜 학교 사이트에는 절대 하지 않습니다.",
@@ -240,7 +239,7 @@ export const LT_CONTEXT = `[이 화면은 Session 8이 아니라 "기업 과제 
 실습은 과제를 미리 풀어 주지 않으려고 다른 문제로 같은 원리를 연습한다: 수강신청 사이트에 넷퍼넬 같은 대기열 SDK 를 붙인다. 과제(채팅)의 설계나 코드를 대신 짜 주지 않는다.
 위 Session 8 자료(PRD 메이커, OpenAI, Supabase specs)는 이 화면 질문의 정답으로 쓰지 않는다.
 
-실습 저장소 next-sugang-lab (Node 20+, 빌드 없음, vanilla JS). main 이 스타터: 화면과 디자인은 완성, 동작은 TODO [L1]~[L7]. npm run dev 하나로 두 서버:
+실습 저장소 next-sugang-lab (Node 22+, 빌드 없음, vanilla JS). main 이 스타터: 화면과 디자인은 완성, 동작은 TODO [L1]~[L7]. npm run dev 하나로 두 서버:
 - :3000 학교(고객사) 수강신청 사이트. site/(화면, app.js 에 전역 window.QUEUE = { enabled: true }), server/school.js(수강신청 API, 세션 쿠키 sid HttpOnly, 정원, ws://localhost:3000/live), server/ai.js(AI 시간표 에이전트 루프, 회사와 무관), server/providers.js(Claude, OpenAI, Gemini 호출을 감싼 파일, 학생은 읽기만 한다). head 의 스니펫이 NextQueue 대기열 함수(q 에 arguments 를 쌓음)를 만들고 http://localhost:4000/sdk/queue.js 를 async 로 부른 뒤 NextQueue('init', { key: 'sugang-demo' }). 신청 버튼은 NextQueue('enter') 로 줄을 선다. 학교 서버 시계는 일부러 2.3초 어긋나 있다(SCHOOL_CLOCK_SKEW_MS).
 - :4000 우리 NEXT Queue. sdk/queue.js(학교 DOM 에서 실행, 대기 화면 iframe 과 편지 중계), widget/(iframe 안 대기 화면, WebSocket 으로 줄 섬), console/(운영 콘솔: 입장 속도, 가상 대기자, 수강신청 시작 시각), server/queue.js(줄, 입장, 순번), server/token.js(통과 토큰 서명·검증), server/sim.js(가상 학생). /widget/ 응답에 Content-Security-Policy: frame-ancestors http://localhost:3000. /ws 는 Origin 이 http://localhost:4000 이 아니면 연결을 끊는다(socket.destroy).
 - 규칙 파일: AGENTS.md(CLAUDE.md 가 불러옴), DESIGN.md, docs/PROTOCOL.md(메시지 계약서), docs/MISSIONS.md(레벨별 할 일과 확인). 문서와 화면 문장은 합니다체.
